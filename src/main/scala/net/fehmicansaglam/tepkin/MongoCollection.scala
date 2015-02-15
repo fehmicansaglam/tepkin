@@ -14,7 +14,7 @@ class MongoCollection(databaseName: String,
                       pool: ActorRef) {
 
   def count(query: Option[BsonDocument] = None)
-           (implicit ec: ExecutionContext, timeout: Timeout): Future[Long] = {
-    (pool ? Count(databaseName, collectionName, query)).mapTo[Reply].map(_.documents(0).getAs[Double]("n").get.toLong)
+           (implicit ec: ExecutionContext, timeout: Timeout): Future[Reply] = {
+    (pool ? Count(databaseName, collectionName, query)).mapTo[Reply]
   }
 }

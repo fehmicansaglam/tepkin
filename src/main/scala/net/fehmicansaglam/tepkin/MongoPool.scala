@@ -2,36 +2,104 @@ package net.fehmicansaglam.tepkin
 
 import java.net.InetSocketAddress
 
-import akka.actor.{Actor, ActorRef, Props, Stash}
+import akka.actor._
 import akka.io.{IO, Tcp}
-import net.fehmicansaglam.tepkin.protocol.message.Message
+import net.fehmicansaglam.tepkin.TepkinMessages.{Idle, InitPool, ShutDown}
+import net.fehmicansaglam.tepkin.protocol.command.Command
 
+import scala.collection.mutable
 
-class MongoPool(host: String, port: Int) extends Actor with Stash {
+class MongoPool(host: String, port: Int, poolSize: Int)
+  extends Actor {
 
   import context.system
 
   val manager = IO(Tcp)
   val remote = new InetSocketAddress(host, port)
-  var idles = Seq.empty[ActorRef]
+  var idleConnections = Set.empty[ActorRef]
+  val stash = mutable.Queue.empty[(ActorRef, Command)]
 
-  (1 to 20) foreach { i =>
-    context.actorOf(Props(classOf[MongoConnection], manager, remote), s"connection-$i")
+  self ! InitPool
+
+  def receive = initing
+
+  def initing: Receive = {
+
+    // Create initial pool of connections.
+    case InitPool =>
+      (0 until poolSize) foreach { i =>
+        context.watch {
+          context.actorOf(MongoConnection.props(manager, remote).withMailbox("tepkin-mailbox"), s"connection-$host-$port-$i")
+        }
+      }
+
+    // First connection has been established.
+    case Idle =>
+      idleConnections += sender()
+      context.become(working)
+      if (stash.nonEmpty) {
+        val item = stash.dequeue()
+        self.tell(item._2, item._1)
+      }
+
+    case command: Command => stash.enqueue((sender(), command))
   }
 
-  def receive = {
-    case "Idle" =>
-      idles :+= sender()
-//      println(s"idles: $idles")
-      unstashAll()
+  def working: Receive = {
 
-    case m: Message =>
-      if (idles.isEmpty) {
-//        context.actorOf(Props(classOf[MongoConnection], manager, remote))
-        stash()
-      } else {
-        idles.head.forward(m)
-        idles = idles.tail
+    // Sender has finished its task and is idle.
+    case Idle =>
+      idleConnections += sender()
+
+      (1 to Math.min(idleConnections.size, stash.size)) foreach { _ =>
+        val item = stash.dequeue()
+        idleConnections.head.tell(item._2, item._1)
+        idleConnections = idleConnections.tail
       }
+
+    case command: Command =>
+      if (idleConnections.isEmpty) {
+        stash.enqueue((sender(), command))
+      } else {
+        idleConnections.head.forward(command)
+        idleConnections = idleConnections.tail
+      }
+
+    case ShutDown => {
+      context.become(shuttingDown)
+    }
+  }
+
+  def shuttingDown: Receive = {
+    // Sender has finished its task and is idle.
+    case Idle =>
+      idleConnections += sender()
+
+      (1 to Math.min(idleConnections.size, stash.size)) foreach { _ =>
+        val item = stash.dequeue()
+        idleConnections.head.tell(item._2, item._1)
+        idleConnections = idleConnections.tail
+      }
+
+      if (stash.isEmpty) {
+        idleConnections foreach (_ ! PoisonPill)
+      }
+
+    case Terminated(connection) => {
+      idleConnections -= connection
+      if (idleConnections.isEmpty) {
+        context stop self
+      }
+    }
+  }
+
+  override def postStop(): Unit = {
+    context.system.shutdown()
+  }
+}
+
+object MongoPool {
+  def props(host: String, port: Int, poolSize: Int = 23): Props = {
+    Props(classOf[MongoPool], host, port, poolSize)
   }
 }
