@@ -65,9 +65,11 @@ class MongoPool(host: String, port: Int, poolSize: Int)
         idleConnections = idleConnections.tail
       }
 
-    case ShutDown => {
+    case ShutDown =>
       context.become(shuttingDown)
-    }
+      if (stash.isEmpty) {
+        idleConnections foreach (_ ! ShutDown)
+      }
   }
 
   def shuttingDown: Receive = {
@@ -82,7 +84,7 @@ class MongoPool(host: String, port: Int, poolSize: Int)
       }
 
       if (stash.isEmpty) {
-        idleConnections foreach (_ ! PoisonPill)
+        idleConnections foreach (_ ! ShutDown)
       }
 
     case Terminated(connection) => {

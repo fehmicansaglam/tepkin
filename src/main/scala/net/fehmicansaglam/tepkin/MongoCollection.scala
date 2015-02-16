@@ -4,8 +4,9 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
-import net.fehmicansaglam.tepkin.protocol.command.Count
+import net.fehmicansaglam.tepkin.protocol.command.{Count, Insert}
 import net.fehmicansaglam.tepkin.protocol.message.Reply
+import net.fehmicansaglam.tepkin.protocol.result.{CountResult, InsertResult}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -13,8 +14,29 @@ class MongoCollection(databaseName: String,
                       collectionName: String,
                       pool: ActorRef) {
 
-  def count(query: Option[BsonDocument] = None)
-           (implicit ec: ExecutionContext, timeout: Timeout): Future[Reply] = {
-    (pool ? Count(databaseName, collectionName, query)).mapTo[Reply]
+  def count(query: Option[BsonDocument] = None,
+            limit: Option[Int] = None,
+            skip: Option[Int] = None)
+           (implicit ec: ExecutionContext, timeout: Timeout): Future[CountResult] = {
+
+    (pool ? Count(databaseName, collectionName, query, limit, skip)).mapTo[Reply].map { reply =>
+      val document = reply.documents(0)
+      CountResult(
+        document.getAs("missing"),
+        document.getAs[Double]("n").get.toLong,
+        document.getAs[Double]("ok").get == 1.0
+      )
+    }
+  }
+
+  def insert(documents: Seq[BsonDocument], ordered: Boolean = true, writeConcern: Option[BsonDocument] = None)
+            (implicit ec: ExecutionContext, timeout: Timeout): Future[InsertResult] = {
+    (pool ? Insert(databaseName, collectionName, documents, ordered, writeConcern)).mapTo[Reply].map { reply =>
+      val document = reply.documents(0)
+      InsertResult(
+        document.getAs[Int]("n").get,
+        document.getAs[Int]("ok").get == 1
+      )
+    }
   }
 }

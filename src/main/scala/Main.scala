@@ -16,9 +16,9 @@ object Main {
     val index = new AtomicInteger(1)
 
     val start = System.currentTimeMillis()
-    1 to 10000 foreach { i =>
-      mongoClient("colossus", "redis").count().foreach { doc =>
-        println(s"${index.getAndIncrement}. $doc")
+    1 to 1000 foreach { i =>
+      mongoClient("colossus", "abuzer").count().foreach { result =>
+        println(s"${index.getAndIncrement}. ${result.n}")
         println(System.currentTimeMillis() - start)
       }
     }
