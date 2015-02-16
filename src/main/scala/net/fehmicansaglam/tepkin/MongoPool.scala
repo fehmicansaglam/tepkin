@@ -71,7 +71,7 @@ class MongoPool(host: String, port: Int, poolSize: Int)
   }
 
   def shuttingDown: Receive = {
-    // Sender has finished its task and is idle.
+
     case Idle =>
       idleConnections += sender()
 

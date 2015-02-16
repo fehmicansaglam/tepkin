@@ -10,4 +10,10 @@ object TepkinMessages {
 
   case object ShutDown extends TepkinMessage
 
+  case object ConnectFailed extends TepkinMessage
+
+  case object WriteFailed extends TepkinMessage
+
+  case object ConnectionClosed extends TepkinMessage
+
 }
