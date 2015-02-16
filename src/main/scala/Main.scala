@@ -2,6 +2,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.MongoClient
+import net.fehmicansaglam.tepkin.bson.BsonDsl._
+import net.fehmicansaglam.tepkin.bson.Implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -22,6 +24,23 @@ object Main {
         println(System.currentTimeMillis() - start)
       }
     }
+
+    val result = for {
+      count1 <- mongoClient("colossus", "redis").count()
+      delete <- mongoClient("colossus", "redis").delete(Seq({
+        ("q" := ("name" := "fehmi can") ~ ("surname" := "saglam")) ~
+          ("limit" := 0)
+      }))
+      count2 <- mongoClient("colossus", "redis").count()
+    } yield (count1, count2, delete)
+
+    result.map {
+      case (count1, count2, delete) =>
+        println(delete)
+        println(s"before: ${count1.n} after: ${count2.n}")
+    }
+
+    Thread.sleep(1000)
 
     mongoClient.shutdown()
   }

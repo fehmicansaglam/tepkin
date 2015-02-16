@@ -35,4 +35,6 @@ trait BsonElement extends Writable {
     case None => BsonDocument(this)
   }
 
+  def toDoc: BsonDocument = BsonDocument(this)
+
 }

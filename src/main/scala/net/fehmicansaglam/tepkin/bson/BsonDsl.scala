@@ -19,6 +19,8 @@ object BsonDsl {
       case value: BsonValueLong => BsonLong(name, value)
     }
 
+    def :=(value: BsonElement): BsonElement = (name := value.toDoc)
+
     def :=[A](value: Option[A])(implicit ev: A => BsonValue): Option[BsonElement] = value map (name := _)
   }
 

@@ -4,9 +4,9 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
-import net.fehmicansaglam.tepkin.protocol.command.{Count, Insert}
+import net.fehmicansaglam.tepkin.protocol.command.{Count, Delete, Insert}
 import net.fehmicansaglam.tepkin.protocol.message.Reply
-import net.fehmicansaglam.tepkin.protocol.result.{CountResult, InsertResult}
+import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult, InsertResult}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -25,6 +25,19 @@ class MongoCollection(databaseName: String,
         document.getAs("missing"),
         document.getAs[Double]("n").get.toLong,
         document.getAs[Double]("ok").get == 1.0
+      )
+    }
+  }
+
+  def delete(deletes: Seq[BsonDocument], ordered: Boolean = true, writeConcern: Option[BsonDocument] = None)
+            (implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
+    (pool ? Delete(databaseName, collectionName, deletes, ordered, writeConcern)).mapTo[Reply].map { reply =>
+      val document = reply.documents(0)
+      DeleteResult(
+        document.getAs[Int]("n"),
+        document.getAs[Int]("code"),
+        document.getAs[String]("errmsg"),
+        document.getAs[Int]("ok").get == 1
       )
     }
   }
