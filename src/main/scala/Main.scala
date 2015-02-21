@@ -15,7 +15,7 @@ object Main {
   def main(args: Array[String]): Unit = {
 
     val mongoClient = MongoClient("localhost", 27017)
-    implicit val mat = ActorFlowMaterializer()(mongoClient.system)
+    implicit val mat = ActorFlowMaterializer()(mongoClient.context)
 
     implicit val timeout: Timeout = 50.seconds
 
@@ -50,6 +50,8 @@ object Main {
     resultCount.foreach(count => println(s"-----$count"))
 
     Thread.sleep(1000)
+
+    mongoClient("colossus", "abuzer").findOne(BsonDocument()).foreach(println)
 
     mongoClient.shutdown()
   }

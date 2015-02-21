@@ -1,13 +1,13 @@
 package net.fehmicansaglam.tepkin
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRefFactory, ActorSystem}
 import net.fehmicansaglam.tepkin.TepkinMessages.ShutDown
 
-class MongoClient(val system: ActorSystem, host: String, port: Int) {
-  val pool = system.actorOf(MongoPool.props(host, port).withMailbox("tepkin-mailbox"))
+class MongoClient(val context: ActorRefFactory, host: String, port: Int) {
+  val pool = context.actorOf(MongoPool.props(host, port).withMailbox("tepkin-mailbox"))
 
   def apply(databaseName: String, collectionName: String): MongoCollection = {
-    new MongoCollection(databaseName, collectionName, system, pool)
+    new MongoCollection(databaseName, collectionName, pool)
   }
 
   def shutdown(): Unit = {
@@ -16,7 +16,7 @@ class MongoClient(val system: ActorSystem, host: String, port: Int) {
 }
 
 object MongoClient {
-  def apply(host: String, port: Int)(implicit system: ActorSystem = ActorSystem("tepkinSystem")): MongoClient = {
-    new MongoClient(system, host, port)
+  def apply(host: String, port: Int, context: ActorRefFactory = ActorSystem("tepkin-system")): MongoClient = {
+    new MongoClient(context, host, port)
   }
 }

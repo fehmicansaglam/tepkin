@@ -1,8 +1,7 @@
 package net.fehmicansaglam.tepkin
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorRef
 import akka.pattern.ask
-import akka.stream.ActorFlowMaterializer
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
@@ -14,10 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class MongoCollection(databaseName: String,
                       collectionName: String,
-                      system: ActorSystem,
                       pool: ActorRef) {
-
-  implicit val mat = ActorFlowMaterializer()(context = system)
 
   def count(query: Option[BsonDocument] = None,
             limit: Option[Int] = None,
@@ -56,6 +52,12 @@ class MongoCollection(databaseName: String,
           Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID))
       }
     }
+  }
+
+  def findOne(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {
+    (pool ? QueryMessage(s"$databaseName.$collectionName", query, numberToReturn = 1))
+      .mapTo[Reply]
+      .map(_.documents.headOption)
   }
 
   def insert(documents: Seq[BsonDocument], ordered: Boolean = true, writeConcern: Option[BsonDocument] = None)
