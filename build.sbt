@@ -26,6 +26,7 @@ scalacOptions := Seq(
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.3.9",
+  "com.typesafe.akka" % "akka-stream-experimental_2.11" % "1.0-M3",
   "joda-time" % "joda-time" % "2.7",
   "org.joda" % "joda-convert" % "1.7"
 )

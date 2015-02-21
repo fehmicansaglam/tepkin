@@ -27,7 +27,7 @@ case class Reply(responseTo: Int,
                  cursorID: Long,
                  startingFrom: Int,
                  numberReturned: Int,
-                 documents: Seq[BsonDocument]) extends Message {
+                 documents: List[BsonDocument]) extends Message {
 
   val flags = 0
 
@@ -65,6 +65,6 @@ object Reply {
       reader.read.map(document => documents += document)
     }
 
-    Some(Reply(responseTo, cursorID, startingFrom, numberReturned, documents.toSeq))
+    Some(Reply(responseTo, cursorID, startingFrom, numberReturned, documents.toList))
   }
 }

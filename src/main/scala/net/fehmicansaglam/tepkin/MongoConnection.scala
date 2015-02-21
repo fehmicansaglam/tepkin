@@ -1,15 +1,18 @@
 package net.fehmicansaglam.tepkin
 
 import java.net.InetSocketAddress
+import java.nio.ByteOrder
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
+import akka.util.ByteString
 import net.fehmicansaglam.tepkin.TepkinMessages._
 import net.fehmicansaglam.tepkin.protocol.message.{Message, Reply}
 
 class MongoConnection(manager: ActorRef, remote: InetSocketAddress) extends Actor {
 
   var requests = Map.empty[Int, ActorRef]
+  var storage: ByteString = ByteString.empty
 
   manager ! Connect(remote)
 
@@ -35,12 +38,22 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress) extends Acto
       context.parent ! WriteFailed
 
     case Received(data) =>
-      Reply.decode(data.asByteBuffer) foreach { reply =>
-        requests.get(reply.responseTo) foreach { request =>
-          request ! reply
+      val buffer = data.asByteBuffer
+      buffer.order(ByteOrder.LITTLE_ENDIAN)
+      val expectedSize = buffer.getInt
+      buffer.rewind()
+
+      if (expectedSize > buffer.remaining()) {
+        storage = data
+        context become buffering(connection, expectedSize)
+      } else {
+        Reply.decode(data.asByteBuffer) foreach { reply =>
+          requests.get(reply.responseTo) foreach { request =>
+            request ! reply
+          }
         }
+        context.parent ! Idle
       }
-      context.parent ! Idle
 
     case ShutDown =>
       connection ! Close
@@ -48,6 +61,15 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress) extends Acto
     case _: ConnectionClosed =>
       context.parent ! ConnectionClosed
       context stop self
+  }
+
+  def buffering(connection: ActorRef, expectedSize: Int): Receive = {
+    case r@Received(data) =>
+      storage ++= data
+      if (expectedSize == storage.size) {
+        context become working(connection)
+        self ! Received(storage)
+      }
   }
 }
 

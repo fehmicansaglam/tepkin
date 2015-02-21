@@ -5,7 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor._
 import akka.io.{IO, Tcp}
 import net.fehmicansaglam.tepkin.TepkinMessages.{Idle, InitPool, ShutDown}
-import net.fehmicansaglam.tepkin.protocol.command.Command
+import net.fehmicansaglam.tepkin.protocol.message.Message
 
 import scala.collection.mutable
 
@@ -17,7 +17,7 @@ class MongoPool(host: String, port: Int, poolSize: Int)
   val manager = IO(Tcp)
   val remote = new InetSocketAddress(host, port)
   var idleConnections = Set.empty[ActorRef]
-  val stash = mutable.Queue.empty[(ActorRef, Command)]
+  val stash = mutable.Queue.empty[(ActorRef, Message)]
 
   self ! InitPool
 
@@ -29,7 +29,7 @@ class MongoPool(host: String, port: Int, poolSize: Int)
     case InitPool =>
       (0 until poolSize) foreach { i =>
         context.watch {
-          context.actorOf(MongoConnection.props(manager, remote).withMailbox("tepkin-mailbox"), s"connection-$host-$port-$i")
+          context.actorOf(MongoConnection.props(manager, remote), s"connection-$host-$port-$i")
         }
       }
 
@@ -42,7 +42,7 @@ class MongoPool(host: String, port: Int, poolSize: Int)
         self.tell(item._2, item._1)
       }
 
-    case command: Command => stash.enqueue((sender(), command))
+    case message: Message => stash.enqueue((sender(), message))
   }
 
   def working: Receive = {
@@ -57,11 +57,11 @@ class MongoPool(host: String, port: Int, poolSize: Int)
         idleConnections = idleConnections.tail
       }
 
-    case command: Command =>
+    case message: Message =>
       if (idleConnections.isEmpty) {
-        stash.enqueue((sender(), command))
+        stash.enqueue((sender(), message))
       } else {
-        idleConnections.head.forward(command)
+        idleConnections.head.forward(message)
         idleConnections = idleConnections.tail
       }
 

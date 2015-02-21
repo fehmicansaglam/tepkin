@@ -1,18 +1,23 @@
 package net.fehmicansaglam.tepkin
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.ask
+import akka.stream.ActorFlowMaterializer
+import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
 import net.fehmicansaglam.tepkin.protocol.command.{Count, Delete, Insert}
-import net.fehmicansaglam.tepkin.protocol.message.Reply
+import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
 import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult, InsertResult}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class MongoCollection(databaseName: String,
                       collectionName: String,
+                      system: ActorSystem,
                       pool: ActorRef) {
+
+  implicit val mat = ActorFlowMaterializer()(context = system)
 
   def count(query: Option[BsonDocument] = None,
             limit: Option[Int] = None,
@@ -22,7 +27,7 @@ class MongoCollection(databaseName: String,
     (pool ? Count(databaseName, collectionName, query, limit, skip)).mapTo[Reply].map { reply =>
       val document = reply.documents(0)
       CountResult(
-        document.getAs("missing"),
+        document.getAs[Boolean]("missing"),
         document.getAs[Double]("n").get.toLong,
         document.getAs[Double]("ok").get == 1.0
       )
@@ -39,6 +44,17 @@ class MongoCollection(databaseName: String,
         document.getAs[String]("errmsg"),
         document.getAs[Int]("ok").get == 1
       )
+    }
+  }
+
+  def find(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument]]] = {
+    (pool ? QueryMessage(s"$databaseName.$collectionName", query)).mapTo[Reply].map { reply =>
+      if (reply.cursorID == 0) {
+        Source.single(reply.documents)
+      } else {
+        Source.single(reply.documents) ++
+          Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID))
+      }
     }
   }
 

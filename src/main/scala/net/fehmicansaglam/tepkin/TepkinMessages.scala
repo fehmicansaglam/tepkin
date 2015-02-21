@@ -16,4 +16,6 @@ object TepkinMessages {
 
   case object ConnectionClosed extends TepkinMessage
 
+  case object Fetch extends TepkinMessage
+
 }
