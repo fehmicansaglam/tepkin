@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionStage
 
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
+import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult}
 import net.fehmicansaglam.tepkin.{MongoCollection => ScalaCollection}
 
@@ -45,6 +46,11 @@ class MongoCollection(proxy: ScalaCollection) {
              ec: ExecutionContext,
              timeout: Timeout): CompletionStage[DeleteResult] = toJava {
     proxy.delete(deletes = deletes)(ec, timeout)
+  }
+
+  def drop(ec: ExecutionContext,
+           timeout: Timeout): CompletionStage[Reply] = toJava {
+    proxy.drop()(ec, timeout)
   }
 
   def findOne(ec: ExecutionContext, timeout: Timeout): CompletionStage[Optional[BsonDocument]] = {

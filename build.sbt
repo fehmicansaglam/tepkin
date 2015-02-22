@@ -29,5 +29,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" % "akka-stream-experimental_2.11" % "1.0-M3",
   "org.scala-lang.modules" %% "scala-java8-compat" % "0.3.0",
   "joda-time" % "joda-time" % "2.7",
-  "org.joda" % "joda-convert" % "1.7"
+  "org.joda" % "joda-convert" % "1.7",
+  "com.novocode" % "junit-interface" % "0.11" % "test",
+  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
 )
+
+testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")

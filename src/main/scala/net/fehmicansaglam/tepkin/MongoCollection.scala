@@ -7,7 +7,7 @@ import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
 import net.fehmicansaglam.tepkin.bson.BsonDsl._
 import net.fehmicansaglam.tepkin.bson.Implicits._
-import net.fehmicansaglam.tepkin.protocol.command.{Count, Delete, Insert}
+import net.fehmicansaglam.tepkin.protocol.command.{Count, Delete, Drop, Insert}
 import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
 import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult, InsertResult}
 
@@ -43,6 +43,10 @@ class MongoCollection(databaseName: String,
         document.getAs[Int]("ok").get == 1
       )
     }
+  }
+
+  def drop()(implicit ec: ExecutionContext, timeout: Timeout): Future[Reply] = {
+    (pool ? Drop(databaseName, collectionName)).mapTo[Reply]
   }
 
   def find(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument]]] = {
