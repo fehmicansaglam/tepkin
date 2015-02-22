@@ -10,12 +10,19 @@ class MongoClient(val context: ActorRefFactory, host: String, port: Int) {
     new MongoCollection(databaseName, collectionName, pool)
   }
 
+  def collection(databaseName: String, collectionName: String): api.MongoCollection = {
+    new api.MongoCollection(apply(databaseName, collectionName))
+  }
+
   def shutdown(): Unit = {
     pool ! ShutDown
   }
 }
 
 object MongoClient {
+
+  def create(host: String, port: Int): MongoClient = apply(host, port)
+
   def apply(host: String, port: Int, context: ActorRefFactory = ActorSystem("tepkin-system")): MongoClient = {
     new MongoClient(context, host, port)
   }

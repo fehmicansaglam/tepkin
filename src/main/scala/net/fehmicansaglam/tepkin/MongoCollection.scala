@@ -5,6 +5,8 @@ import akka.pattern.ask
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
+import net.fehmicansaglam.tepkin.bson.BsonDsl._
+import net.fehmicansaglam.tepkin.bson.Implicits._
 import net.fehmicansaglam.tepkin.protocol.command.{Count, Delete, Insert}
 import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
 import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult, InsertResult}
@@ -32,7 +34,7 @@ class MongoCollection(databaseName: String,
 
   def delete(deletes: Seq[BsonDocument], ordered: Boolean = true, writeConcern: Option[BsonDocument] = None)
             (implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
-    (pool ? Delete(databaseName, collectionName, deletes, ordered, writeConcern)).mapTo[Reply].map { reply =>
+    (pool ? Delete(databaseName, collectionName, deletes.map(doc => ("q" := doc) ~ ("limit" := 1)), ordered, writeConcern)).mapTo[Reply].map { reply =>
       val document = reply.documents(0)
       DeleteResult(
         document.getAs[Int]("n"),

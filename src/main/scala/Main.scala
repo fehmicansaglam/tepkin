@@ -43,7 +43,7 @@ object Main {
     }
 
     val resultCount = for {
-      source <- mongoClient("colossus", "abuzer").find(BsonDocument())
+      source <- mongoClient("colossus", "abuzer").find(BsonDocument.empty)
       count <- source.runFold(0)((accu, documents) => accu + documents.size)
     } yield count
 
@@ -51,7 +51,7 @@ object Main {
 
     Thread.sleep(1000)
 
-    mongoClient("colossus", "abuzer").findOne(BsonDocument()).foreach(println)
+    mongoClient("colossus", "abuzer").findOne(BsonDocument.empty).foreach(println)
 
     mongoClient.shutdown()
   }

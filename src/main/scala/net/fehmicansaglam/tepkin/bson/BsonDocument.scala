@@ -43,5 +43,7 @@ object BsonDocument {
   import net.fehmicansaglam.tepkin.bson.element.BsonElement
 
   def apply(elements: TraversableOnce[BsonElement]): BsonDocument = BsonDocument(elements.toSeq: _*)
+
+  def empty: BsonDocument = BsonDocument()
 }
 
