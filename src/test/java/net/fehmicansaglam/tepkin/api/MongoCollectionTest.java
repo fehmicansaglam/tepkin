@@ -9,6 +9,7 @@ import org.junit.*;
 import scala.concurrent.duration.Duration;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -33,34 +34,49 @@ public class MongoCollectionTest {
     }
 
     @Before
-    public void setUp() {
-        collection.drop(mongoClient.context().dispatcher(), new Timeout(Duration.create(5, TimeUnit.SECONDS)));
+    public void setUp() throws Exception {
+        collection.drop(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS))).get();
     }
 
     @After
-    public void tearDown() {
-        collection.drop(mongoClient.context().dispatcher(), new Timeout(Duration.create(5, TimeUnit.SECONDS)));
+    public void tearDown() throws Exception {
+        collection.drop(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS))).get();
     }
 
     @Test
     public void countCollection() throws Exception {
         final CompletableFuture<CountResult> cf = collection
-                .count(mongoClient.context().dispatcher(), new Timeout(Duration.create(5, TimeUnit.SECONDS)));
+                .count(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS)));
         final CountResult actual = cf.get(5, TimeUnit.SECONDS);
         assertTrue(actual.ok());
         assertEquals(0L, actual.n());
     }
 
     @Test
-    public void insert1Document() throws Exception {
+    public void insertOneDocument() throws Exception {
         final BsonDocumentBuilder builder = new BsonDocumentBuilder();
         builder.addString("name", "fehmi");
         final BsonDocument document = builder.build();
 
         final CompletableFuture<InsertResult> cf = collection
-                .insert(document, mongoClient.context().dispatcher(), new Timeout(Duration.create(5, TimeUnit.SECONDS)));
+                .insert(document, mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS)));
         final InsertResult actual = cf.get(5, TimeUnit.SECONDS);
         assertTrue(actual.ok());
         assertEquals(1, actual.n());
+    }
+
+    @Test
+    public void insertOneDocumentAndFindOne() throws Exception {
+        final BsonDocumentBuilder builder = new BsonDocumentBuilder();
+        builder.addString("name", "fehmi");
+        final BsonDocument document = builder.build();
+
+        final CompletableFuture<Optional<BsonDocument>> cf = collection
+                .insert(document, mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS)))
+                .thenCompose(insert ->
+                        collection.findOne(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS))));
+        final Optional<BsonDocument> actual = cf.get(5, TimeUnit.SECONDS);
+        assertTrue(actual.isPresent());
+        assertEquals("fehmi", actual.get().<String>getAs("name").get());
     }
 }

@@ -3,8 +3,12 @@ package net.fehmicansaglam.tepkin
 import akka.actor.{ActorRefFactory, ActorSystem}
 import net.fehmicansaglam.tepkin.TepkinMessages.ShutDown
 
+import scala.concurrent.ExecutionContext
+
 class MongoClient(val context: ActorRefFactory, host: String, port: Int) {
   val pool = context.actorOf(MongoPool.props(host, port).withMailbox("tepkin-mailbox"))
+
+  def ec: ExecutionContext = context.dispatcher
 
   def apply(databaseName: String, collectionName: String): MongoCollection = {
     new MongoCollection(databaseName, collectionName, pool)
