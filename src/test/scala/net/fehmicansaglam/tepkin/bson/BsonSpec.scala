@@ -12,14 +12,14 @@ class BsonSpec extends WordSpec with Matchers {
   "Bson" must {
 
     "encode and decode BsonDocument" in {
-      val expected = document(
+      val expected = $document(
         "_id" := BsonObjectId.generate,
         "name" := "jack",
         "age" := 18,
-        "months" := array(1, 2, 3),
-        "details" := document(
+        "months" := $array(1, 2, 3),
+        "details" := $document(
           "salary" := 455.5,
-          "inventory" := array("a", 3.5, 1L, true),
+          "inventory" := $array("a", 3.5, 1L, true),
           "birthday" := new DateTime(1987, 3, 5, 0, 0)
         )
       )

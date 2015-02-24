@@ -7,7 +7,7 @@ import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
 import net.fehmicansaglam.tepkin.bson.BsonDsl._
 import net.fehmicansaglam.tepkin.bson.Implicits._
-import net.fehmicansaglam.tepkin.protocol.command.{Count, Delete, Drop, Insert}
+import net.fehmicansaglam.tepkin.protocol.command._
 import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
 import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult, InsertResult}
 
@@ -58,6 +58,18 @@ class MongoCollection(databaseName: String,
           Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID))
       }
     }
+  }
+
+  def findAndModify(query: Option[BsonDocument] = None,
+                    sort: Option[BsonDocument] = None,
+                    removeOrUpdate: Either[Boolean, BsonDocument],
+                    returnNew: Boolean = false,
+                    fields: Option[Seq[String]] = None,
+                    upsert: Boolean = false)
+                   (implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {
+    (pool ? FindAndModify(databaseName, collectionName, query, sort, removeOrUpdate, returnNew, fields, upsert))
+      .mapTo[Reply]
+      .map(_.documents.headOption.flatMap(_.getAs("value")))
   }
 
   def findOne(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {

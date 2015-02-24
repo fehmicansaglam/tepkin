@@ -43,7 +43,7 @@ case class QueryMessage(fullCollectionName: String,
       .append(query.encode())
 
     if (fields.nonEmpty) {
-      builder.append(document(fields.map(_ := 1): _*).encode())
+      builder.append($document(fields.map(_ := 1): _*).encode())
     }
 
     builder.result()

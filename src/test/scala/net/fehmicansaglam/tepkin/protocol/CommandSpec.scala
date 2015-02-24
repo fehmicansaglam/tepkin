@@ -3,6 +3,7 @@ package net.fehmicansaglam.tepkin.protocol
 import java.nio.ByteOrder
 
 import akka.util.ByteString
+import net.fehmicansaglam.tepkin.bson.BsonDocument
 import net.fehmicansaglam.tepkin.bson.BsonDsl._
 import net.fehmicansaglam.tepkin.bson.Implicits._
 import net.fehmicansaglam.tepkin.protocol.command._
@@ -15,7 +16,7 @@ class CommandSpec extends FlatSpec with Matchers {
   val collectionName = "command_spec"
 
   "Command" should "construct correct Count" in {
-    val query = document("age" := 18)
+    val query = "age" := 18
 
     val actual = Count(databaseName, collectionName, Some(query))
 
@@ -42,7 +43,7 @@ class CommandSpec extends FlatSpec with Matchers {
   }
 
   it should "construct correct Delete" in {
-    val deletes = Seq(document("age" := 18))
+    val deletes: Seq[BsonDocument] = Seq("age" := 18)
 
     val actual = Delete(databaseName, collectionName, deletes)
 
@@ -53,7 +54,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append((("delete" := collectionName) ~ ("deletes" := array(deletes: _*)) ~ ("ordered" := true)).encode())
+        .append((("delete" := collectionName) ~ ("deletes" := $array(deletes: _*)) ~ ("ordered" := true)).encode())
         .result()
 
       ByteString.newBuilder
@@ -69,7 +70,7 @@ class CommandSpec extends FlatSpec with Matchers {
   }
 
   it should "construct correct FindAndModify" in {
-    val query = Some(document("age" := 18))
+    val query: Option[BsonDocument] = Some("age" := 18)
 
     val actual = FindAndModify(databaseName, collectionName, query, removeOrUpdate = Left(true))
 
@@ -111,7 +112,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append(document("getLastError" := 1).encode())
+        .append($document("getLastError" := 1).encode())
         .result()
 
       ByteString.newBuilder
@@ -127,7 +128,7 @@ class CommandSpec extends FlatSpec with Matchers {
   }
 
   it should "construct correct Insert" in {
-    val documents = Seq(document("age" := 18))
+    val documents: Seq[BsonDocument] = Seq("age" := 18)
 
     val actual = Insert(databaseName, collectionName, documents)
 
@@ -138,7 +139,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append((("insert" := collectionName) ~ ("documents" := array(documents: _*)) ~ ("ordered" := true)).encode())
+        .append((("insert" := collectionName) ~ ("documents" := $array(documents: _*)) ~ ("ordered" := true)).encode())
         .result()
 
       ByteString.newBuilder

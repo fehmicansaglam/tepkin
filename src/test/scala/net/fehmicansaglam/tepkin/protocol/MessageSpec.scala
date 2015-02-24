@@ -3,6 +3,7 @@ package net.fehmicansaglam.tepkin.protocol
 import java.nio.ByteOrder
 
 import akka.util.ByteString
+import net.fehmicansaglam.tepkin.bson.BsonDocument
 import net.fehmicansaglam.tepkin.bson.BsonDsl._
 import net.fehmicansaglam.tepkin.bson.Implicits._
 import net.fehmicansaglam.tepkin.protocol.message._
@@ -14,7 +15,7 @@ class MessageSpec extends FlatSpec with Matchers {
   val fullCollectionName = "tepkin.message_spec"
 
   "Message" should "construct correct DeleteMessage" in {
-    val selector = document("age" := 18)
+    val selector: BsonDocument = "age" := 18
 
     val actual = DeleteMessage(fullCollectionName, selector)
 
@@ -67,16 +68,16 @@ class MessageSpec extends FlatSpec with Matchers {
   }
 
   it should "construct correct InsertMessage" in {
-    val doc = document("age" := 18)
+    val document: BsonDocument = "age" := 18
 
-    val actual = InsertMessage(fullCollectionName, Seq(doc))
+    val actual = InsertMessage(fullCollectionName, Seq(document))
 
     val expected = {
       val body = ByteString.newBuilder
         .putInt(0) // flags
         .putBytes(fullCollectionName.getBytes("utf-8"))
         .putByte(0)
-        .append(doc.encode())
+        .append(document.encode())
         .result()
 
       ByteString.newBuilder
@@ -118,7 +119,7 @@ class MessageSpec extends FlatSpec with Matchers {
   }
 
   it should "construct correct QueryMessage" in {
-    val query = document("age" := 18)
+    val query: BsonDocument = "age" := 18
     val fields = Seq("age")
     val numberToSkip = 0
     val numberToReturn = 0
@@ -135,7 +136,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .append(query.encode())
 
       if (fields.nonEmpty) {
-        builder.append(document(fields.map(_ := 1): _*).encode())
+        builder.append($document(fields.map(_ := 1): _*).encode())
       }
 
       val body = builder.result()
@@ -153,8 +154,8 @@ class MessageSpec extends FlatSpec with Matchers {
   }
 
   it should "construct correct UpdateMessage" in {
-    val selector = document("age" := 18)
-    val update = document("$set" := document("age" := 33))
+    val selector: BsonDocument = "age" := 18
+    val update: BsonDocument = $set("age" := 33)
 
     val actual = UpdateMessage(fullCollectionName, selector, update)
 

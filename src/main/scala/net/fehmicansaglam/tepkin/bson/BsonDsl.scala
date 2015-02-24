@@ -19,19 +19,19 @@ object BsonDsl {
       case value: BsonValueLong => BsonLong(name, value)
     }
 
-    def :=(value: BsonElement): BsonElement = (name := value.toDoc)
-
     def :=[A](value: Option[A])(implicit ev: A => BsonValue): Option[BsonElement] = value map (name := _)
   }
 
-  def document(elements: BsonElement*): BsonDocument = BsonDocument(elements.toList: _*)
+  implicit def elementToDocument(element: BsonElement): BsonDocument = BsonDocument(element)
 
-  def array(values: BsonValue*): BsonValueArray = BsonValueArray(BsonDocument(
+  def $document(elements: BsonElement*): BsonDocument = BsonDocument(elements: _*)
+
+  def $array(values: BsonValue*): BsonValueArray = BsonValueArray(BsonDocument(
     values.zipWithIndex.map {
       case (value, index) => s"$index" := value
     }.toList: _*))
 
-  def $or(documents: BsonDocument*): BsonElement = "$or" := array(documents: _*)
+  def $or(documents: BsonDocument*): BsonElement = "$or" := $array(documents: _*)
 
   def $set(document: BsonDocument): BsonElement = "$set" := document
 }

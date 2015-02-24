@@ -12,7 +12,7 @@ case class Insert(databaseName: String,
 
   override val command: BsonDocument = {
     ("insert" := collectionName) ~
-      ("documents" := array(documents: _*)) ~
+      ("documents" := $array(documents: _*)) ~
       ("ordered" := ordered) ~
       writeConcern.map("writeConcern" := _)
   }

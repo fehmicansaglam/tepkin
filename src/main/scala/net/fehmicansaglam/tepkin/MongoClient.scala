@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext
 class MongoClient(val context: ActorRefFactory, host: String, port: Int) {
   val pool = context.actorOf(MongoPool.props(host, port).withMailbox("tepkin-mailbox"))
 
-  def ec: ExecutionContext = context.dispatcher
+  implicit def ec: ExecutionContext = context.dispatcher
 
   def apply(databaseName: String, collectionName: String): MongoCollection = {
     new MongoCollection(databaseName, collectionName, pool)

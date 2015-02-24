@@ -6,7 +6,7 @@ import net.fehmicansaglam.tepkin.bson.Implicits._
 
 case class FindAndModify(databaseName: String,
                          collectionName: String,
-                         query: Option[BsonDocument],
+                         query: Option[BsonDocument] = None,
                          sort: Option[BsonDocument] = None,
                          removeOrUpdate: Either[Boolean, BsonDocument],
                          returnNew: Boolean = false,
@@ -22,7 +22,7 @@ case class FindAndModify(databaseName: String,
         case Right(update) => "update" := update
       }) ~
       ("new" := returnNew) ~
-      fields.map(fields => "fields" := document(fields.map(_ := 1): _*)) ~
+      fields.map(fields => "fields" := $document(fields.map(_ := 1): _*)) ~
       ("upsert" := upsert)
   }
 }
