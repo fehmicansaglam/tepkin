@@ -33,13 +33,13 @@ class MongoCollectionSpec
     Await.ready(collection.drop(), 5.seconds)
   }
 
-  "A MongoCollection" should "findAndModify" in {
+  "A MongoCollection" should "findAndUpdate" in {
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")
     val result = for {
       insert <- collection.insert(Seq(document))
-      newDocument <- collection.findAndModify(
+      newDocument <- collection.findAndUpdate(
         query = Some("name" := "fehmi"),
-        removeOrUpdate = Right($set("name" := "fehmi can")),
+        update = $set("name" := "fehmi can"),
         returnNew = true
       )
     } yield newDocument

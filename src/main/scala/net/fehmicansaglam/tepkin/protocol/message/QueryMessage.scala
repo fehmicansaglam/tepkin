@@ -16,7 +16,7 @@ import net.fehmicansaglam.tepkin.bson.Implicits._
  *     cstring   fullCollectionName;     // "dbname.collectionname"
  *     int32     numberToSkip;           // number of documents to skip
  *     int32     numberToReturn;         // number of documents to return in the first OP_REPLY batch
- *     document  query;                  // query object.  See below for details.
+ *     document  query;                  // query object.
  *   [ document  returnFieldsSelector; ] // Optional. Selector indicating the fields to return.
  * }
  * }}}

@@ -50,6 +50,7 @@ class MongoCollection(proxy: ScalaCollection) {
     proxy.delete(deletes = deletes)
   }
 
+  /** Drops this collection */
   def drop(implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[Reply] = toCompletableFuture {
     proxy.drop()
   }
@@ -64,7 +65,7 @@ class MongoCollection(proxy: ScalaCollection) {
   def findAndRemove(query: BsonDocument)
                    (implicit ec: ExecutionContext,
                     timeout: Timeout): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
-    proxy.findAndModify(query = Some(query), removeOrUpdate = Left(true)).map(toOptional)
+    proxy.findAndRemove(query = Some(query)).map(toOptional)
   }
 
   def findOne(implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[Optional[BsonDocument]] = {
