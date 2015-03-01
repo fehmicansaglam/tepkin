@@ -67,4 +67,24 @@ class MongoCollectionSpec
       count shouldBe 1000
     }
   }
+
+  it should "update" in {
+    val document = ("name" := "fehmi") ~ ("surname" := "saglam")
+    val result = for {
+      insert <- collection.insert(Seq(document))
+      update <- collection.update(
+        query = ("name" := "fehmi"),
+        update = $set("name" := "fehmi can")
+      )
+    } yield update
+
+    whenReady(result) { update =>
+      update.ok shouldBe true
+      update.n shouldBe 1
+      update.nModified shouldBe 1
+      update.upserted shouldBe 'empty
+      update.writeErrors shouldBe 'empty
+      update.writeConcernError shouldBe 'empty
+    }
+  }
 }

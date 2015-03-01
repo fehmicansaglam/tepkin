@@ -5,11 +5,9 @@ import akka.pattern.ask
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
-import net.fehmicansaglam.tepkin.bson.BsonDsl._
-import net.fehmicansaglam.tepkin.bson.Implicits._
 import net.fehmicansaglam.tepkin.protocol.command._
 import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
-import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult, InsertResult}
+import net.fehmicansaglam.tepkin.protocol.result._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,19 +33,6 @@ class MongoCollection(databaseName: String,
         document.getAs[Boolean]("missing"),
         document.getAs[Double]("n").get.toLong,
         document.getAs[Double]("ok").get == 1.0
-      )
-    }
-  }
-
-  def delete(deletes: Seq[BsonDocument], ordered: Boolean = true, writeConcern: Option[BsonDocument] = None)
-            (implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
-    (pool ? Delete(databaseName, collectionName, deletes.map(doc => ("q" := doc) ~ ("limit" := 1)), ordered, writeConcern)).mapTo[Reply].map { reply =>
-      val document = reply.documents(0)
-      DeleteResult(
-        document.getAs[Int]("n"),
-        document.getAs[Int]("code"),
-        document.getAs[String]("errmsg"),
-        document.getAs[Int]("ok").get == 1
       )
     }
   }
@@ -132,6 +117,72 @@ class MongoCollection(databaseName: String,
       InsertResult(
         document.getAs[Int]("n").get,
         document.getAs[Int]("ok").get == 1
+      )
+    }
+  }
+
+  /**
+   * Removes documents from a collection.
+   *
+   * @param query Specifies deletion criteria using query operators.
+   *              To delete all documents in a collection, pass an empty document ({}).
+   * @param justOne To limit the deletion to just one document, set to true.
+   *                Omit to use the default value of false and delete all documents matching the deletion criteria.
+   * @param writeConcern A document expressing the write concern. Omit to use the default write concern.
+   * @return A WriteResult object that contains the status of the operation.
+   */
+  def delete(query: BsonDocument, justOne: Option[Boolean] = None, writeConcern: Option[BsonDocument] = None)
+            (implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
+    (pool ? Delete(
+      databaseName,
+      collectionName,
+      deletes = Seq(DeleteElement(query, justOne.map {
+        case false => 0
+        case true => 1
+      })),
+      writeConcern = writeConcern)).mapTo[Reply].map { reply =>
+      val document = reply.documents(0)
+      DeleteResult(
+        document.getAs[Int]("n"),
+        document.getAs[Int]("code"),
+        document.getAs[String]("errmsg"),
+        document.getAs[Int]("ok").get == 1
+      )
+    }
+  }
+
+  /**
+   * Modifies an existing document or documents in a collection. The method can modify specific fields of an existing
+   * document or documents or replace an existing document entirely, depending on the update parameter.
+   *
+   * @param query The selection criteria for the update. Use the same query selectors as used in the find() method.
+   * @param update The modifications to apply.
+   * @param upsert If set to true, creates a new document when no document matches the query criteria.
+   *               The default value is false, which does not insert a new document when no match is found.
+   * @param multi  If set to true, updates multiple documents that meet the query criteria.
+   *               If set to false, updates one document.  The default value is false.
+   * @param writeConcern A document expressing the write concern.
+   */
+  def update(query: BsonDocument,
+             update: BsonDocument,
+             upsert: Option[Boolean] = None,
+             multi: Option[Boolean] = None,
+             writeConcern: Option[BsonDocument] = None)
+            (implicit ec: ExecutionContext, timeout: Timeout): Future[UpdateResult] = {
+    (pool ? Update(
+      databaseName,
+      collectionName,
+      updates = Seq(UpdateElement(q = query, u = update, upsert = upsert, multi = multi)),
+      writeConcern = writeConcern
+    )).mapTo[Reply].map { reply =>
+      val document = reply.documents(0)
+      UpdateResult(
+        ok = document.getAs[Int]("ok").get == 1,
+        n = document.getAs[Int]("n").get,
+        nModified = document.getAs[Int]("nModified").get,
+        upserted = document.getAsList[BsonDocument]("upserted"),
+        writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
+        writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       )
     }
   }

@@ -43,7 +43,7 @@ class CommandSpec extends FlatSpec with Matchers {
   }
 
   it should "construct correct Delete" in {
-    val deletes: Seq[BsonDocument] = Seq("age" := 18)
+    val deletes: Seq[DeleteElement] = Seq(DeleteElement(q = "age" := 18))
 
     val actual = Delete(databaseName, collectionName, deletes)
 
@@ -54,7 +54,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append((("delete" := collectionName) ~ ("deletes" := $array(deletes: _*)) ~ ("ordered" := true)).encode())
+        .append((("delete" := collectionName) ~ ("deletes" := $array(deletes.map(_.asBsonDocument): _*))).encode())
         .result()
 
       ByteString.newBuilder

@@ -29,7 +29,7 @@ object BsonDsl {
   def $array(values: BsonValue*): BsonValueArray = BsonValueArray(BsonDocument(
     values.zipWithIndex.map {
       case (value, index) => s"$index" := value
-    }.toList: _*))
+    }: _*))
 
   def $or(documents: BsonDocument*): BsonElement = "$or" := $array(documents: _*)
 

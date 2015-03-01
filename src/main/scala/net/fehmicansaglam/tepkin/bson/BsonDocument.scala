@@ -35,6 +35,12 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
     elements.find(_.name == key).map(_.value.asInstanceOf[Identifiable[T]].identifier)
   }
 
+  def getAsList[T](key: String): Option[List[T]] = {
+    getAs[BsonDocument](key).map { document =>
+      document.elements.map(_.value.asInstanceOf[Identifiable[T]].identifier).toList
+    }
+  }
+
   override def toString(): String = s"{ ${elements.mkString(", ")} }"
 }
 
