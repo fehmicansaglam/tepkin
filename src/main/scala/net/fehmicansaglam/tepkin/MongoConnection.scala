@@ -3,16 +3,18 @@ package net.fehmicansaglam.tepkin
 import java.net.InetSocketAddress
 import java.nio.ByteOrder
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.Tcp._
 import akka.util.ByteString
 import net.fehmicansaglam.tepkin.TepkinMessages._
 import net.fehmicansaglam.tepkin.protocol.message.{Message, Reply}
 
-class MongoConnection(manager: ActorRef, remote: InetSocketAddress) extends Actor {
+class MongoConnection(manager: ActorRef, remote: InetSocketAddress)
+  extends Actor
+  with ActorLogging {
 
   var requests = Map.empty[Int, ActorRef]
-  var storage: ByteString = ByteString.empty
+  var storage: ByteString = null
 
   manager ! Connect(remote)
 
@@ -49,9 +51,12 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress) extends Acto
       } else {
         Reply.decode(data.asByteBuffer) foreach { reply =>
           requests.get(reply.responseTo) foreach { request =>
+            log.debug("Received reply for request {}", reply.responseTo)
             request ! reply
+            requests -= reply.responseTo
           }
         }
+        storage = null
         context.parent ! Idle
       }
 

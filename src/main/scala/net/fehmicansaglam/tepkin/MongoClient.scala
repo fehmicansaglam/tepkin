@@ -6,7 +6,7 @@ import net.fehmicansaglam.tepkin.TepkinMessages.ShutDown
 import scala.concurrent.ExecutionContext
 
 class MongoClient(val context: ActorRefFactory, host: String, port: Int) {
-  val pool = context.actorOf(MongoPool.props(host, port).withMailbox("tepkin-mailbox"))
+  val pool = context.actorOf(MongoPool.props(host, port).withMailbox("tepkin-mailbox"), name = "tepkin-pool")
 
   implicit def ec: ExecutionContext = context.dispatcher
 

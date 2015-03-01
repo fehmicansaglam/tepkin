@@ -55,11 +55,12 @@ class MongoCursor(pool: ActorRef, fullCollectionName: String, cursorID: Long)
   private def killCursor(): Unit = {
     log.debug("Killing cursor[{}]", cursorID)
     pool ! KillCursorsMessage(cursorID)
+    context stop self
   }
 }
 
 object MongoCursor {
-  def props(pool: ActorRef, fullCollectionNmae: String, cursorID: Long): Props = {
-    Props(classOf[MongoCursor], pool, fullCollectionNmae, cursorID)
+  def props(pool: ActorRef, fullCollectionName: String, cursorID: Long): Props = {
+    Props(classOf[MongoCursor], pool, fullCollectionName, cursorID)
   }
 }

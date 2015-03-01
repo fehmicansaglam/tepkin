@@ -5,7 +5,7 @@ import java.util.{List => JavaList, Optional}
 
 import akka.stream.javadsl.Source
 import akka.util.Timeout
-import net.fehmicansaglam.tepkin.api.JavaConverters.{toCompletableFuture, toOptional}
+import net.fehmicansaglam.tepkin.api.JavaConverters._
 import net.fehmicansaglam.tepkin.bson.BsonDocument
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult, InsertResult}
@@ -29,24 +29,23 @@ class MongoCollection(proxy: ScalaCollection) {
     proxy.count(query = Some(query))
   }
 
-  def count(query: BsonDocument,
-            limit: Int)
-           (implicit ec: ExecutionContext,
-            timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
+  def count(query: BsonDocument, limit: Int)
+           (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
     proxy.count(query = Some(query), limit = Some(limit))
   }
 
-  def count(query: BsonDocument,
-            limit: Int,
-            skip: Int)
-           (implicit ec: ExecutionContext,
-            timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
+  def count(query: BsonDocument, limit: Int, skip: Int)
+           (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
     proxy.count(query = Some(query), limit = Some(limit), skip = Some(skip))
   }
 
+  def count(query: BsonDocument, limit: Optional[Int], skip: Optional[Int])
+           (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
+    proxy.count(query = Some(query), limit = limit, skip = skip)
+  }
+
   def delete(deletes: Array[BsonDocument])
-            (implicit ec: ExecutionContext,
-             timeout: Timeout): CompletableFuture[DeleteResult] = toCompletableFuture {
+            (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[DeleteResult] = toCompletableFuture {
     proxy.delete(deletes = deletes)
   }
 

@@ -34,3 +34,4 @@ libraryDependencies ++= Seq(
 )
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
