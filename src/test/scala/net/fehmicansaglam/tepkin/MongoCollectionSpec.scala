@@ -51,6 +51,23 @@ class MongoCollectionSpec
     }
   }
 
+  it should "insert and find 10 documents" in {
+    implicit val mat = ActorFlowMaterializer()(client.context)
+    val documents = (1 to 10).map(i => $document("name" := s"fehmi$i"))
+
+    val result = for {
+      insertResult <- collection.insert(documents)
+      source <- collection.find(BsonDocument.empty)
+      count <- source.map(_.size).runFold(0) { (total, size) =>
+        total + size
+      }
+    } yield count
+
+    whenReady(result) { count =>
+      count shouldBe 10
+    }
+  }
+
   it should "insert and find 1000 documents" in {
     implicit val mat = ActorFlowMaterializer()(client.context)
     val documents = (1 to 1000).map(i => $document("name" := s"fehmi$i"))

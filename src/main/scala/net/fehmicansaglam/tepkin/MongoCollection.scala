@@ -42,14 +42,10 @@ class MongoCollection(databaseName: String,
     (pool ? Drop(databaseName, collectionName)).mapTo[Reply]
   }
 
-  def find(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument]]] = {
+  def find(query: BsonDocument)
+          (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
     (pool ? QueryMessage(s"$databaseName.$collectionName", query)).mapTo[Reply].map { reply =>
-      if (reply.cursorID == 0) {
-        Source.single(reply.documents)
-      } else {
-        Source.single(reply.documents) ++
-          Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID))
-      }
+      Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, reply.documents))
     }
   }
 

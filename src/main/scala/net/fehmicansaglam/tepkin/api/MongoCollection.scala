@@ -4,6 +4,7 @@ import java.lang.Boolean
 import java.util.concurrent.CompletableFuture
 import java.util.{List => JavaList, Optional}
 
+import akka.actor.ActorRef
 import akka.stream.javadsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.api.JavaConverters._
@@ -52,7 +53,7 @@ class MongoCollection(proxy: ScalaCollection) {
 
   def find(query: BsonDocument)
           (implicit ec: ExecutionContext,
-           timeout: Timeout): CompletableFuture[Source[JavaList[BsonDocument]]] = toCompletableFuture {
+           timeout: Timeout): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = toCompletableFuture {
     import scala.collection.JavaConverters._
     proxy.find(query).map(source => Source.adapt(source.map(_.asJava)))
   }

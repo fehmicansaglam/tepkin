@@ -11,7 +11,7 @@ import net.fehmicansaglam.tepkin.protocol.message.{GetMoreMessage, KillCursorsMe
 
 import scala.concurrent.duration._
 
-class MongoCursor(pool: ActorRef, fullCollectionName: String, cursorID: Long)
+class MongoCursor(pool: ActorRef, fullCollectionName: String, cursorID: Long, initial: List[BsonDocument])
   extends ActorPublisher[List[BsonDocument]]
   with ActorLogging {
 
@@ -22,8 +22,13 @@ class MongoCursor(pool: ActorRef, fullCollectionName: String, cursorID: Long)
   override def receive: Receive = {
     case request@Request(demand) =>
       log.debug("Received {}", request)
-      context become fetching
-      self ! Fetch
+      onNext(initial)
+      if (cursorID == 0) {
+        onComplete()
+      } else {
+        context become fetching
+        self ! Fetch
+      }
 
     case Cancel =>
       killCursor()
@@ -60,7 +65,7 @@ class MongoCursor(pool: ActorRef, fullCollectionName: String, cursorID: Long)
 }
 
 object MongoCursor {
-  def props(pool: ActorRef, fullCollectionName: String, cursorID: Long): Props = {
-    Props(classOf[MongoCursor], pool, fullCollectionName, cursorID)
+  def props(pool: ActorRef, fullCollectionName: String, cursorID: Long, initial: List[BsonDocument]): Props = {
+    Props(classOf[MongoCursor], pool, fullCollectionName, cursorID, initial)
   }
 }
