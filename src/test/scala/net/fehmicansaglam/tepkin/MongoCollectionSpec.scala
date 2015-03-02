@@ -39,6 +39,7 @@ class MongoCollectionSpec
 
   "A MongoCollection" should "findAndUpdate" in {
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")
+
     val result = for {
       insert <- collection.insert(Seq(document))
       newDocument <- collection.findAndUpdate(
@@ -55,6 +56,7 @@ class MongoCollectionSpec
 
   it should "insert and find 10 documents" in {
     implicit val mat = ActorFlowMaterializer()(client.context)
+
     val documents = (1 to 10).map(i => $document("name" := s"fehmi$i"))
 
     val result = for {
@@ -72,6 +74,7 @@ class MongoCollectionSpec
 
   it should "insert and find 1000 documents" in {
     implicit val mat = ActorFlowMaterializer()(client.context)
+
     val documents = (1 to 1000).map(i => $document("name" := s"fehmi$i"))
 
     val result = for {
@@ -89,6 +92,7 @@ class MongoCollectionSpec
 
   it should "insert and find 100000 documents" in {
     implicit val mat = ActorFlowMaterializer()(client.context)
+
     val documents: Source[List[BsonDocument], Unit] = Source {
       Iterable.tabulate(100) { _ =>
         (1 to 1000).map(i => $document("name" := s"fehmi$i")).toList
@@ -110,6 +114,7 @@ class MongoCollectionSpec
 
   it should "update" in {
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")
+
     val result = for {
       insert <- collection.insert(Seq(document))
       update <- collection.update(

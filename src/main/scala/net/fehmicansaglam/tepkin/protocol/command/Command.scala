@@ -4,6 +4,11 @@ import akka.util.ByteString
 import net.fehmicansaglam.tepkin.bson.BsonDocument
 import net.fehmicansaglam.tepkin.protocol.message.Message
 
+/**
+ * A MongoDB Command.
+ *
+ * Basically, it is a query that is performed on any db.$cmd collection.
+ */
 trait Command extends Message {
 
   override val responseTo: Int = 0
@@ -26,5 +31,11 @@ trait Command extends Message {
       .append(command.encode())
       .result()
   }
+}
 
+/**
+ * A command that targets the admin database only (administrative commands).
+ */
+trait AdminCommand extends Command {
+  override def databaseName: String = "admin"
 }
