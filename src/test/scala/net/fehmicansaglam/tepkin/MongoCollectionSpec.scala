@@ -1,6 +1,7 @@
 package net.fehmicansaglam.tepkin
 
 import akka.stream.ActorFlowMaterializer
+import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.bson.BsonDocument
 import net.fehmicansaglam.tepkin.bson.BsonDsl._
@@ -8,6 +9,7 @@ import net.fehmicansaglam.tepkin.bson.Implicits._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers, OptionValues}
 
+import scala.collection.immutable.Iterable
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -82,6 +84,27 @@ class MongoCollectionSpec
 
     whenReady(result) { count =>
       count shouldBe 1000
+    }
+  }
+
+  it should "insert and find 100000 documents" in {
+    implicit val mat = ActorFlowMaterializer()(client.context)
+    val documents: Source[List[BsonDocument], Unit] = Source {
+      Iterable.tabulate(100) { _ =>
+        (1 to 1000).map(i => $document("name" := s"fehmi$i")).toList
+      }
+    }
+
+    val result = for {
+      insertResult <- collection.insertFromSource(documents).runForeach(_ => ())
+      source <- collection.find(BsonDocument.empty)
+      count <- source.map(_.size).runFold(0) { (total, size) =>
+        total + size
+      }
+    } yield count
+
+    whenReady(result) { count =>
+      count shouldBe 100000
     }
   }
 

@@ -139,7 +139,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append((("insert" := collectionName) ~ ("documents" := $array(documents: _*)) ~ ("ordered" := true)).encode())
+        .append((("insert" := collectionName) ~ ("documents" := $array(documents: _*))).encode())
         .result()
 
       ByteString.newBuilder

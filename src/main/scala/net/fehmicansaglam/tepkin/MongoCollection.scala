@@ -97,7 +97,7 @@ class MongoCollection(databaseName: String,
   }
 
   /**
-   * Inserts a document or documents into a collection.
+   * Inserts documents into a collection.
    *
    * @param documents A sequence of documents to insert into the collection.
    * @param ordered If true, perform an ordered insert of the documents in the array, and if an error occurs
@@ -106,7 +106,7 @@ class MongoCollection(databaseName: String,
    *                continue processing the remaining documents in the array.
    * @param writeConcern A document expressing the write concern.
    */
-  def insert(documents: Seq[BsonDocument], ordered: Boolean = true, writeConcern: Option[BsonDocument] = None)
+  def insert(documents: Seq[BsonDocument], ordered: Option[Boolean] = None, writeConcern: Option[BsonDocument] = None)
             (implicit ec: ExecutionContext, timeout: Timeout): Future[InsertResult] = {
     (pool ? Insert(databaseName, collectionName, documents, ordered, writeConcern)).mapTo[Reply].map { reply =>
       val document = reply.documents(0)
@@ -115,6 +115,23 @@ class MongoCollection(databaseName: String,
         document.getAs[Int]("ok").get == 1
       )
     }
+  }
+
+  /**
+   * Inserts documents into a collection.
+   *
+   * @param source A source of documents to insert into the collection.
+   * @param ordered If true, perform an ordered insert of the documents in the array, and if an error occurs
+   *                with one of documents, MongoDB will return without processing the remaining documents in the array.
+   *                If false, perform an unordered insert, and if an error occurs with one of documents,
+   *                continue processing the remaining documents in the array.
+   * @param writeConcern A document expressing the write concern.
+   */
+  def insertFromSource[M](source: Source[List[BsonDocument], M],
+                          ordered: Option[Boolean] = None,
+                          writeConcern: Option[BsonDocument] = None)
+                         (implicit ec: ExecutionContext, timeout: Timeout): Source[InsertResult, M] = {
+    source.mapAsyncUnordered(documents => insert(documents, ordered, writeConcern))
   }
 
   /**
