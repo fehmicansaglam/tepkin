@@ -24,7 +24,7 @@ public class MongoCollectionTest {
     @BeforeClass
     public static void setUpClass() {
         mongoClient = MongoClient.create("localhost", 27017);
-        collection = mongoClient.collection("tepkin", "test");
+        collection = mongoClient.db("tepkin").collection("test");
     }
 
     @AfterClass

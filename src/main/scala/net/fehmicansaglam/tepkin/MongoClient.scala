@@ -10,12 +10,12 @@ class MongoClient(val context: ActorRefFactory, host: String, port: Int) {
 
   implicit def ec: ExecutionContext = context.dispatcher
 
-  def apply(databaseName: String, collectionName: String): MongoCollection = {
-    new MongoCollection(databaseName, collectionName, pool)
+  def apply(databaseName: String): MongoDatabase = {
+    new MongoDatabase(pool, databaseName)
   }
 
-  def collection(databaseName: String, collectionName: String): api.MongoCollection = {
-    new api.MongoCollection(apply(databaseName, collectionName))
+  def db(databaseName: String): MongoDatabase = {
+    apply(databaseName)
   }
 
   def shutdown(): Unit = {

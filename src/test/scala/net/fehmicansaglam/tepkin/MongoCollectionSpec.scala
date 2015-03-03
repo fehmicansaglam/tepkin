@@ -23,7 +23,8 @@ class MongoCollectionSpec
   override implicit val patienceConfig = PatienceConfig(timeout = 30.seconds, interval = 1.seconds)
 
   val client = MongoClient("localhost", 27017)
-  val collection = client("tepkin", "mongo_collection_spec")
+  val db = client("tepkin")
+  val collection = db("mongo_collection_spec")
 
   import client.ec
 
