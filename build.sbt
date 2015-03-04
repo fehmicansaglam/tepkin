@@ -25,6 +25,7 @@ scalacOptions := Seq(
 )
 
 libraryDependencies ++= Seq(
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3",
   "com.typesafe.akka" %% "akka-actor" % "2.3.9",
   "com.typesafe.akka" % "akka-stream-experimental_2.11" % "1.0-M4",
   "joda-time" % "joda-time" % "2.7",
