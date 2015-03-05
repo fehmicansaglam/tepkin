@@ -31,7 +31,7 @@ class MongoCollection(databaseName: String,
       val document = reply.documents(0)
       CountResult(
         document.getAs[Boolean]("missing"),
-        document.getAs[Double]("n").get.toLong,
+        document.getAs[Int]("n").get,
         document.getAs[Double]("ok").get == 1.0
       )
     }
