@@ -100,4 +100,13 @@ object Implicits {
     override def toString(): String = s"""ISODate("${ISODateTimeFormat.dateTime().print(value)}")"""
   }
 
+  class BsonValueTimestamp(value: Long) extends BsonValue with Identifiable[Long] {
+
+    override def identifier: Long = value
+
+    override def encode(): ByteString = new ByteStringBuilder().putLong(value).result()
+
+    override def toString(): String = s"$value"
+  }
+
 }

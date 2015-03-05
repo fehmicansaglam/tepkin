@@ -9,6 +9,7 @@ import org.junit.*;
 import scala.concurrent.duration.Duration;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +24,7 @@ public class MongoCollectionTest {
 
     @BeforeClass
     public static void setUpClass() {
-        mongoClient = MongoClient.create("localhost", 27017);
+        mongoClient = MongoClient.create(new InetSocketAddress("localhost", 27017));
         collection = mongoClient.db("tepkin").collection("test");
     }
 

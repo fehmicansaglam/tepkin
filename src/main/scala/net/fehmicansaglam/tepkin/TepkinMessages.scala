@@ -4,7 +4,7 @@ object TepkinMessages {
 
   sealed trait TepkinMessage
 
-  case object InitPool extends TepkinMessage
+  case object Init extends TepkinMessage
 
   case object Idle extends TepkinMessage
 

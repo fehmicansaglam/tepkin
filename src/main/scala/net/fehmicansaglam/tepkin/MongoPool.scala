@@ -4,32 +4,34 @@ import java.net.InetSocketAddress
 
 import akka.actor._
 import akka.io.{IO, Tcp}
-import net.fehmicansaglam.tepkin.TepkinMessages.{Idle, InitPool, ShutDown}
+import net.fehmicansaglam.tepkin.TepkinMessages.{Idle, Init, ShutDown}
 import net.fehmicansaglam.tepkin.protocol.message.Message
 
 import scala.collection.mutable
 
-class MongoPool(host: String, port: Int, poolSize: Int)
+class MongoPool(remote: InetSocketAddress, poolSize: Int)
   extends Actor {
 
   import context.system
 
   val manager = IO(Tcp)
-  val remote = new InetSocketAddress(host, port)
   var idleConnections = Set.empty[ActorRef]
   val stash = mutable.Queue.empty[(ActorRef, Message)]
 
-  self ! InitPool
+  self ! Init
 
   def receive = initing
 
   def initing: Receive = {
 
     // Create initial pool of connections.
-    case InitPool =>
+    case Init =>
       (0 until poolSize) foreach { i =>
         context.watch {
-          context.actorOf(MongoConnection.props(manager, remote), s"connection-$host-$port-$i")
+          context.actorOf(
+            MongoConnection.props(manager, remote),
+            s"connection-$i"
+          )
         }
       }
 
@@ -101,7 +103,7 @@ class MongoPool(host: String, port: Int, poolSize: Int)
 }
 
 object MongoPool {
-  def props(host: String, port: Int, poolSize: Int = 23): Props = {
-    Props(classOf[MongoPool], host, port, poolSize)
+  def props(remote: InetSocketAddress, poolSize: Int): Props = {
+    Props(classOf[MongoPool], remote, poolSize)
   }
 }

@@ -26,6 +26,7 @@ case class BsonDocumentReader(buffer: ByteBuffer) extends Reader[BsonDocument] {
     case 0x09 => BsonDateTimeReader(buffer).read
     case 0x0A => BsonNullReader(buffer).read
     case 0x10 => BsonIntegerReader(buffer).read
+    case 0x11 => BsonTimestampReader(buffer).read
     case 0x12 => BsonLongReader(buffer).read
   }
 
