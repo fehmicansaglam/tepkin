@@ -4,7 +4,7 @@ organization := "net.fehmicansaglam"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.6"
 
 scalacOptions := Seq(
   "-deprecation",
