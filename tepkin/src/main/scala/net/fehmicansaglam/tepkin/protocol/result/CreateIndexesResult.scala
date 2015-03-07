@@ -13,10 +13,10 @@ case class CreateIndexesResult(ok: Boolean,
 object CreateIndexesResult {
   def apply(document: BsonDocument): CreateIndexesResult = {
     CreateIndexesResult(
-      ok = document.get[BsonNumber]("ok").map(_.toInt).get == 1,
-      createdCollectionAutomatically = document.getAs[Boolean]("createdCollectionAutomatically").get,
-      numIndexesBefore = document.getAs[Int]("numIndexesBefore").get,
-      numIndexesAfter = document.getAs[Int]("numIndexesAfter").get,
+      ok = document.get[BsonNumber]("ok").map(_.toInt).getOrElse(0) == 1,
+      createdCollectionAutomatically = document.getAs[Boolean]("createdCollectionAutomatically").getOrElse(false),
+      numIndexesBefore = document.getAs[Int]("numIndexesBefore").getOrElse(0),
+      numIndexesAfter = document.getAs[Int]("numIndexesAfter").getOrElse(0),
       note = document.getAs[String]("note"),
       errmsg = document.getAs[String]("errmsg"),
       code = document.getAs[Int]("code")
