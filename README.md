@@ -20,8 +20,9 @@ Tepkin is a relatively young project and absolutely needs your help. Good ways t
 val client = MongoClient("mongodb://localhost")
 val db = client("tepkin")
 val collection = db("mongo_collection_spec")
-
 val document = ("name" := "fehmi") ~ ("surname" := "saglam")
+
+implicit val timeout: Timeout = 5.seconds
 
 val future = for {
   insert <- collection.insert(Seq(document))
