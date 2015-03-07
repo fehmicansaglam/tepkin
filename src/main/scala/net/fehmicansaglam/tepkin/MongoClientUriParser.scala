@@ -1,5 +1,7 @@
 package net.fehmicansaglam.tepkin
 
+import java.net.InetSocketAddress
+
 import scala.util.parsing.combinator.RegexParsers
 
 object MongoClientUriParser extends RegexParsers {
@@ -34,9 +36,9 @@ object MongoClientUriParser extends RegexParsers {
       MongoCredentials(username = username, password = Some(password))
   }
 
-  def host: Parser[MongoHost] = hostName ~ opt(":" ~ port) ^^ {
-    case hostName ~ None => MongoHost(hostName = hostName)
-    case hostName ~ Some(":" ~ port) => MongoHost(hostName = hostName, port = port)
+  def host: Parser[InetSocketAddress] = hostName ~ opt(":" ~ port) ^^ {
+    case hostName ~ None => new InetSocketAddress(hostName, 27017)
+    case hostName ~ Some(":" ~ port) => new InetSocketAddress(hostName, port)
   }
 
   def uri: Parser[MongoClientUri] = {

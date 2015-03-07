@@ -1,11 +1,13 @@
 package net.fehmicansaglam.tepkin
 
+import java.net.InetSocketAddress
+
 import org.scalatest.{FlatSpec, Matchers}
 
 class MongoClientUriParserSpec extends FlatSpec with Matchers {
 
   "A MongoUriParser" should "parse database server running locally" in {
-    val expected = MongoClientUri(hosts = List(MongoHost("localhost")))
+    val expected = MongoClientUri(hosts = List(new InetSocketAddress("localhost", 27017)))
     val actual = MongoClientUriParser("mongodb://localhost")
 
     actual shouldBe expected
@@ -14,7 +16,7 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
   it should "parse admin database" in {
     val expected = MongoClientUri(
       credentials = Some(MongoCredentials(username = "sysop", password = Some("moon"))),
-      hosts = List(MongoHost("localhost"))
+      hosts = List(new InetSocketAddress("localhost", 27017))
     )
     val actual = MongoClientUriParser("mongodb://sysop:moon@localhost")
 
@@ -24,8 +26,8 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
   it should "parse replica set with members on different machines" in {
     val expected = MongoClientUri(
       hosts = List(
-        MongoHost("db1.example.net"),
-        MongoHost("db2.example.com")
+        new InetSocketAddress("db1.example.net", 27017),
+        new InetSocketAddress("db2.example.com", 27017)
       ))
     val actual = MongoClientUriParser("mongodb://db1.example.net,db2.example.com")
 
@@ -35,9 +37,9 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
   it should "parse replica set with members on localhost" in {
     val expected = MongoClientUri(
       hosts = List(
-        MongoHost("localhost"),
-        MongoHost("localhost", 27018),
-        MongoHost("localhost", 27019)
+        new InetSocketAddress("localhost", 27017),
+        new InetSocketAddress("localhost", 27018),
+        new InetSocketAddress("localhost", 27019)
       ))
     val actual = MongoClientUriParser("mongodb://localhost,localhost:27018,localhost:27019")
 
@@ -47,9 +49,9 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
   it should "parse replica set with read distribution" in {
     val expected = MongoClientUri(
       hosts = List(
-        MongoHost("example1.com"),
-        MongoHost("example2.com"),
-        MongoHost("example3.com")
+        new InetSocketAddress("example1.com", 27017),
+        new InetSocketAddress("example2.com", 27017),
+        new InetSocketAddress("example3.com", 27017)
       ),
       options = Map("readPreference" -> "secondary")
     )
@@ -61,9 +63,9 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
   it should "parse replica set with a high level of write concern" in {
     val expected = MongoClientUri(
       hosts = List(
-        MongoHost("example1.com"),
-        MongoHost("example2.com"),
-        MongoHost("example3.com")
+        new InetSocketAddress("example1.com", 27017),
+        new InetSocketAddress("example2.com", 27017),
+        new InetSocketAddress("example3.com", 27017)
       ),
       options = Map("w" -> "2", "wtimeoutMS" -> "2000")
     )
