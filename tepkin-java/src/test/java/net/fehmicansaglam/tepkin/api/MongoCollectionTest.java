@@ -1,11 +1,11 @@
 package net.fehmicansaglam.tepkin.api;
 
-import akka.util.Timeout;
 import net.fehmicansaglam.bson.BsonDocument;
 import net.fehmicansaglam.tepkin.protocol.result.CountResult;
 import net.fehmicansaglam.tepkin.protocol.result.InsertResult;
 import org.junit.*;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -19,6 +19,7 @@ public class MongoCollectionTest {
 
     private static MongoClient mongoClient;
     private static MongoCollection collection;
+    private static final FiniteDuration timeout = Duration.create(5, TimeUnit.SECONDS);
 
     @BeforeClass
     public static void setUpClass() {
@@ -34,18 +35,18 @@ public class MongoCollectionTest {
 
     @Before
     public void setUp() throws Exception {
-        collection.drop(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS))).get();
+        collection.drop(mongoClient.ec(), timeout).get();
     }
 
     @After
     public void tearDown() throws Exception {
-        collection.drop(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS))).get();
+        collection.drop(mongoClient.ec(), timeout).get();
     }
 
     @Test
     public void countCollection() throws Exception {
         final CompletableFuture<CountResult> cf = collection
-                .count(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS)));
+                .count(mongoClient.ec(), timeout);
         final CountResult actual = cf.get(5, TimeUnit.SECONDS);
         assertTrue(actual.ok());
         assertEquals(0L, actual.n());
@@ -58,7 +59,7 @@ public class MongoCollectionTest {
         final BsonDocument document = builder.build();
 
         final CompletableFuture<InsertResult> cf = collection
-                .insert(document, mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS)));
+                .insert(document, mongoClient.ec(), timeout);
         final InsertResult actual = cf.get(5, TimeUnit.SECONDS);
         assertTrue(actual.ok());
         assertEquals(1, actual.n());
@@ -71,9 +72,8 @@ public class MongoCollectionTest {
         final BsonDocument document = builder.build();
 
         final CompletableFuture<Optional<BsonDocument>> cf = collection
-                .insert(document, mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS)))
-                .thenCompose(insert ->
-                        collection.findOne(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS))));
+                .insert(document, mongoClient.ec(), timeout)
+                .thenCompose(insert -> collection.findOne(mongoClient.ec(), timeout));
         final Optional<BsonDocument> actual = cf.get(5, TimeUnit.SECONDS);
         assertTrue(actual.isPresent());
         assertEquals("fehmi", actual.get().<String>getAs("name").get());

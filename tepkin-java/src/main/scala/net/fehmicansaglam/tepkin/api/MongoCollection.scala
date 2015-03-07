@@ -6,14 +6,15 @@ import java.util.{List => JavaList, Optional}
 
 import akka.actor.ActorRef
 import akka.stream.javadsl.Source
-import akka.util.Timeout
+import akka.util.Timeout._
 import net.fehmicansaglam.bson.BsonDocument
-import JavaConverters._
+import net.fehmicansaglam.tepkin.api.JavaConverters._
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result.{CountResult, DeleteResult, InsertResult, UpdateResult}
 import net.fehmicansaglam.tepkin.{MongoCollection => ScalaCollection}
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.FiniteDuration
 
 
 /**
@@ -22,76 +23,92 @@ import scala.concurrent.ExecutionContext
  */
 class MongoCollection(proxy: ScalaCollection) {
 
-  def count(implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
-    proxy.count()
-  }
+  def count(ec: ExecutionContext, duration: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
+    proxy.count()(ec, duration)
+  }(ec)
 
-  def count(query: BsonDocument)
-           (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
-    proxy.count(query = Some(query))
-  }
+  def count(query: BsonDocument,
+            ec: ExecutionContext,
+            duration: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
+    proxy.count(query = Some(query))(ec, duration)
+  }(ec)
 
-  def count(query: BsonDocument, limit: Integer)
-           (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
-    proxy.count(query = Some(query), limit = Some(limit))
-  }
+  def count(query: BsonDocument,
+            limit: Integer,
+            ec: ExecutionContext, duration: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
+    proxy.count(query = Some(query), limit = Some(limit))(ec, duration)
+  }(ec)
 
-  def count(query: BsonDocument, limit: Integer, skip: Integer)
-           (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[CountResult] = toCompletableFuture {
-    proxy.count(query = Some(query), limit = Some(limit), skip = Some(skip))
-  }
+  def count(query: BsonDocument,
+            limit: Integer,
+            skip: Integer,
+            ec: ExecutionContext,
+            duration: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
+    proxy.count(query = Some(query), limit = Some(limit), skip = Some(skip))(ec, duration)
+  }(ec)
 
-  def delete(query: BsonDocument)
-            (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[DeleteResult] = toCompletableFuture {
-    proxy.delete(query)
-  }
+  def delete(query: BsonDocument,
+             ec: ExecutionContext,
+             duration: FiniteDuration): CompletableFuture[DeleteResult] = toCompletableFuture {
+    proxy.delete(query)(ec, duration)
+  }(ec)
 
   /** Drops this collection */
-  def drop(implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[Reply] = toCompletableFuture {
-    proxy.drop()
-  }
+  def drop(ec: ExecutionContext, duration: FiniteDuration): CompletableFuture[Reply] = toCompletableFuture {
+    proxy.drop()(ec, duration)
+  }(ec)
 
-  def find(query: BsonDocument)
-          (implicit ec: ExecutionContext,
-           timeout: Timeout): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = toCompletableFuture {
+  def find(query: BsonDocument,
+           ec: ExecutionContext,
+           duration: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = toCompletableFuture {
     import scala.collection.JavaConverters._
-    proxy.find(query).map(source => Source.adapt(source.map(_.asJava)))
+    proxy.find(query)(ec, duration).map(source => Source.adapt(source.map(_.asJava)))(ec)
+  }(ec)
+
+  def findAndRemove(query: BsonDocument,
+                    ec: ExecutionContext,
+                    duration: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
+    proxy.findAndRemove(query = Some(query))(ec, duration).map(toOptional)(ec)
+  }(ec)
+
+  def findOne(ec: ExecutionContext, duration: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = {
+    findOne(BsonDocument.empty, ec, duration)
   }
 
-  def findAndRemove(query: BsonDocument)
-                   (implicit ec: ExecutionContext,
-                    timeout: Timeout): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
-    proxy.findAndRemove(query = Some(query)).map(toOptional)
-  }
+  def findOne(query: BsonDocument,
+              ec: ExecutionContext,
+              duration: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
+    proxy.findOne(query)(ec, duration).map(toOptional)(ec)
+  }(ec)
 
-  def findOne(implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[Optional[BsonDocument]] = {
-    findOne(BsonDocument.empty)
-  }
+  def insert(document: BsonDocument,
+             ec: ExecutionContext,
+             duration: FiniteDuration): CompletableFuture[InsertResult] = toCompletableFuture {
+    proxy.insert(Seq(document))(ec, duration)
+  }(ec)
 
-  def findOne(query: BsonDocument)
-             (implicit ec: ExecutionContext,
-              timeout: Timeout): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
-    proxy.findOne(query).map(toOptional)
-  }
+  def update(query: BsonDocument,
+             update: BsonDocument,
+             ec: ExecutionContext,
+             duration: FiniteDuration): CompletableFuture[UpdateResult] = toCompletableFuture {
+    proxy.update(query, update)(ec, duration)
+  }(ec)
 
-  def insert(document: BsonDocument)
-            (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[InsertResult] = toCompletableFuture {
-    proxy.insert(Seq(document))
-  }
+  def update(query: BsonDocument,
+             update: BsonDocument,
+             upsert: Boolean,
+             ec: ExecutionContext,
+             duration: FiniteDuration): CompletableFuture[UpdateResult] = toCompletableFuture {
+    proxy.update(query, update, upsert = Some(upsert))(ec, duration)
+  }(ec)
 
-  def update(query: BsonDocument, update: BsonDocument)
-            (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[UpdateResult] = toCompletableFuture {
-    proxy.update(query, update)
-  }
-
-  def update(query: BsonDocument, update: BsonDocument, upsert: Boolean)
-            (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[UpdateResult] = toCompletableFuture {
-    proxy.update(query, update, upsert = Some(upsert))
-  }
-
-  def update(query: BsonDocument, update: BsonDocument, upsert: Boolean, multi: Boolean)
-            (implicit ec: ExecutionContext, timeout: Timeout): CompletableFuture[UpdateResult] = toCompletableFuture {
-    proxy.update(query, update, upsert = Some(upsert), multi = Some(multi))
-  }
+  def update(query: BsonDocument,
+             update: BsonDocument,
+             upsert: Boolean,
+             multi: Boolean,
+             ec: ExecutionContext,
+             duration: FiniteDuration): CompletableFuture[UpdateResult] = toCompletableFuture {
+    proxy.update(query, update, upsert = Some(upsert), multi = Some(multi))(ec, duration)
+  }(ec)
 
 }
