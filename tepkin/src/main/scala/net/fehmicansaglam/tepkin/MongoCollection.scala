@@ -180,7 +180,7 @@ class MongoCollection(databaseName: String,
    */
   def getIndexes()(implicit ec: ExecutionContext, timeout: Timeout): Future[List[Index]] = {
     (pool ? ListIndexes(databaseName, collectionName)).mapTo[Reply].map { reply =>
-      reply.documents(0).getAs[BsonDocument]("cursor").get
+      reply.documents.head.getAs[BsonDocument]("cursor").get
         .getAsList[BsonDocument]("firstBatch").getOrElse(Nil).map(Index.apply)
     }
   }
@@ -219,5 +219,18 @@ class MongoCollection(databaseName: String,
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       )
     }
+  }
+
+  /**
+   * Validates a collection. The method scans a collection’s data structures for correctness
+   * and returns a single document that describes the relationship between the logical collection
+   * and the physical representation of the data.
+   * @param full Specify true to enable a full validation and to return full statistics.
+   *             MongoDB disables full validation by default because it is a potentially resource-intensive operation.
+   * @param scandata if false skips the scan of the base collection without skipping the scan of the index.
+   */
+  def validate(full: Option[Boolean] = None, scandata: Option[Boolean] = None)
+              (implicit ec: ExecutionContext, timeout: Timeout): Future[BsonDocument] = {
+    (pool ? Validate(databaseName, collectionName)).mapTo[Reply].map(_.documents.head)
   }
 }
