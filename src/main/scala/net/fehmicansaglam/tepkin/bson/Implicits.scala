@@ -8,13 +8,19 @@ import org.joda.time.format.ISODateTimeFormat
 object Implicits {
 
 
-  implicit class BsonValueDouble(value: Double) extends BsonValue with Identifiable[Double] {
+  implicit class BsonValueDouble(value: Double) extends BsonNumber with Identifiable[Double] {
 
     override def identifier: Double = value
 
     override def encode(): ByteString = new ByteStringBuilder().putDouble(value).result()
 
     override def toString(): String = s"$value"
+
+    override def toInt: Int = value.toInt
+
+    override def toDouble: Double = value
+
+    override def toLong: Long = value.toLong
   }
 
   implicit class BsonValueString(value: String) extends BsonValue with Identifiable[String] {
@@ -64,22 +70,34 @@ object Implicits {
     override def toString(): String = s"$value"
   }
 
-  implicit class BsonValueInteger(value: Int) extends BsonValue with Identifiable[Int] {
+  implicit class BsonValueInteger(value: Int) extends BsonNumber with Identifiable[Int] {
 
     override def identifier: Int = value
 
     override def encode(): ByteString = new ByteStringBuilder().putInt(value).result()
 
     override def toString(): String = s"$value"
+
+    override def toInt: Int = value
+
+    override def toDouble: Double = value.toDouble
+
+    override def toLong: Long = value.toLong
   }
 
-  implicit class BsonValueLong(value: Long) extends BsonValue with Identifiable[Long] {
+  implicit class BsonValueLong(value: Long) extends BsonNumber with Identifiable[Long] {
 
     override def identifier: Long = value
 
     override def encode(): ByteString = new ByteStringBuilder().putLong(value).result()
 
     override def toString(): String = s"$value"
+
+    override def toInt: Int = value.toInt
+
+    override def toDouble: Double = value.toDouble
+
+    override def toLong: Long = value
   }
 
   implicit class BsonValueObjectId(value: Array[Byte]) extends BsonValue with Identifiable[String] {

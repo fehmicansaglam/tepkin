@@ -31,6 +31,10 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
     case None => this
   }
 
+  def get[T <: BsonValue](key: String): Option[T] = {
+    elements.find(_.name == key).map(_.value.asInstanceOf[T])
+  }
+
   def getAs[T](key: String): Option[T] = {
     elements.find(_.name == key).map(_.value.asInstanceOf[Identifiable[T]].identifier)
   }
