@@ -1,4 +1,4 @@
-package net.fehmicansaglam.tepkin.java
+package net.fehmicansaglam.tepkin.api
 
 import net.fehmicansaglam.bson.{BsonDocument, BsonValue, BsonDsl, Implicits}
 import net.fehmicansaglam.bson.element.BsonElement

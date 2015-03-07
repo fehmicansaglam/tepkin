@@ -1,7 +1,10 @@
-package net.fehmicansaglam.tepkin.java;
+package net.fehmicansaglam.tepkin.api;
 
 import akka.util.Timeout;
 import net.fehmicansaglam.bson.BsonDocument;
+import net.fehmicansaglam.tepkin.api.BsonDocumentBuilder;
+import net.fehmicansaglam.tepkin.api.MongoClient;
+import net.fehmicansaglam.tepkin.api.MongoCollection;
 import net.fehmicansaglam.tepkin.protocol.result.CountResult;
 import net.fehmicansaglam.tepkin.protocol.result.InsertResult;
 import org.junit.*;

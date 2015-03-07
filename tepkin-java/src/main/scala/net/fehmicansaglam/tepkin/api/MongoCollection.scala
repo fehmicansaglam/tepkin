@@ -1,4 +1,4 @@
-package net.fehmicansaglam.tepkin.java
+package net.fehmicansaglam.tepkin.api
 
 import java.lang.Boolean
 import java.util.concurrent.CompletableFuture

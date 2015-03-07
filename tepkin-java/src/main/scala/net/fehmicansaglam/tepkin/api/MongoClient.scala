@@ -1,4 +1,4 @@
-package net.fehmicansaglam.tepkin.java
+package net.fehmicansaglam.tepkin.api
 
 import java.net.InetSocketAddress
 

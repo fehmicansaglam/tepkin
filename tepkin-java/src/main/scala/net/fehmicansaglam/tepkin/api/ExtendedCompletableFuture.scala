@@ -1,4 +1,4 @@
-package net.fehmicansaglam.tepkin.java
+package net.fehmicansaglam.tepkin.api
 
 import java.util.concurrent.{CompletableFuture, CompletionStage}
 import java.util.function.{BiConsumer, BiFunction, Consumer, Function => JF}

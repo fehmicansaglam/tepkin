@@ -4,11 +4,11 @@ import java.net.InetSocketAddress
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class MongoClientUriParserSpec extends FlatSpec with Matchers {
+class MongoClientUriSpec extends FlatSpec with Matchers {
 
-  "A MongoUriParser" should "parse database server running locally" in {
+  "A MongoClientUri" should "parse database server running locally" in {
     val expected = MongoClientUri(hosts = List(new InetSocketAddress("localhost", 27017)))
-    val actual = MongoClientUriParser("mongodb://localhost")
+    val actual = MongoClientUri("mongodb://localhost")
 
     actual shouldBe expected
   }
@@ -18,7 +18,7 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
       credentials = Some(MongoCredentials(username = "sysop", password = Some("moon"))),
       hosts = List(new InetSocketAddress("localhost", 27017))
     )
-    val actual = MongoClientUriParser("mongodb://sysop:moon@localhost")
+    val actual = MongoClientUri("mongodb://sysop:moon@localhost")
 
     actual shouldBe expected
   }
@@ -29,7 +29,7 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
         new InetSocketAddress("db1.example.net", 27017),
         new InetSocketAddress("db2.example.com", 27017)
       ))
-    val actual = MongoClientUriParser("mongodb://db1.example.net,db2.example.com")
+    val actual = MongoClientUri("mongodb://db1.example.net,db2.example.com")
 
     actual shouldBe expected
   }
@@ -41,7 +41,7 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
         new InetSocketAddress("localhost", 27018),
         new InetSocketAddress("localhost", 27019)
       ))
-    val actual = MongoClientUriParser("mongodb://localhost,localhost:27018,localhost:27019")
+    val actual = MongoClientUri("mongodb://localhost,localhost:27018,localhost:27019")
 
     actual shouldBe expected
   }
@@ -55,7 +55,7 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
       ),
       options = Map("readPreference" -> "secondary")
     )
-    val actual = MongoClientUriParser("mongodb://example1.com,example2.com,example3.com/?readPreference=secondary")
+    val actual = MongoClientUri("mongodb://example1.com,example2.com,example3.com/?readPreference=secondary")
 
     actual shouldBe expected
   }
@@ -69,14 +69,14 @@ class MongoClientUriParserSpec extends FlatSpec with Matchers {
       ),
       options = Map("w" -> "2", "wtimeoutMS" -> "2000")
     )
-    val actual = MongoClientUriParser("mongodb://example1.com,example2.com,example3.com/?w=2&wtimeoutMS=2000")
+    val actual = MongoClientUri("mongodb://example1.com,example2.com,example3.com/?w=2&wtimeoutMS=2000")
 
     actual shouldBe expected
   }
 
   it should "fail on invalid connection string" in {
     intercept[IllegalArgumentException] {
-      MongoClientUriParser("mongodb://example1.com,example2.com,example3.com?w=2&wtimeoutMS=2000")
+      MongoClientUri("mongodb://example1.com,example2.com,example3.com?w=2&wtimeoutMS=2000")
     }
     ()
   }

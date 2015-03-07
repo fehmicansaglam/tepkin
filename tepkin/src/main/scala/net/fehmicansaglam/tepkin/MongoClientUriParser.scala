@@ -58,9 +58,4 @@ object MongoClientUriParser extends RegexParsers {
         )
     }
   }
-
-  def apply(input: String): MongoClientUri = parseAll(uri, input) match {
-    case Success(mongoUri, _) => mongoUri
-    case failure: NoSuccess => throw new IllegalArgumentException(failure.msg)
-  }
 }
