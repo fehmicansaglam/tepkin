@@ -7,7 +7,7 @@ import net.fehmicansaglam.tepkin.MongoClientUriParser._
 case class MongoCredentials(username: String, password: Option[String] = None)
 
 case class MongoClientUri(credentials: Option[MongoCredentials] = None,
-                          hosts: List[InetSocketAddress],
+                          hosts: Set[InetSocketAddress],
                           database: Option[String] = None,
                           options: Map[String, String] = Map.empty)
 

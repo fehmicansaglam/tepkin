@@ -7,7 +7,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class MongoClientUriSpec extends FlatSpec with Matchers {
 
   "A MongoClientUri" should "parse database server running locally" in {
-    val expected = MongoClientUri(hosts = List(new InetSocketAddress("localhost", 27017)))
+    val expected = MongoClientUri(hosts = Set(new InetSocketAddress("localhost", 27017)))
     val actual = MongoClientUri("mongodb://localhost")
 
     actual shouldBe expected
@@ -16,7 +16,7 @@ class MongoClientUriSpec extends FlatSpec with Matchers {
   it should "parse admin database" in {
     val expected = MongoClientUri(
       credentials = Some(MongoCredentials(username = "sysop", password = Some("moon"))),
-      hosts = List(new InetSocketAddress("localhost", 27017))
+      hosts = Set(new InetSocketAddress("localhost", 27017))
     )
     val actual = MongoClientUri("mongodb://sysop:moon@localhost")
 
@@ -25,7 +25,7 @@ class MongoClientUriSpec extends FlatSpec with Matchers {
 
   it should "parse replica set with members on different machines" in {
     val expected = MongoClientUri(
-      hosts = List(
+      hosts = Set(
         new InetSocketAddress("db1.example.net", 27017),
         new InetSocketAddress("db2.example.com", 27017)
       ))
@@ -36,7 +36,7 @@ class MongoClientUriSpec extends FlatSpec with Matchers {
 
   it should "parse replica set with members on localhost" in {
     val expected = MongoClientUri(
-      hosts = List(
+      hosts = Set(
         new InetSocketAddress("localhost", 27017),
         new InetSocketAddress("localhost", 27018),
         new InetSocketAddress("localhost", 27019)
@@ -48,7 +48,7 @@ class MongoClientUriSpec extends FlatSpec with Matchers {
 
   it should "parse replica set with read distribution" in {
     val expected = MongoClientUri(
-      hosts = List(
+      hosts = Set(
         new InetSocketAddress("example1.com", 27017),
         new InetSocketAddress("example2.com", 27017),
         new InetSocketAddress("example3.com", 27017)
@@ -62,7 +62,7 @@ class MongoClientUriSpec extends FlatSpec with Matchers {
 
   it should "parse replica set with a high level of write concern" in {
     val expected = MongoClientUri(
-      hosts = List(
+      hosts = Set(
         new InetSocketAddress("example1.com", 27017),
         new InetSocketAddress("example2.com", 27017),
         new InetSocketAddress("example3.com", 27017)

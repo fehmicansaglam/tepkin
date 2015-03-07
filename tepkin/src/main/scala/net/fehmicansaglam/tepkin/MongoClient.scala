@@ -1,15 +1,13 @@
 package net.fehmicansaglam.tepkin
 
 
-import java.net.InetSocketAddress
-
 import akka.actor.{ActorRefFactory, ActorSystem}
 import net.fehmicansaglam.tepkin.TepkinMessages.ShutDown
 
 import scala.concurrent.ExecutionContext
 
-class MongoClient(val context: ActorRefFactory, seeds: Set[InetSocketAddress], nConnectionsPerNode: Int = 10) {
-  val poolManager = context.actorOf(MongoPoolManager.props(seeds, nConnectionsPerNode)
+class MongoClient(val context: ActorRefFactory, uri: MongoClientUri, nConnectionsPerNode: Int = 10) {
+  val poolManager = context.actorOf(MongoPoolManager.props(uri.hosts, nConnectionsPerNode)
     .withMailbox("tepkin-mailbox"), name = "tepkin-pool")
 
   implicit def ec: ExecutionContext = context.dispatcher
@@ -29,7 +27,8 @@ class MongoClient(val context: ActorRefFactory, seeds: Set[InetSocketAddress], n
 
 object MongoClient {
 
-  def apply(seeds: Set[InetSocketAddress], context: ActorRefFactory = ActorSystem("tepkin-system")): MongoClient = {
-    new MongoClient(context, seeds)
+  def apply(uri: String, context: ActorRefFactory = ActorSystem("tepkin-system")): MongoClient = {
+    new MongoClient(context, MongoClientUri(uri))
   }
+
 }

@@ -46,13 +46,13 @@ object MongoClientUriParser extends RegexParsers {
       case _ ~ credentials ~ host ~ hosts ~ None =>
         MongoClientUri(
           credentials = credentials.map(_._1),
-          hosts = host +: hosts.map(_._2)
+          hosts = hosts.map(_._2).toSet + host
         )
 
       case _ ~ credentials ~ host ~ hosts ~ Some(_ ~ database ~ options) =>
         MongoClientUri(
           credentials = credentials.map(_._1),
-          hosts = host +: hosts.map(_._2),
+          hosts = hosts.map(_._2).toSet + host,
           database = database,
           options = options.map(_._2).getOrElse(Map.empty)
         )

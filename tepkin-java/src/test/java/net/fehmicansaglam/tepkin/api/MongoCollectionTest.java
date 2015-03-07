@@ -2,16 +2,12 @@ package net.fehmicansaglam.tepkin.api;
 
 import akka.util.Timeout;
 import net.fehmicansaglam.bson.BsonDocument;
-import net.fehmicansaglam.tepkin.api.BsonDocumentBuilder;
-import net.fehmicansaglam.tepkin.api.MongoClient;
-import net.fehmicansaglam.tepkin.api.MongoCollection;
 import net.fehmicansaglam.tepkin.protocol.result.CountResult;
 import net.fehmicansaglam.tepkin.protocol.result.InsertResult;
 import org.junit.*;
 import scala.concurrent.duration.Duration;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +22,7 @@ public class MongoCollectionTest {
 
     @BeforeClass
     public static void setUpClass() {
-        mongoClient = MongoClient.create(new InetSocketAddress("localhost", 27017));
+        mongoClient = MongoClient.create("mongodb://localhost");
         collection = mongoClient.db("tepkin").collection("test");
     }
 
