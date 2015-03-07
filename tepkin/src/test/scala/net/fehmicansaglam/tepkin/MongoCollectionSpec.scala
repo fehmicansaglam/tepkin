@@ -137,7 +137,7 @@ class MongoCollectionSpec
     }
   }
 
-  it should "create indexes" in {
+  it should "create indexes" ignore {
     val result = for {
       create <- collection.createIndexes(Index(name = "name_surname", key = ("name" := 1) ~ ("surname" := 1)))
       list <- collection.getIndexes()
