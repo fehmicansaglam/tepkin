@@ -147,4 +147,21 @@ class MongoCollectionSpec
       list.exists(index => index.name == "name_surname") shouldBe true
     }
   }
+
+  it should "find distinct values" in {
+    val documents: Seq[BsonDocument] = Seq("name" := "aa", "name" := "bb", "name" := "cc", "name" := "aa")
+
+    val result = for {
+      insert <- collection.insert(documents)
+      count <- collection.count()
+      distinct <- collection.distinct("name")
+    } yield (count, distinct)
+
+    whenReady(result) { case (count, distinct) =>
+      count.n shouldBe 4
+      distinct.values.collect {
+        case BsonValueString(value) => value
+      } shouldBe Seq("aa", "bb", "cc")
+    }
+  }
 }

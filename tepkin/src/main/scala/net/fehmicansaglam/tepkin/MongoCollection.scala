@@ -48,6 +48,19 @@ class MongoCollection(databaseName: String,
     }
   }
 
+  /**
+   * Finds the distinct values for a specified field across a single collection and returns the results in an array.
+   * @param field The field for which to return distinct values.
+   * @param query A query that specifies the documents from which to retrieve the distinct values.
+   */
+  def distinct(field: String, query: Option[BsonDocument] = None)
+              (implicit ec: ExecutionContext, timeout: Timeout): Future[DistinctResult] = {
+    (pool ? Distinct(databaseName, collectionName, field, query)).mapTo[Reply].map { reply =>
+      val document = reply.documents.head
+      DistinctResult(document)
+    }
+  }
+
   /** Drops this collection */
   def drop()(implicit ec: ExecutionContext, timeout: Timeout): Future[Reply] = {
     (pool ? Drop(databaseName, collectionName)).mapTo[Reply]

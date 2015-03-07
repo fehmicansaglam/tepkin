@@ -23,6 +23,10 @@ object Implicits {
     override def toLong: Long = value.toLong
   }
 
+  object BsonValueDouble {
+    def unapply(value: BsonValueDouble): Option[Double] = Some(value.identifier)
+  }
+
   implicit class BsonValueString(value: String) extends BsonValue with Identifiable[String] {
 
     override def identifier: String = value
@@ -37,6 +41,10 @@ object Implicits {
     }
 
     override def toString(): String = s""" "$value" """.trim
+  }
+
+  object BsonValueString {
+    def unapply(value: BsonValueString): Option[String] = Some(value.identifier)
   }
 
   implicit class BsonValueObject(document: BsonDocument) extends BsonValue with Identifiable[BsonDocument] {
@@ -80,6 +88,10 @@ object Implicits {
     override def toString(): String = s"$value"
   }
 
+  object BsonValueBoolean {
+    def unapply(value: BsonValueBoolean): Option[Boolean] = Some(value.identifier)
+  }
+
   implicit class BsonValueInteger(value: Int) extends BsonNumber with Identifiable[Int] {
 
     override def identifier: Int = value
@@ -93,6 +105,10 @@ object Implicits {
     override def toDouble: Double = value.toDouble
 
     override def toLong: Long = value.toLong
+  }
+
+  object BsonValueInteger {
+    def unapply(value: BsonValueInteger): Option[Int] = Some(value.identifier)
   }
 
   implicit class BsonValueLong(value: Long) extends BsonNumber with Identifiable[Long] {
@@ -110,6 +126,11 @@ object Implicits {
     override def toLong: Long = value
   }
 
+  object BsonValueLong {
+    def unapply(value: BsonValueLong): Option[Long] = Some(value.identifier)
+  }
+
+
   implicit class BsonValueObjectId(value: Array[Byte]) extends BsonValue with Identifiable[String] {
 
     override val identifier: String = Converters.hex2Str(value)
@@ -126,6 +147,10 @@ object Implicits {
     override def encode(): ByteString = ByteString.newBuilder.putLong(value.getMillis()).result()
 
     override def toString(): String = s"""ISODate("${ISODateTimeFormat.dateTime().print(value)}")"""
+  }
+
+  object BsonValueDateTime {
+    def unapply(value: BsonValueDateTime): Option[DateTime] = Some(value.identifier)
   }
 
   class BsonValueTimestamp(value: Long) extends BsonValue with Identifiable[Long] {
