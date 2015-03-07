@@ -43,9 +43,10 @@ BsonDocumentBuilder builder = new BsonDocumentBuilder();
 builder.addString("name", "fehmi");
 BsonDocument document = builder.build();
 
+FiniteDuration timeout = Duration.create(5, TimeUnit.SECONDS);
+
 CompletableFuture<Optional<BsonDocument>> cf = collection
-  .insert(document, mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS)))
-  .thenCompose(insert ->
-                collection.findOne(mongoClient.ec(), new Timeout(Duration.create(5, TimeUnit.SECONDS))));
+  .insert(document, mongoClient.ec(), timeout)
+  .thenCompose(insert -> collection.findOne(mongoClient.ec(), timeout));
 Optional<BsonDocument> actual = cf.get(5, TimeUnit.SECONDS);
 ```
