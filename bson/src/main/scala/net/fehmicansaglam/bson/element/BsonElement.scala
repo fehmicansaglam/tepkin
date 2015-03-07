@@ -1,7 +1,7 @@
 package net.fehmicansaglam.bson.element
 
 import akka.util.{ByteString, ByteStringBuilder}
-import net.fehmicansaglam.bson.{BsonValue, Writable, BsonDocument}
+import net.fehmicansaglam.bson.{BsonDocument, BsonValue, Writable}
 
 trait BsonElement extends Writable {
 
@@ -37,4 +37,8 @@ trait BsonElement extends Writable {
 
   def toDoc: BsonDocument = BsonDocument(this)
 
+  def pretty(level: Int = 0): String = {
+    val prefix = "\t" * level
+    s"$prefix$name: ${value.pretty(level)}"
+  }
 }
