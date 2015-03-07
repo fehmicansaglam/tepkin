@@ -1,6 +1,7 @@
 # Tepkin
 
 [![Build Status](https://travis-ci.org/fehmicansaglam/tepkin.svg?branch=master)](https://travis-ci.org/fehmicansaglam/tepkin)
+![Progress](http://progressed.io/bar/61?title=brewing)
 
 Reactive MongoDB Driver for Scala 2.11 and Java 8 built on top of Akka IO and Akka Streams.
 
