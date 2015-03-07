@@ -8,6 +8,7 @@ import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
+import net.fehmicansaglam.tepkin.protocol.command.Index
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers, OptionValues}
 
@@ -133,6 +134,17 @@ class MongoCollectionSpec
       update.upserted shouldBe 'empty
       update.writeErrors shouldBe 'empty
       update.writeConcernError shouldBe 'empty
+    }
+  }
+
+  it should "create indexes" in {
+    val result = for {
+      create <- collection.createIndexes(Index(name = "name_surname", key = ("name" := 1) ~ ("surname" := 1)))
+      list <- collection.getIndexes()
+    } yield (create, list)
+
+    whenReady(result) { case (create, list) =>
+      list.exists(index => index.name == "name_surname") shouldBe true
     }
   }
 }

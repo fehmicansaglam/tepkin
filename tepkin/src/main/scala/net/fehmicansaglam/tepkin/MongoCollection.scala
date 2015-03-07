@@ -37,6 +37,17 @@ class MongoCollection(databaseName: String,
     }
   }
 
+  /**
+   * Creates indexes on this collection.
+   */
+  def createIndexes(indexes: Index*)
+                   (implicit ec: ExecutionContext, timeout: Timeout): Future[CreateIndexesResult] = {
+    (pool ? CreateIndexes(databaseName, collectionName, indexes: _*)).mapTo[Reply].map { reply =>
+      val document = reply.documents(0)
+      CreateIndexesResult(document)
+    }
+  }
+
   /** Drops this collection */
   def drop()(implicit ec: ExecutionContext, timeout: Timeout): Future[Reply] = {
     (pool ? Drop(databaseName, collectionName)).mapTo[Reply]
@@ -161,6 +172,16 @@ class MongoCollection(databaseName: String,
         document.getAs[String]("errmsg"),
         document.getAs[Int]("ok").get == 1
       )
+    }
+  }
+
+  /**
+   * Returns a list of documents that identify and describe the existing indexes on this collection.
+   */
+  def getIndexes()(implicit ec: ExecutionContext, timeout: Timeout): Future[List[Index]] = {
+    (pool ? ListIndexes(databaseName, collectionName)).mapTo[Reply].map { reply =>
+      reply.documents(0).getAs[BsonDocument]("cursor").get
+        .getAsList[BsonDocument]("firstBatch").getOrElse(Nil).map(Index.apply)
     }
   }
 
