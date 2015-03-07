@@ -193,8 +193,10 @@ class MongoCollection(databaseName: String,
    */
   def getIndexes()(implicit ec: ExecutionContext, timeout: Timeout): Future[List[Index]] = {
     (pool ? ListIndexes(databaseName, collectionName)).mapTo[Reply].map { reply =>
-      reply.documents.head.getAs[BsonDocument]("cursor").get
-        .getAsList[BsonDocument]("firstBatch").getOrElse(Nil).map(Index.apply)
+      reply.documents.head.getAs[BsonDocument]("cursor")
+        .flatMap(_.getAsList[BsonDocument]("firstBatch"))
+        .getOrElse(Nil)
+        .map(Index.apply)
     }
   }
 
