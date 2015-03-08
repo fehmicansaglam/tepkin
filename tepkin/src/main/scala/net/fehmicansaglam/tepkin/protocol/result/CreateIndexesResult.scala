@@ -1,6 +1,6 @@
 package net.fehmicansaglam.tepkin.protocol.result
 
-import net.fehmicansaglam.bson.{BsonDocument, BsonNumber}
+import net.fehmicansaglam.bson.{BsonDocument, BsonValueNumber}
 
 case class CreateIndexesResult(ok: Boolean,
                                createdCollectionAutomatically: Boolean,
@@ -13,7 +13,7 @@ case class CreateIndexesResult(ok: Boolean,
 object CreateIndexesResult {
   def apply(document: BsonDocument): CreateIndexesResult = {
     CreateIndexesResult(
-      ok = document.get[BsonNumber]("ok").map(_.toInt).getOrElse(0) == 1,
+      ok = document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
       createdCollectionAutomatically = document.getAs[Boolean]("createdCollectionAutomatically").getOrElse(false),
       numIndexesBefore = document.getAs[Int]("numIndexesBefore").getOrElse(0),
       numIndexesAfter = document.getAs[Int]("numIndexesAfter").getOrElse(0),

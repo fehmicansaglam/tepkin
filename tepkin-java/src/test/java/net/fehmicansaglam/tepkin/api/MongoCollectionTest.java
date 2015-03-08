@@ -30,7 +30,7 @@ public class MongoCollectionTest {
     @BeforeClass
     public static void setUpClass() {
         mongoClient = MongoClient.create("mongodb://localhost");
-        collection = mongoClient.db("tepkin").collection("test");
+        collection = mongoClient.db("tepkin").collection("mongo_collection_test");
     }
 
     @AfterClass
@@ -112,7 +112,7 @@ public class MongoCollectionTest {
                         source.runFold(0, (accu, docs) -> accu + docs.size(), mat),
                         mongoClient.ec()
                 ));
-        
+
         final int total = cf.get(20, TimeUnit.SECONDS);
         assertEquals(100000, total);
     }

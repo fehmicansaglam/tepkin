@@ -1,7 +1,7 @@
 package net.fehmicansaglam.bson
 
+import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.element._
-import Implicits._
 
 object BsonDsl {
 
@@ -12,6 +12,7 @@ object BsonDsl {
       case value: BsonValueString => BsonString(name, value)
       case value: BsonDocument => BsonObject(name, value)
       case value: BsonValueArray => BsonArray(name, value)
+      case value: BsonValueBinary => BsonBinary(name, value)
       case value: BsonValueObjectId => BsonObjectId(name, value)
       case value: BsonValueBoolean => BsonBoolean(name, value)
       case value: BsonValueDateTime => BsonDateTime(name, value)

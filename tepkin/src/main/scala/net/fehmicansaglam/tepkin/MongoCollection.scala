@@ -4,7 +4,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
-import net.fehmicansaglam.bson.{BsonDocument, BsonNumber}
+import net.fehmicansaglam.bson.{BsonDocument, BsonValueNumber}
 import net.fehmicansaglam.tepkin.protocol.command._
 import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
 import net.fehmicansaglam.tepkin.protocol.result._
@@ -31,7 +31,7 @@ class MongoCollection(databaseName: String,
       val document = reply.documents(0)
       CountResult(
         document.getAs[Boolean]("missing"),
-        document.get[BsonNumber]("n").map(_.toInt).getOrElse(0),
+        document.get[BsonValueNumber]("n").map(_.toInt).getOrElse(0),
         document.getAs[Double]("ok").get == 1.0
       )
     }

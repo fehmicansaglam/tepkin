@@ -1,6 +1,7 @@
 package net.fehmicansaglam.bson
 
 import akka.util.{ByteString, ByteStringBuilder}
+import net.fehmicansaglam.bson.element.BinarySubtype
 import net.fehmicansaglam.bson.util.Converters
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -8,7 +9,7 @@ import org.joda.time.format.ISODateTimeFormat
 object Implicits {
 
 
-  implicit class BsonValueDouble(value: Double) extends BsonNumber with Identifiable[Double] {
+  implicit class BsonValueDouble(value: Double) extends BsonValueNumber with Identifiable[Double] {
 
     override def identifier: Double = value
 
@@ -92,7 +93,7 @@ object Implicits {
     def unapply(value: BsonValueBoolean): Option[Boolean] = Some(value.identifier)
   }
 
-  implicit class BsonValueInteger(value: Int) extends BsonNumber with Identifiable[Int] {
+  implicit class BsonValueInteger(value: Int) extends BsonValueNumber with Identifiable[Int] {
 
     override def identifier: Int = value
 
@@ -111,7 +112,7 @@ object Implicits {
     def unapply(value: BsonValueInteger): Option[Int] = Some(value.identifier)
   }
 
-  implicit class BsonValueLong(value: Long) extends BsonNumber with Identifiable[Long] {
+  implicit class BsonValueLong(value: Long) extends BsonValueNumber with Identifiable[Long] {
 
     override def identifier: Long = value
 
@@ -153,13 +154,25 @@ object Implicits {
     def unapply(value: BsonValueDateTime): Option[DateTime] = Some(value.identifier)
   }
 
-  class BsonValueTimestamp(value: Long) extends BsonValue with Identifiable[Long] {
+  case class BsonValueTimestamp(value: Long) extends BsonValue with Identifiable[Long] {
 
     override def identifier: Long = value
 
     override def encode(): ByteString = new ByteStringBuilder().putLong(value).result()
 
     override def toString(): String = s"$value"
+  }
+
+  case class BsonValueBinary(value: Array[Byte], subtype: BinarySubtype) extends BsonValue with Identifiable[Array[Byte]] {
+
+    override def identifier: Array[Byte] = value
+
+    override def encode(): ByteString = {
+      ByteString.newBuilder
+        .putInt(value.length)
+        .putByte(subtype.code)
+        .putBytes(value).result()
+    }
   }
 
 }

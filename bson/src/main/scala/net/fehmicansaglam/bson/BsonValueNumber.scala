@@ -1,6 +1,6 @@
 package net.fehmicansaglam.bson
 
-trait BsonNumber extends BsonValue {
+trait BsonValueNumber extends BsonValue {
   def toInt: Int
 
   def toLong: Long
