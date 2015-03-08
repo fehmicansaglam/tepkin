@@ -37,6 +37,8 @@ val future = for {
 ## Java example
 
 ```java
+import net.fehmicansaglam.tepkin.api.*;
+
 MongoClient mongoClient = MongoClient.create("mongodb://localhost");
 MongoCollection collection = mongoClient.db("tepkin").collection("test");
 
@@ -51,3 +53,29 @@ CompletableFuture<Optional<BsonDocument>> cf = collection
   .thenCompose(insert -> collection.findOne(mongoClient.ec(), timeout));
 Optional<BsonDocument> actual = cf.get(5, TimeUnit.SECONDS);
 ```
+
+## Give it a try
+
+Current release is *0.1-SNAPSHOT*. So you need to add Sonatype Snapshots repository to your build.sbt:
+
+```scala
+resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+```
+
+If you are a Scala developer then add the following dependency:
+
+```scala
+libraryDependencies ++= Seq(
+  "net.fehmicansaglam" %% "tepkin" % "0.1-SNAPSHOT"
+)
+```
+
+If you are a Java developer then add the following dependency:
+
+```scala
+libraryDependencies ++= Seq(
+  "net.fehmicansaglam" %% "tepkin-java" % "0.1-SNAPSHOT"
+)
+```
+
+_net.fehmicansaglam.tepkin.api_ package is intended to be used from Java.
