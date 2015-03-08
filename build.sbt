@@ -19,12 +19,14 @@ lazy val commonSettings = Seq(
     "-Ywarn-unused-import" // 2.11 only
   ),
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
-)
+) ++ publishSettings
 
 shellPrompt in ThisBuild := Common.prompt
 
 lazy val root = project.in(file("."))
   .aggregate(bson, tepkin, tepkinJava)
+  .settings(commonSettings: _*)
+  .settings(publishArtifact := false)
 
 lazy val bson = project.in(file("bson"))
   .settings(commonSettings: _*)
@@ -36,3 +38,36 @@ lazy val tepkin = project.in(file("tepkin"))
 lazy val tepkinJava = project.in(file("tepkin-java"))
   .settings(commonSettings: _*)
   .dependsOn(tepkin)
+
+lazy val publishSettings = Seq(
+  publishMavenStyle := true,
+  publishArtifact in Test := false,
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value)
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    else
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  },
+  pomExtra := (
+    <url>http://github.com/fehmicansaglam/tepkin</url>
+      <licenses>
+        <license>
+          <name>Apache 2</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+      <scm>
+        <url>git@github.com:fehmicansaglam/tepkin.git</url>
+        <connection>scm:git@github.com:fehmicansaglam/tepkin.git</connection>
+      </scm>
+      <developers>
+        <developer>
+          <id>fehmicansaglam</id>
+          <name>Fehmi Can Saglam</name>
+          <url>http://github.com/fehmicansaglam</url>
+        </developer>
+      </developers>
+    )
+)
