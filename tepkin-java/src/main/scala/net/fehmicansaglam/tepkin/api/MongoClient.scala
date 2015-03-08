@@ -1,5 +1,6 @@
 package net.fehmicansaglam.tepkin.api
 
+import akka.actor.ActorRefFactory
 import net.fehmicansaglam.tepkin
 
 import scala.concurrent.ExecutionContext
@@ -7,6 +8,8 @@ import scala.concurrent.ExecutionContext
 class MongoClient(proxy: tepkin.MongoClient) {
 
   def ec: ExecutionContext = proxy.ec
+
+  def context: ActorRefFactory = proxy.context
 
   def db(databaseName: String): MongoDatabase = {
     new MongoDatabase(proxy.apply(databaseName))

@@ -49,6 +49,36 @@ class MongoCollection(databaseName: String,
   }
 
   /**
+   * Removes documents from a collection.
+   *
+   * @param query Specifies deletion criteria using query operators.
+   *              To delete all documents in a collection, pass an empty document ({}).
+   * @param justOne To limit the deletion to just one document, set to true.
+   *                Omit to use the default value of false and delete all documents matching the deletion criteria.
+   * @param writeConcern A document expressing the write concern. Omit to use the default write concern.
+   * @return A WriteResult object that contains the status of the operation.
+   */
+  def delete(query: BsonDocument, justOne: Option[Boolean] = None, writeConcern: Option[BsonDocument] = None)
+            (implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
+    (pool ? Delete(
+      databaseName,
+      collectionName,
+      deletes = Seq(DeleteElement(query, justOne.map {
+        case false => 0
+        case true => 1
+      })),
+      writeConcern = writeConcern)).mapTo[Reply].map { reply =>
+      val document = reply.documents(0)
+      DeleteResult(
+        document.getAs[Int]("n"),
+        document.getAs[Int]("code"),
+        document.getAs[String]("errmsg"),
+        document.getAs[Int]("ok").get == 1
+      )
+    }
+  }
+
+  /**
    * Finds the distinct values for a specified field across a single collection and returns the results in an array.
    * @param field The field for which to return distinct values.
    * @param query A query that specifies the documents from which to retrieve the distinct values.
@@ -158,35 +188,6 @@ class MongoCollection(databaseName: String,
     source.mapAsyncUnordered(documents => insert(documents, ordered, writeConcern))
   }
 
-  /**
-   * Removes documents from a collection.
-   *
-   * @param query Specifies deletion criteria using query operators.
-   *              To delete all documents in a collection, pass an empty document ({}).
-   * @param justOne To limit the deletion to just one document, set to true.
-   *                Omit to use the default value of false and delete all documents matching the deletion criteria.
-   * @param writeConcern A document expressing the write concern. Omit to use the default write concern.
-   * @return A WriteResult object that contains the status of the operation.
-   */
-  def delete(query: BsonDocument, justOne: Option[Boolean] = None, writeConcern: Option[BsonDocument] = None)
-            (implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
-    (pool ? Delete(
-      databaseName,
-      collectionName,
-      deletes = Seq(DeleteElement(query, justOne.map {
-        case false => 0
-        case true => 1
-      })),
-      writeConcern = writeConcern)).mapTo[Reply].map { reply =>
-      val document = reply.documents(0)
-      DeleteResult(
-        document.getAs[Int]("n"),
-        document.getAs[Int]("code"),
-        document.getAs[String]("errmsg"),
-        document.getAs[Int]("ok").get == 1
-      )
-    }
-  }
 
   /**
    * Returns a list of documents that identify and describe the existing indexes on this collection.
