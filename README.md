@@ -15,12 +15,19 @@ Tepkin is a young but very active project and absolutely needs your help. Good w
 * Improving the performance
 * Adding to the documentation
 
-## Scala example
+## Scala examples
+
+### Obtaining a reference to a collection
 
 ```scala
 val client = MongoClient("mongodb://localhost")
 val db = client("tepkin")
 val collection = db("mongo_collection_spec")
+```
+
+### Insert and update a document
+
+```scala
 val document = ("name" := "fehmi") ~ ("surname" := "saglam")
 
 implicit val timeout: Timeout = 5.seconds
@@ -32,6 +39,26 @@ val future = for {
     update = $set("name" := "fehmi can")
   )
 } yield update
+```
+
+### Insert and find 100K documents
+
+```scala
+implicit val mat = ActorFlowMaterializer()(client.context)
+
+val documents: Source[List[BsonDocument], Unit] = Source {
+  Iterable.tabulate(100) { _ =>
+    (1 to 1000).map(i => $document("name" := s"fehmi$i")).toList
+  }
+}
+
+val result = for {
+  insertResult <- collection.insertFromSource(documents).runForeach(_ => ())
+  source <- collection.find(BsonDocument.empty)
+  count <- source.map(_.size).runFold(0) { (total, size) =>
+    total + size
+  }
+} yield count
 ```
 
 ## Java example
