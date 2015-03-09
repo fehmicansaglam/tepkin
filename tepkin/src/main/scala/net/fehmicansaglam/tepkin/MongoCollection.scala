@@ -151,6 +151,24 @@ class MongoCollection(databaseName: String,
   }
 
   /**
+   * Inserts document into this collection.
+   *
+   * @param document document to insert into the collection.
+   */
+  def insert(document: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[InsertResult] = {
+    (pool ? Insert(
+      databaseName,
+      collectionName,
+      Seq(document))).mapTo[Reply].map { reply =>
+      val document = reply.documents(0)
+      InsertResult(
+        document.getAs[Int]("n").get,
+        document.getAs[Int]("ok").get == 1
+      )
+    }
+  }
+
+  /**
    * Inserts documents into a collection.
    *
    * @param documents A sequence of documents to insert into the collection.
