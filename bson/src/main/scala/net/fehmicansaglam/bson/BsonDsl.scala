@@ -35,4 +35,8 @@ object BsonDsl {
   def $or(documents: BsonDocument*): BsonElement = "$or" := $array(documents: _*)
 
   def $set(document: BsonDocument): BsonElement = "$set" := document
+
+  def $query(document: BsonDocument): BsonElement = "$query" := document
+
+  def $orderBy(document: BsonDocument): BsonElement = "$orderBy" := document
 }

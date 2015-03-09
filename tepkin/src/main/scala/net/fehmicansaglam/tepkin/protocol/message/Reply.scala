@@ -59,9 +59,9 @@ object Reply {
     val numberReturned = buffer.getInt()
 
     val documents = ArrayBuffer[BsonDocument]()
-    val reader = BsonDocumentReader(buffer)
 
     while (buffer.hasRemaining()) {
+      val reader = BsonDocumentReader(buffer)
       reader.read.map(document => documents += document)
     }
 

@@ -5,6 +5,8 @@ import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
 
+import akka.actor.ActorRef
+import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
@@ -17,7 +19,7 @@ import net.fehmicansaglam.tepkin.protocol.command.Index
 import org.joda.time.DateTime
 
 import scala.annotation.tailrec
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class GridFs(db: MongoDatabase, prefix: String = "fs") {
   val files = db(s"$prefix.files")
@@ -35,6 +37,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
       if (len > 0) {
         buffer.flip()
         md.update(buffer)
+        buffer.flip()
         consumer(n, buffer)
         buffer.clear()
         readFile0(n + 1)
@@ -45,7 +48,11 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
     Converters.hex2Str(md.digest())
   }
 
-  def put(file: File)(implicit ec: ExecutionContext, timeout: Timeout): BsonDocument = {
+  def findOne(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {
+    files.findOne(query)
+  }
+
+  def put(file: File)(implicit ec: ExecutionContext, timeout: Timeout): Future[BsonDocument] = {
     val channel = new FileInputStream(file).getChannel
 
     val fileId = BsonObjectId.generate
@@ -65,10 +72,15 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
       ()
     })
 
-    files.insert(document ~ ("md5" := md5))
-
     chunks.createIndexes(Index(key = ("files_id" := 1) ~ ("n" := 1), name = "files_id_n"))
-    document
+    files.insert(document ~ ("md5" := md5)).map(_ => document)
+  }
+
+  def get(id: BsonValueObjectId)
+         (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[Chunk], ActorRef]] = {
+    chunks.find($query("files_id" := id) ~ $orderBy("n" := 1)).map { source =>
+      source.map(_.map(Chunk.apply))
+    }
   }
 }
 
@@ -83,6 +95,16 @@ object GridFs {
         ("files_id" := fileId) ~
         ("n" := n) ~
         ("data" := data)
+    }
+  }
+
+  object Chunk {
+    def apply(document: BsonDocument): Chunk = {
+      Chunk(
+        id = document.get[BsonValueObjectId]("_id").get,
+        fileId = document.get[BsonValueObjectId]("files_id").get,
+        n = document.getAs[Int]("n").get,
+        data = document.get[BsonValueBinary]("data").get)
     }
   }
 
