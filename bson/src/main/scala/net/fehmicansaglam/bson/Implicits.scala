@@ -163,15 +163,16 @@ object Implicits {
     override def toString(): String = s"$value"
   }
 
-  case class BsonValueBinary(value: Array[Byte], subtype: BinarySubtype) extends BsonValue with Identifiable[Array[Byte]] {
+  case class BsonValueBinary(value: ByteString, subtype: BinarySubtype) extends BsonValue with Identifiable[ByteString] {
 
-    override def identifier: Array[Byte] = value
+    override def identifier: ByteString = value
 
     override def encode(): ByteString = {
       ByteString.newBuilder
         .putInt(value.length)
         .putByte(subtype.code)
-        .putBytes(value).result()
+        .append(value)
+        .result()
     }
   }
 

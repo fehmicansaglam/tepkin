@@ -1,13 +1,13 @@
 package net.fehmicansaglam.tepkin
 
-import java.io.{File, FileInputStream}
+import java.io._
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
 
 import akka.actor.ActorRef
 import akka.stream.scaladsl.Source
-import akka.util.Timeout
+import akka.util.{ByteString, Timeout}
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
@@ -54,18 +54,21 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
     files.findOne(query)
   }
 
+  /**
+   * Puts the given file into GridFS.
+   */
   def put(file: File)(implicit ec: ExecutionContext, timeout: Timeout): Future[BsonDocument] = {
     val channel = new FileInputStream(file).getChannel
 
     val fileId = BsonObjectId.generate
 
     val md5 = readFile(channel, (n, buffer) => {
-      val array = new Array[Byte](buffer.remaining())
-      buffer.get(array)
-      val chunk = Chunk(fileId = fileId, n = n, data = BsonValueBinary(array, Generic))
+      val chunk = Chunk(fileId = fileId, n = n, data = BsonValueBinary(ByteString(buffer), Generic))
       chunks.insert(chunk.toDoc)
       ()
     })
+
+    channel.close()
 
     chunks.createIndexes(Index(key = ("files_id" := 1) ~ ("n" := 1), name = "files_id_n"))
 
@@ -80,6 +83,48 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
     files.insert(document).map(_ => document)
   }
 
+  /**
+   * Puts the data from InputStream into GridFS.
+   *
+   * @param name name of the file
+   */
+  def put(name: String, input: InputStream)(implicit ec: ExecutionContext, timeout: Timeout): Future[BsonDocument] = {
+    val buffer = new Array[Byte](chunkSize)
+    val reader = new BufferedInputStream(input, chunkSize)
+    val md = MessageDigest.getInstance("MD5")
+    val fileId = BsonObjectId.generate
+
+    val length = Iterator.continually(reader.read(buffer)).takeWhile(_ != -1).zipWithIndex.foldLeft(0) {
+      case (total, (length, index)) =>
+        md.update(buffer, 0, length)
+        val chunk = Chunk(
+          fileId = fileId,
+          n = index,
+          data = BsonValueBinary(ByteString.fromArray(buffer, 0, length), Generic))
+        chunks.insert(chunk.toDoc)
+        total + length
+    }
+
+    reader.close()
+
+    chunks.createIndexes(Index(key = ("files_id" := 1) ~ ("n" := 1), name = "files_id_n"))
+
+    val document = {
+      ("_id" := fileId) ~
+        ("length" := length) ~
+        ("chunkSize" := chunkSize) ~
+        ("uploadDate" := DateTime.now()) ~
+        ("filename" := name) ~
+        ("md5" := Converters.hex2Str(md.digest()))
+    }
+    files.insert(document).map(_ => document)
+  }
+
+  /**
+   * Gets the file as a Chunk stream.
+   *
+   * @param id _id of the file
+   */
   def get(id: BsonValueObjectId)
          (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[Chunk, ActorRef]] = {
     chunks.find($query("files_id" := id) ~ $orderBy("n" := 1)).map { source =>
@@ -99,7 +144,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
   }
 
   /**
-   * Delete the specified file from GridFS storage.
+   * Deletes the specified file from GridFS storage.
    *
    * @param id _id of the file
    */
@@ -110,7 +155,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
     } yield deleteFile
   }
 
-  /** Delete at most one file from GridFS storage matching the given criteria. */
+  /** Deletes at most one file from GridFS storage matching the given criteria. */
   def deleteOne(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
     findOne(query).flatMap {
       case Some(file) =>

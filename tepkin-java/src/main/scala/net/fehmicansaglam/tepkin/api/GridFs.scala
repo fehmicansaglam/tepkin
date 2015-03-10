@@ -32,7 +32,7 @@ class GridFs(proxy: tepkin.GridFs) {
   }(ec)
 
   /**
-   * Get the file as a Chunk stream.
+   * Gets the file as a Chunk stream.
    *
    * @param id _id of the file
    */
@@ -49,7 +49,7 @@ class GridFs(proxy: tepkin.GridFs) {
   }(ec)
 
   /**
-   * Delete the specified file from GridFS storage.
+   * Deletes the specified file from GridFS storage.
    *
    * @param id _id of the file
    */
@@ -59,7 +59,7 @@ class GridFs(proxy: tepkin.GridFs) {
     proxy.delete(id)(ec, timeout)
   }(ec)
 
-  /** Delete at most one file from GridFS storage matching the given criteria. */
+  /** Deletes at most one file from GridFS storage matching the given criteria. */
   def deleteOne(query: BsonDocument,
                 ec: ExecutionContext,
                 timeout: FiniteDuration): CompletableFuture[DeleteResult] = toCompletableFuture {
