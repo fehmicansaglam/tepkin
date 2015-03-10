@@ -17,6 +17,6 @@ case class Delete(databaseName: String,
   }
 }
 
-case class DeleteElement(q: BsonDocument, limit: Option[Int] = None) {
+case class DeleteElement(q: BsonDocument, limit: Int) {
   val asBsonDocument: BsonDocument = ("q" := q) ~ ("limit" := limit)
 }

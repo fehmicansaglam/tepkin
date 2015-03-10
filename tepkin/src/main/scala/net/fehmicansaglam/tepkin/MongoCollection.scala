@@ -58,12 +58,12 @@ class MongoCollection(databaseName: String,
    * @param writeConcern A document expressing the write concern. Omit to use the default write concern.
    * @return A WriteResult object that contains the status of the operation.
    */
-  def delete(query: BsonDocument, justOne: Option[Boolean] = None, writeConcern: Option[BsonDocument] = None)
+  def delete(query: BsonDocument, justOne: Boolean = false, writeConcern: Option[BsonDocument] = None)
             (implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
     (pool ? Delete(
       databaseName,
       collectionName,
-      deletes = Seq(DeleteElement(query, justOne.map {
+      deletes = Seq(DeleteElement(query, justOne match {
         case false => 0
         case true => 1
       })),
@@ -73,7 +73,7 @@ class MongoCollection(databaseName: String,
         document.getAs[Int]("n"),
         document.getAs[Int]("code"),
         document.getAs[String]("errmsg"),
-        document.getAs[Int]("ok").get == 1
+        document.get[BsonValueNumber]("ok").get.toInt == 1
       )
     }
   }

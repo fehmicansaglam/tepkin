@@ -16,6 +16,7 @@ import net.fehmicansaglam.bson.element.BsonObjectId
 import net.fehmicansaglam.bson.util.Converters
 import net.fehmicansaglam.tepkin.GridFs.Chunk
 import net.fehmicansaglam.tepkin.protocol.command.Index
+import net.fehmicansaglam.tepkin.protocol.result.DeleteResult
 import org.joda.time.DateTime
 
 import scala.annotation.tailrec
@@ -80,6 +81,38 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
          (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[Chunk], ActorRef]] = {
     chunks.find($query("files_id" := id) ~ $orderBy("n" := 1)).map { source =>
       source.map(_.map(Chunk.apply))
+    }
+  }
+
+  def getOne(query: BsonDocument)
+            (implicit ec: ExecutionContext, timeout: Timeout): Future[Option[Source[List[Chunk], ActorRef]]] = {
+    findOne(query).flatMap {
+      case Some(file) =>
+        val id = file.get[BsonValueObjectId]("_id").get
+        get(id).map(Some.apply)
+
+      case None => Future.successful(None)
+    }
+  }
+
+  /**
+   * Delete the specified file from GridFS storage.
+   * @param id _id of the file
+   */
+  def delete(id: BsonValueObjectId)(implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
+    for {
+      deleteChunks <- chunks.delete("files_id" := id)
+      deleteFile <- files.delete("_id" := id)
+    } yield deleteFile
+  }
+
+  /** Delete at most one file from GridFS storage matching the given criteria. */
+  def deleteOne(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
+    findOne(query).flatMap {
+      case Some(file) =>
+        delete(file.get[BsonValueObjectId]("_id").get)
+      case None =>
+        Future.successful(DeleteResult(ok = true, n = Some(0)))
     }
   }
 }

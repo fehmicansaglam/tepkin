@@ -6,7 +6,10 @@ protected[result] trait Result
 
 case class CountResult(missing: Option[Boolean] = None, n: Int, ok: Boolean) extends Result
 
-case class DeleteResult(n: Option[Int], code: Option[Int], errmsg: Option[String], ok: Boolean) extends Result
+case class DeleteResult(n: Option[Int] = None,
+                        code: Option[Int] = None,
+                        errmsg: Option[String] = None,
+                        ok: Boolean) extends Result
 
 case class InsertResult(n: Int, ok: Boolean) extends Result
 

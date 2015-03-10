@@ -3,9 +3,9 @@ package net.fehmicansaglam.tepkin.protocol
 import java.nio.ByteOrder
 
 import akka.util.ByteString
+import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
-import net.fehmicansaglam.bson.{BsonDocument, BsonDsl, Implicits}
 import net.fehmicansaglam.tepkin.protocol.command._
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -43,7 +43,7 @@ class CommandSpec extends FlatSpec with Matchers {
   }
 
   it should "construct correct Delete" in {
-    val deletes: Seq[DeleteElement] = Seq(DeleteElement(q = "age" := 18))
+    val deletes: Seq[DeleteElement] = Seq(DeleteElement(q = "age" := 18, limit = 0))
 
     val actual = Delete(databaseName, collectionName, deletes)
 

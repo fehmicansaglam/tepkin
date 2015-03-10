@@ -1,6 +1,6 @@
 package net.fehmicansaglam.tepkin
 
-import java.io.FileOutputStream
+import java.io.File
 
 import akka.stream.ActorFlowMaterializer
 import akka.util.Timeout
@@ -9,7 +9,6 @@ import net.fehmicansaglam.bson.Implicits._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers, OptionValues}
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class GridFsSpec
@@ -23,30 +22,25 @@ class GridFsSpec
 
   val client = MongoClient("mongodb://localhost")
   val db = client("tepkin")
+  val fs = db.gridFs()
 
   import client.ec
 
   implicit val timeout: Timeout = 30.seconds
 
-  "A GridFs" should "put file" in {
+  "A GridFs" should "put and delete file" in {
     implicit val mat = ActorFlowMaterializer()(client.context)
-    val fs = db.gridFs()
-    //    db.gridFs().put(new File("/Users/fehmicansaglam/Documents/git.pdf"))
 
-    val out = new FileOutputStream("./git2.pdf")
+    val result = for {
+      put <- fs.put(new File(getClass.getResource("/sample.pdf").getPath))
+      file <- fs.findOne("filename" := "sample.pdf")
+      delete <- fs.deleteOne("filename" := "sample.pdf")
+    } yield (put, file, delete)
 
-    val result = fs.findOne("filename" := "git.pdf").flatMap {
-      case Some(file) =>
-        val id = file.get[BsonValueObjectId]("_id").get
-        fs.get(id).flatMap { source =>
-          source.runForeach(_.foreach(chunk => out.write(chunk.data.value)))
-        }
-
-      case None => Future.successful(())
-    }
-
-    whenReady(result) { _ =>
-      out.close()
+    whenReady(result) { case (put, file, delete) =>
+      file shouldBe 'defined
+      file.get.get[BsonValueObjectId]("_id") shouldBe put.get[BsonValueObjectId]("_id")
+      delete.n shouldBe Some(1)
     }
   }
 
