@@ -23,6 +23,7 @@ import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
 class GridFs(db: MongoDatabase, prefix: String = "fs") {
+  val chunkSize = 255 * 1024
   val files = db(s"$prefix.files")
   val chunks = db(s"$prefix.chunks")
 
@@ -30,7 +31,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
    * @return md5sum of the file
    */
   private def readFile(channel: FileChannel, consumer: (Int, ByteBuffer) => Unit): String = {
-    val buffer = ByteBuffer.allocateDirect(255 * 1024)
+    val buffer = ByteBuffer.allocateDirect(chunkSize)
     val md = MessageDigest.getInstance("MD5")
 
     @tailrec def readFile0(n: Int): Unit = {
@@ -57,13 +58,6 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
     val channel = new FileInputStream(file).getChannel
 
     val fileId = BsonObjectId.generate
-    val document = {
-      ("_id" := fileId) ~
-        ("length" := file.length()) ~
-        ("chunkSize" := 255 * 1024) ~
-        ("uploadDate" := DateTime.now()) ~
-        ("filename" := file.getName)
-    }
 
     val md5 = readFile(channel, (n, buffer) => {
       val array = new Array[Byte](buffer.remaining())
@@ -74,18 +68,27 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
     })
 
     chunks.createIndexes(Index(key = ("files_id" := 1) ~ ("n" := 1), name = "files_id_n"))
-    files.insert(document ~ ("md5" := md5)).map(_ => document)
+
+    val document = {
+      ("_id" := fileId) ~
+        ("length" := file.length()) ~
+        ("chunkSize" := chunkSize) ~
+        ("uploadDate" := DateTime.now()) ~
+        ("filename" := file.getName) ~
+        ("md5" := md5)
+    }
+    files.insert(document).map(_ => document)
   }
 
   def get(id: BsonValueObjectId)
-         (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[Chunk], ActorRef]] = {
+         (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[Chunk, ActorRef]] = {
     chunks.find($query("files_id" := id) ~ $orderBy("n" := 1)).map { source =>
-      source.map(_.map(Chunk.apply))
+      source.mapConcat(_.map(Chunk.apply))
     }
   }
 
   def getOne(query: BsonDocument)
-            (implicit ec: ExecutionContext, timeout: Timeout): Future[Option[Source[List[Chunk], ActorRef]]] = {
+            (implicit ec: ExecutionContext, timeout: Timeout): Future[Option[Source[Chunk, ActorRef]]] = {
     findOne(query).flatMap {
       case Some(file) =>
         val id = file.get[BsonValueObjectId]("_id").get
