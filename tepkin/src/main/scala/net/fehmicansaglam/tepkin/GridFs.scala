@@ -100,6 +100,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
 
   /**
    * Delete the specified file from GridFS storage.
+   *
    * @param id _id of the file
    */
   def delete(id: BsonValueObjectId)(implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
