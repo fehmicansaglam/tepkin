@@ -6,24 +6,31 @@ import java.nio.ByteOrder
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.Tcp._
 import akka.util.ByteString
+import net.fehmicansaglam.tepkin.RetryStrategy.FixedDelay
 import net.fehmicansaglam.tepkin.TepkinMessages._
 import net.fehmicansaglam.tepkin.protocol.message.{Message, Reply}
 
-class MongoConnection(manager: ActorRef, remote: InetSocketAddress)
+class MongoConnection(manager: ActorRef, remote: InetSocketAddress, retryStrategy: RetryStrategy)
   extends Actor
   with ActorLogging {
 
+  import context.dispatcher
+
   var requests = Map.empty[Int, ActorRef]
   var storage: ByteString = null
+  var retries = 0
+  var shuttingDown = false
 
   manager ! Connect(remote)
 
-  def receive = {
+  def receive: Receive = {
     case CommandFailed(_: Connect) =>
-      context.parent ! ConnectFailed
-      context stop self
+      log.info("Connection failed.")
+      retry()
 
     case Connected(remote, local) =>
+      log.info(s"Connected to $remote")
+      retries = 0
       val connection = sender()
       connection ! Register(self)
       context.become(working(connection))
@@ -61,11 +68,17 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress)
       }
 
     case ShutDown =>
+      shuttingDown = true
       connection ! Close
 
     case _: ConnectionClosed =>
-      context.parent ! ConnectionClosed
-      context stop self
+      log.info("Connection closed.")
+      if (shuttingDown) {
+        context.parent ! ConnectionClosed
+        context stop self
+      } else {
+        retry()
+      }
   }
 
   def buffering(connection: ActorRef, expectedSize: Int): Receive = {
@@ -75,11 +88,29 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress)
         context become working(connection)
         self ! Received(storage)
       }
+
+    case _: ConnectionClosed =>
+      log.info("Connection closed.")
+      retry()
   }
+
+  private def retry() = {
+    if (retries == retryStrategy.maxRetries) {
+      log.info("Max retry count has been reached. Giving up.")
+      context.parent ! ConnectFailed
+      context stop self
+    } else {
+      retries += 1
+      log.info(s"Retrying to connect for the $retries. time.")
+      context.system.scheduler.scheduleOnce(retryStrategy.nextDelay(retries), manager, Connect(remote))
+      context become receive
+    }
+  }
+
 }
 
 object MongoConnection {
-  def props(manager: ActorRef, remote: InetSocketAddress): Props = {
-    Props(classOf[MongoConnection], manager, remote)
+  def props(manager: ActorRef, remote: InetSocketAddress, retryStrategy: RetryStrategy = FixedDelay()): Props = {
+    Props(classOf[MongoConnection], manager, remote, retryStrategy)
   }
 }
