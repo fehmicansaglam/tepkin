@@ -11,6 +11,7 @@ import net.fehmicansaglam.bson.util.Converters
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers, OptionValues}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class GridFsSpec
@@ -29,6 +30,17 @@ class GridFsSpec
   import client.ec
 
   implicit val timeout: Timeout = 30.seconds
+
+  before {
+    Await.ready(db.collection("fs.files").drop(), 5.seconds)
+    Await.ready(db.collection("fs.chunks").drop(), 5.seconds)
+    Thread.sleep(2000)
+  }
+
+  after {
+    Await.ready(db.collection("fs.files").drop(), 5.seconds)
+    Await.ready(db.collection("fs.chunks").drop(), 5.seconds)
+  }
 
   "A GridFs" should "put and find and delete File" in {
     implicit val mat = ActorFlowMaterializer()(client.context)

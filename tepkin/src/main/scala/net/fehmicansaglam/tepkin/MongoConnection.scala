@@ -18,9 +18,10 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress, retryStrateg
 
   var requests = Map.empty[Int, ActorRef]
   var storage: ByteString = null
-  var retries = 0
+  var nRetries = 0
   var shuttingDown = false
 
+  log.debug("Connecting to {}", remote)
   manager ! Connect(remote)
 
   def receive: Receive = {
@@ -30,7 +31,7 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress, retryStrateg
 
     case Connected(remote, local) =>
       log.info(s"Connected to $remote")
-      retries = 0
+      nRetries = 0
       val connection = sender()
       connection ! Register(self)
       context.become(working(connection))
@@ -39,6 +40,7 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress, retryStrateg
 
   def working(connection: ActorRef): Receive = {
     case m: Message =>
+      log.debug("Received request {}", m)
       requests += (m.requestID -> sender())
       connection ! Write(m.encode())
 
@@ -68,6 +70,7 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress, retryStrateg
       }
 
     case ShutDown =>
+      log.debug("Shutting down")
       shuttingDown = true
       connection ! Close
 
@@ -95,14 +98,14 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress, retryStrateg
   }
 
   private def retry() = {
-    if (retries == retryStrategy.maxRetries) {
+    if (nRetries == retryStrategy.maxRetries) {
       log.info("Max retry count has been reached. Giving up.")
       context.parent ! ConnectFailed
       context stop self
     } else {
-      retries += 1
-      log.info(s"Retrying to connect for the $retries. time.")
-      context.system.scheduler.scheduleOnce(retryStrategy.nextDelay(retries), manager, Connect(remote))
+      nRetries += 1
+      log.info("Retrying to connect for the {}. time.", nRetries)
+      context.system.scheduler.scheduleOnce(retryStrategy.nextDelay(nRetries), manager, Connect(remote))
       context become receive
     }
   }
