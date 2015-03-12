@@ -20,4 +20,9 @@ object RetryStrategy {
     override val nextDelay: Int => FiniteDuration = retry => retry * delay
   }
 
+  case class QuadraticRetryStrategy(maxRetries: Int = 5,
+                                    delay: FiniteDuration = 500.millis) extends RetryStrategy {
+    override val nextDelay: Int => FiniteDuration = retry => retry * retry * delay
+  }
+
 }
