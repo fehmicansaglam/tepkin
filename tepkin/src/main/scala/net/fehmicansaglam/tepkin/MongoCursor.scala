@@ -34,6 +34,16 @@ class MongoCursor(pool: ActorRef, fullCollectionName: String, cursorID: Long, in
       killCursor()
   }
 
+  def sleeping: Receive = {
+    case request@Request(demand) =>
+      log.debug("Received {}", request)
+      context become fetching
+      self ! Fetch
+
+    case Cancel =>
+      killCursor()
+  }
+
   def fetching: Receive = {
     case reply: Reply =>
       log.debug("Received Reply. numberReturned: {} , cursorID: {}", reply.numberReturned, reply.cursorID)
@@ -45,7 +55,7 @@ class MongoCursor(pool: ActorRef, fullCollectionName: String, cursorID: Long, in
       } else if (totalDemand > 0) {
         self ! Fetch
       } else {
-        context become receive
+        context become sleeping
       }
 
     case Fetch =>

@@ -33,7 +33,6 @@ class MongoCollectionSpec
 
   before {
     Await.ready(collection.drop(), 5.seconds)
-    Thread.sleep(2000)
   }
 
   after {
