@@ -6,7 +6,7 @@ import java.nio.ByteOrder
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.Tcp._
 import akka.util.ByteString
-import net.fehmicansaglam.tepkin.RetryStrategy.FixedDelay
+import net.fehmicansaglam.tepkin.RetryStrategy.FixedRetryStrategy
 import net.fehmicansaglam.tepkin.TepkinMessages._
 import net.fehmicansaglam.tepkin.protocol.message.{Message, Reply}
 
@@ -110,7 +110,7 @@ class MongoConnection(manager: ActorRef, remote: InetSocketAddress, retryStrateg
 }
 
 object MongoConnection {
-  def props(manager: ActorRef, remote: InetSocketAddress, retryStrategy: RetryStrategy = FixedDelay()): Props = {
+  def props(manager: ActorRef, remote: InetSocketAddress, retryStrategy: RetryStrategy = FixedRetryStrategy()): Props = {
     Props(classOf[MongoConnection], manager, remote, retryStrategy)
   }
 }

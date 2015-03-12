@@ -10,9 +10,14 @@ trait RetryStrategy {
 
 object RetryStrategy {
 
-  case class FixedDelay(maxRetries: Int = 5,
-                        delay: FiniteDuration = 500.millis) extends RetryStrategy {
+  case class FixedRetryStrategy(maxRetries: Int = 5,
+                                delay: FiniteDuration = 500.millis) extends RetryStrategy {
     override val nextDelay: Int => FiniteDuration = _ => delay
+  }
+
+  case class LinearRetryStrategy(maxRetries: Int = 5,
+                                 delay: FiniteDuration = 500.millis) extends RetryStrategy {
+    override val nextDelay: Int => FiniteDuration = retry => retry * delay
   }
 
 }
