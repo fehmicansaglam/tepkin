@@ -25,22 +25,20 @@ class MongoCollectionSpec
 
   val client = MongoClient("mongodb://localhost")
   val db = client("tepkin")
-  val collection = db("mongo_collection_spec")
 
   import client.ec
 
   implicit val timeout: Timeout = 30.seconds
 
-  before {
+  private def withCollection(collectionName: String)(f: MongoCollection => Unit): Unit = {
+    val collection = db(collectionName)
     Await.ready(collection.drop(), 5.seconds)
-    Thread.sleep(2000)
+    f(collection)
+    Await.ready(collection.drop(), 5.seconds)
+    ()
   }
 
-  after {
-    Await.ready(collection.drop(), 5.seconds)
-  }
-
-  "A MongoCollection" should "findAndUpdate" in {
+  "A MongoCollection" should "findAndUpdate" in withCollection("mongo_collection_spec1") { collection =>
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")
 
     val result = for {
@@ -57,7 +55,7 @@ class MongoCollectionSpec
     }
   }
 
-  it should "insert and find 10 documents" in {
+  it should "insert and find 10 documents" in withCollection("mongo_collection_spec2") { collection =>
     implicit val mat = ActorFlowMaterializer()(client.context)
 
     val documents = (1 to 10).map(i => $document("name" := s"fehmi$i"))
@@ -75,7 +73,7 @@ class MongoCollectionSpec
     }
   }
 
-  it should "insert and find 1000 documents" in {
+  it should "insert and find 1000 documents" in withCollection("mongo_collection_spec3") { collection =>
     implicit val mat = ActorFlowMaterializer()(client.context)
 
     val documents = (1 to 1000).map(i => $document("name" := s"fehmi$i"))
@@ -93,7 +91,7 @@ class MongoCollectionSpec
     }
   }
 
-  it should "insert and find 100000 documents" in {
+  it should "insert and find 100000 documents" in withCollection("mongo_collection_spec4") { collection =>
     implicit val mat = ActorFlowMaterializer()(client.context)
 
     val documents: Source[List[BsonDocument], Unit] = Source {
@@ -115,7 +113,7 @@ class MongoCollectionSpec
     }
   }
 
-  it should "update" in {
+  it should "update" in withCollection("mongo_collection_spec5") { collection =>
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")
 
     val result = for {
@@ -136,7 +134,7 @@ class MongoCollectionSpec
     }
   }
 
-  it should "create indexes" ignore {
+  it should "create indexes" ignore withCollection("mongo_collection_spec6") { collection =>
     val result = for {
       create <- collection.createIndexes(Index(name = "name_surname", key = ("name" := 1) ~ ("surname" := 1)))
       list <- collection.getIndexes()
@@ -147,7 +145,7 @@ class MongoCollectionSpec
     }
   }
 
-  it should "find distinct values" in {
+  it should "find distinct values" in withCollection("mongo_collection_spec7") { collection =>
     val documents: Seq[BsonDocument] = Seq("name" := "aa", "name" := "bb", "name" := "cc", "name" := "aa")
 
     val result = for {
