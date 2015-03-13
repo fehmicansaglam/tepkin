@@ -1,6 +1,14 @@
 package net.fehmicansaglam.tepkin
 
 import akka.actor.ActorRef
+import akka.pattern.ask
+import akka.stream.scaladsl.Source
+import akka.util.Timeout
+import net.fehmicansaglam.bson.BsonDocument
+import net.fehmicansaglam.tepkin.protocol.command.ListCollections
+import net.fehmicansaglam.tepkin.protocol.message.Reply
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class MongoDatabase(pool: ActorRef, databaseName: String) {
 
@@ -12,6 +20,18 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
 
   def gridFs(prefix: String = "fs"): GridFs = {
     new GridFs(this, prefix)
+  }
+
+  def listCollections(filter: Option[BsonDocument] = None)
+                     (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
+    (pool ? ListCollections(databaseName, filter)).mapTo[Reply].map { reply =>
+      val cursor = reply.documents(0).getAs[BsonDocument]("cursor").get
+      val cursorID = cursor.getAs[Long]("id").get
+      val ns = cursor.getAs[String]("ns").get
+      val initial = cursor.getAsList[BsonDocument]("firstBatch").get
+
+      Source(MongoCursor.props(pool, ns, cursorID, initial))
+    }
   }
 
   def collection = apply _

@@ -57,10 +57,8 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
 
 object BsonDocument {
 
-  import net.fehmicansaglam.bson.element.BsonElement
-
   def apply(elements: TraversableOnce[BsonElement]): BsonDocument = BsonDocument(elements.toSeq: _*)
 
-  def empty: BsonDocument = BsonDocument()
+  val empty: BsonDocument = BsonDocument()
 }
 
