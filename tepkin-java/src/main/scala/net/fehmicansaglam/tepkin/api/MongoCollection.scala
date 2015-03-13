@@ -8,11 +8,11 @@ import akka.actor.ActorRef
 import akka.stream.javadsl.Source
 import akka.util.Timeout._
 import net.fehmicansaglam.bson.BsonDocument
+import net.fehmicansaglam.tepkin
 import net.fehmicansaglam.tepkin.api.JavaConverters._
 import net.fehmicansaglam.tepkin.protocol.command.Index
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result._
-import net.fehmicansaglam.tepkin.{MongoCollection => ScalaCollection}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
@@ -22,7 +22,7 @@ import scala.concurrent.duration.FiniteDuration
  * Java 8 API for MongoCollection
  * @param proxy Wrapped Scala MongoCollection
  */
-class MongoCollection(proxy: ScalaCollection) {
+class MongoCollection(proxy: tepkin.MongoCollection) {
 
   def count(ec: ExecutionContext, timeout: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
     proxy.count()(ec, timeout)
