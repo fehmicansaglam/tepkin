@@ -43,7 +43,7 @@ libraryDependencies ++= Seq(
 
 ### Working with BsonDsl
 
-To construct a Bson document, you can either create BsonElements and join them or create a document directly.
+To construct a Bson document, you can either create BsonElements and join them with `~` or create a document directly.
 
 ```scala
   import net.fehmicansaglam.bson.BsonDsl._
@@ -54,7 +54,7 @@ To construct a Bson document, you can either create BsonElements and join them o
   // Construct a BsonDocument from BsonElements
   val element = "name" := "Johny"
   val document = element ~
-    ("surname" := "Doe")
+    ("surname" := "Doe") ~
     ("age" := 28) ~
     ("months" := $array(1, 2, 3))
 
@@ -74,7 +74,7 @@ To construct a Bson document, you can either create BsonElements and join them o
 
 ```
 
-### Connect to database
+### Connecting to a database
 
 To make a connection to MongoDB, use the <code>MongoClient</code> interface.
 
@@ -117,7 +117,7 @@ Insert a collection of documents
   val documents = (1 to 100).map(i => $document("name" := s"fehmi$i"))
   collection.insert(documents)
 ```
-To insert large number of documents from source
+To insert large number of documents from Source
 
 ```scala
   import akka.stream.ActorFlowMaterializer
