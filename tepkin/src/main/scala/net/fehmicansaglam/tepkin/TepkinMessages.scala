@@ -18,4 +18,6 @@ object TepkinMessages {
 
   case object Fetch extends TepkinMessage
 
+  case object WhatsYourVersion extends TepkinMessage
+
 }

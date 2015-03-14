@@ -5,7 +5,8 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
 import akka.util.Timeout
-import net.fehmicansaglam.tepkin.TepkinMessages.{Init, ShutDown}
+import net.fehmicansaglam.tepkin.TepkinMessages.{Init, ShutDown, WhatsYourVersion}
+import net.fehmicansaglam.tepkin.protocol.MongoWireVersion
 import net.fehmicansaglam.tepkin.protocol.command.IsMaster
 import net.fehmicansaglam.tepkin.protocol.message.{Message, Reply}
 import net.fehmicansaglam.tepkin.protocol.result.IsMasterResult
@@ -22,7 +23,8 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
   var pools = Set.empty[ActorRef]
   var nodes = seeds
   var primary: ActorRef = null
-  val stash = mutable.Queue.empty[(ActorRef, Message)]
+  var maxWireVersion: Int = MongoWireVersion.v26
+  val stash = mutable.Queue.empty[(ActorRef, Any)]
 
   seeds foreach { seed =>
     val pool = context.actorOf(
@@ -73,20 +75,24 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
 
       if (result.isMaster) {
         primary = sender()
-        log.info("Found primary {}", primary)
+        maxWireVersion = result.maxWireVersion
+        log.info("Found primary {}, maxWireVersion {}", primary, maxWireVersion)
         context become working
         stash foreach { case (ref, message) =>
           self.tell(message, ref)
         }
       }
 
-    case message: Message =>
+    case message =>
       stash.enqueue((sender(), message))
   }
 
   def working: Receive = {
     case message: Message =>
       primary forward message
+
+    case WhatsYourVersion =>
+      sender() ! maxWireVersion
 
     case ShutDown =>
       pools foreach (_ ! ShutDown)

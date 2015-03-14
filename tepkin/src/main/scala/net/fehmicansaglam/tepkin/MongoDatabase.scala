@@ -5,6 +5,8 @@ import akka.pattern.ask
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
+import net.fehmicansaglam.tepkin.TepkinMessages.WhatsYourVersion
+import net.fehmicansaglam.tepkin.protocol.MongoWireVersion
 import net.fehmicansaglam.tepkin.protocol.command.ListCollections
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 
@@ -24,13 +26,19 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
 
   def listCollections(filter: Option[BsonDocument] = None)
                      (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
-    (pool ? ListCollections(databaseName, filter)).mapTo[Reply].map { reply =>
-      val cursor = reply.documents(0).getAs[BsonDocument]("cursor").get
-      val cursorID = cursor.getAs[Long]("id").get
-      val ns = cursor.getAs[String]("ns").get
-      val initial = cursor.getAsList[BsonDocument]("firstBatch").get
+    (pool ? WhatsYourVersion).mapTo[Int].flatMap { maxWireVersion =>
+      if (maxWireVersion == MongoWireVersion.v30) {
+        (pool ? ListCollections(databaseName, filter)).mapTo[Reply].map { reply =>
+          val cursor = reply.documents(0).getAs[BsonDocument]("cursor").get
+          val cursorID = cursor.getAs[Long]("id").get
+          val ns = cursor.getAs[String]("ns").get
+          val initial = cursor.getAsList[BsonDocument]("firstBatch").get
 
-      Source(MongoCursor.props(pool, ns, cursorID, initial))
+          Source(MongoCursor.props(pool, ns, cursorID, initial))
+        }
+      } else {
+        apply("system.namespaces").find(BsonDocument.empty)
+      }
     }
   }
 
