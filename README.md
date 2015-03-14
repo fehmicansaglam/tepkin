@@ -5,7 +5,7 @@
 
 Reactive MongoDB Driver for Scala 2.11 and Java 8 built on top of Akka IO and Akka Streams.
 
-Only MongoDB 3.0+ is supported.
+Only MongoDB 2.6+ is supported.
 
 ## Contributions
 Tepkin is a young but very active project and absolutely needs your help. Good ways to contribute include:
