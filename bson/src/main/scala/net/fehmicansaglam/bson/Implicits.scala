@@ -176,4 +176,15 @@ object Implicits {
     }
   }
 
+  case class BsonValueRegex(pattern: String, options: String) extends BsonValue with Identifiable[(String, String)] {
+    override def identifier: (String, String) = (pattern, options)
+
+    override def encode(): ByteString = {
+      val builder = ByteString.newBuilder
+      putCString(builder, pattern)
+      putCString(builder, options)
+      builder.result()
+    }
+  }
+
 }
