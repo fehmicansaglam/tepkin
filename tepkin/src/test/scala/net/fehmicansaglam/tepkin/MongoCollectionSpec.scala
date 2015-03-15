@@ -187,6 +187,7 @@ class MongoCollectionSpec
     } yield results
 
     whenReady(result) { results =>
+      Logger.debug(s"$results")
       results should have size 2
       results(0).getAs[String]("_id") shouldBe Some("xyz1")
       results(0).getAs[Int]("total") shouldBe Some(100)
