@@ -16,7 +16,7 @@ class MongoCollection(databaseName: String,
                       pool: ActorRef) {
 
   /**
-   * Calculates aggregate values for the data in a collection.
+   * Calculates aggregate values for the data in this collection.
    *
    * @param pipeline A sequence of data aggregation operations or stages.
    * @param explain Specifies to return the information on the processing of the pipeline.

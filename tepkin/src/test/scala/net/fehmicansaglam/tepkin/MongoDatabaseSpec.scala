@@ -34,7 +34,7 @@ class MongoDatabaseSpec
     } yield collections
 
     whenReady(result) { collections =>
-      println(collections)
+      Logger.debug(s"$collections")
     }
   }
 

@@ -14,6 +14,7 @@ import net.fehmicansaglam.tepkin.protocol.command.Index
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result._
 
+import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
@@ -23,6 +24,80 @@ import scala.concurrent.duration.FiniteDuration
  * @param proxy Wrapped Scala MongoCollection
  */
 class MongoCollection(proxy: tepkin.MongoCollection) {
+
+  /**
+   * Calculates aggregate values for the data in this collection.
+   *
+   * @param pipeline A sequence of data aggregation operations or stages.
+   */
+  def aggregate(pipeline: JavaList[BsonDocument],
+                ec: ExecutionContext,
+                timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
+    toCompletableFuture {
+      proxy.aggregate(pipeline.asScala.toList)(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
+    }(ec)
+  }
+
+  /**
+   * Calculates aggregate values for the data in this collection.
+   *
+   * @param pipeline A sequence of data aggregation operations or stages.
+   * @param explain Specifies to return the information on the processing of the pipeline.
+   */
+  def aggregate(pipeline: JavaList[BsonDocument],
+                explain: Boolean,
+                ec: ExecutionContext,
+                timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
+    toCompletableFuture {
+      proxy.aggregate(pipeline.asScala.toList, Some(explain))(ec, timeout)
+        .map(source => Source.adapt(source.map(_.asJava)))(ec)
+    }(ec)
+  }
+
+  /**
+   * Calculates aggregate values for the data in this collection.
+   *
+   * @param pipeline A sequence of data aggregation operations or stages.
+   * @param explain Specifies to return the information on the processing of the pipeline.
+   * @param allowDiskUse Enables writing to temporary files. When set to true, aggregation operations can write data
+   *                     to the _tmp subdirectory in the dbPath directory.
+   */
+  def aggregate(pipeline: JavaList[BsonDocument],
+                explain: Boolean,
+                allowDiskUse: Boolean,
+                ec: ExecutionContext,
+                timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
+    toCompletableFuture {
+      proxy.aggregate(pipeline.asScala.toList, explain = Some(explain), allowDiskUse = Some(allowDiskUse))(ec, timeout)
+        .map(source => Source.adapt(source.map(_.asJava)))(ec)
+    }(ec)
+  }
+
+  /**
+   * Calculates aggregate values for the data in this collection.
+   *
+   * @param pipeline A sequence of data aggregation operations or stages.
+   * @param explain Specifies to return the information on the processing of the pipeline.
+   * @param allowDiskUse Enables writing to temporary files. When set to true, aggregation operations can write data
+   *                     to the _tmp subdirectory in the dbPath directory.
+   * @param cursor Specifies the initial batch size for the cursor. The value of the cursor field is a document with
+   *               the field batchSize.
+   */
+  def aggregate(pipeline: JavaList[BsonDocument],
+                explain: Boolean,
+                allowDiskUse: Boolean,
+                cursor: BsonDocument,
+                ec: ExecutionContext,
+                timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
+    toCompletableFuture {
+      proxy.aggregate(
+        pipeline.asScala.toList,
+        explain = Some(explain),
+        allowDiskUse = Some(allowDiskUse),
+        cursor = Some(cursor))(ec, timeout)
+        .map(source => Source.adapt(source.map(_.asJava)))(ec)
+    }(ec)
+  }
 
   def count(ec: ExecutionContext, timeout: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
     proxy.count()(ec, timeout)
@@ -54,7 +129,6 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
   def createIndexes(indexes: JavaList[Index],
                     ec: ExecutionContext,
                     timeout: FiniteDuration): CompletableFuture[CreateIndexesResult] = toCompletableFuture {
-    import scala.collection.JavaConverters._
     proxy.createIndexes(indexes.asScala: _*)(ec, timeout)
   }(ec)
 
@@ -96,7 +170,6 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
   def find(query: BsonDocument,
            ec: ExecutionContext,
            timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = toCompletableFuture {
-    import scala.collection.JavaConverters._
     proxy.find(query)(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
   }(ec)
 
@@ -121,7 +194,6 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
    */
   def getIndexes(ec: ExecutionContext,
                  timeout: FiniteDuration): CompletableFuture[JavaList[Index]] = toCompletableFuture {
-    import scala.collection.JavaConverters._
     proxy.getIndexes()(ec, timeout).map(_.asJava)(ec)
   }(ec)
 
@@ -134,7 +206,6 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
   def insertFromSource[M](source: Source[JavaList[BsonDocument], M],
                           ec: ExecutionContext,
                           timeout: FiniteDuration): Source[InsertResult, M] = {
-    import scala.collection.JavaConverters._
     Source.adapt {
       proxy.insertFromSource[M](source.asScala.map(_.asScala.toList))(ec, timeout)
     }
@@ -155,7 +226,6 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
                           writeConcern: BsonDocument,
                           ec: ExecutionContext,
                           timeout: FiniteDuration): Source[InsertResult, M] = {
-    import scala.collection.JavaConverters._
     Source.adapt {
       proxy.insertFromSource[M](
         source.asScala.map(_.asScala.toList),
