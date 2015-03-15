@@ -1,8 +1,8 @@
 package net.fehmicansaglam.tepkin.protocol.command
 
+import net.fehmicansaglam.bson.BsonDsl._
+import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.{BsonDocument, BsonDsl, Implicits}
-import BsonDsl._
-import Implicits._
 
 case class Count(databaseName: String,
                  collectionName: String,

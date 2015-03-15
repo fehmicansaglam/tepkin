@@ -162,4 +162,36 @@ class MongoCollectionSpec
       } shouldBe Seq("aa", "bb", "cc")
     }
   }
+
+  it should "group by and calculate a sum" in {
+    implicit val mat = ActorFlowMaterializer()(client.context)
+
+    val documents: Seq[BsonDocument] = Seq(
+      ("_id" := 1) ~ ("cust_id" := "abc1") ~ ("status" := "A") ~ ("amount" := 50),
+      ("_id" := 2) ~ ("cust_id" := "xyz1") ~ ("status" := "A") ~ ("amount" := 100),
+      ("_id" := 3) ~ ("cust_id" := "xyz1") ~ ("status" := "D") ~ ("amount" := 25),
+      ("_id" := 4) ~ ("cust_id" := "xyz1") ~ ("status" := "D") ~ ("amount" := 125),
+      ("_id" := 5) ~ ("cust_id" := "abc1") ~ ("status" := "A") ~ ("amount" := 25)
+    )
+
+    val pipeline: List[BsonDocument] = List(
+      "$match" := ("status" := "A"),
+      "$group" := ("_id" := "$cust_id") ~ ("total" := ("$sum" := "$amount")),
+      "$sort" := ("total" := -1)
+    )
+
+    val result = for {
+      insert <- collection.insert(documents)
+      aggregate <- collection.aggregate(pipeline)
+      results <- aggregate.runFold(List.empty[BsonDocument])(_ ++ _)
+    } yield results
+
+    whenReady(result) { results =>
+      results should have size 2
+      results(0).getAs[String]("_id") shouldBe Some("xyz1")
+      results(0).getAs[Int]("total") shouldBe Some(100)
+      results(1).getAs[String]("_id") shouldBe Some("abc1")
+      results(1).getAs[Int]("total") shouldBe Some(75)
+    }
+  }
 }

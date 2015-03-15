@@ -16,6 +16,28 @@ class MongoCollection(databaseName: String,
                       pool: ActorRef) {
 
   /**
+   * Calculates aggregate values for the data in a collection.
+   *
+   * @param pipeline A sequence of data aggregation operations or stages.
+   * @param explain Specifies to return the information on the processing of the pipeline.
+   * @param allowDiskUse Enables writing to temporary files. When set to true, aggregation operations can write data
+   *                     to the _tmp subdirectory in the dbPath directory.
+   * @param cursor Specifies the initial batch size for the cursor. The value of the cursor field is a document with
+   *               the field batchSize.
+   */
+  def aggregate(pipeline: List[BsonDocument],
+                explain: Option[Boolean] = None,
+                allowDiskUse: Option[Boolean] = None,
+                cursor: Option[BsonDocument] = None)
+               (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
+    (pool ? Aggregate(databaseName, collectionName, pipeline, explain, allowDiskUse, cursor)).mapTo[Reply]
+      .map { reply =>
+      val result = reply.documents(0).getAsList[BsonDocument]("result").get
+      Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, result))
+    }
+  }
+
+  /**
    * Counts the number of documents in this collection.
    *
    * @param query A query that selects which documents to count in a collection.
