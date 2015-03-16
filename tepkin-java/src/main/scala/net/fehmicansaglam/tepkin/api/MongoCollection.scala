@@ -10,7 +10,7 @@ import akka.util.Timeout._
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.tepkin
 import net.fehmicansaglam.tepkin.api.JavaConverters._
-import net.fehmicansaglam.tepkin.api.options.AggregationOptions
+import net.fehmicansaglam.tepkin.api.options.{AggregationOptions, CountOptions}
 import net.fehmicansaglam.tepkin.protocol.command.Index
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result._
@@ -55,28 +55,33 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
     }(ec)
   }
 
+  /**
+   * Returns the count of documents that would match a find() query. The count() method does not perform
+   * the find() operation but instead counts and returns the number of results that match a query.
+   */
   def count(ec: ExecutionContext, timeout: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
     proxy.count()(ec, timeout)
   }(ec)
 
+  /**
+   * Returns the count of documents that would match a find() query. The count() method does not perform
+   * the find() operation but instead counts and returns the number of results that match a query.
+   */
   def count(query: BsonDocument,
             ec: ExecutionContext,
             timeout: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
     proxy.count(query = Some(query))(ec, timeout)
   }(ec)
 
+  /**
+   * Returns the count of documents that would match a find() query. The count() method does not perform
+   * the find() operation but instead counts and returns the number of results that match a query.
+   */
   def count(query: BsonDocument,
-            limit: Integer,
-            ec: ExecutionContext, timeout: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
-    proxy.count(query = Some(query), limit = Some(limit))(ec, timeout)
-  }(ec)
-
-  def count(query: BsonDocument,
-            limit: Integer,
-            skip: Integer,
+            options: CountOptions,
             ec: ExecutionContext,
             timeout: FiniteDuration): CompletableFuture[CountResult] = toCompletableFuture {
-    proxy.count(query = Some(query), limit = Some(limit), skip = Some(skip))(ec, timeout)
+    proxy.count(query = Some(query), limit = options.limit, skip = options.skip)(ec, timeout)
   }(ec)
 
   /**
