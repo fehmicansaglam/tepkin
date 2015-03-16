@@ -10,6 +10,7 @@ import akka.util.Timeout._
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.tepkin
 import net.fehmicansaglam.tepkin.api.JavaConverters._
+import net.fehmicansaglam.tepkin.api.options.AggregationOptions
 import net.fehmicansaglam.tepkin.protocol.command.Index
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result._
@@ -42,59 +43,14 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
    * Calculates aggregate values for the data in this collection.
    *
    * @param pipeline A sequence of data aggregation operations or stages.
-   * @param explain Specifies to return the information on the processing of the pipeline.
+   * @param options Additional options that aggregate() passes to the aggregate command.
    */
   def aggregate(pipeline: JavaList[BsonDocument],
-                explain: Boolean,
+                options: AggregationOptions,
                 ec: ExecutionContext,
                 timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
     toCompletableFuture {
-      proxy.aggregate(pipeline.asScala.toList, Some(explain))(ec, timeout)
-        .map(source => Source.adapt(source.map(_.asJava)))(ec)
-    }(ec)
-  }
-
-  /**
-   * Calculates aggregate values for the data in this collection.
-   *
-   * @param pipeline A sequence of data aggregation operations or stages.
-   * @param explain Specifies to return the information on the processing of the pipeline.
-   * @param allowDiskUse Enables writing to temporary files. When set to true, aggregation operations can write data
-   *                     to the _tmp subdirectory in the dbPath directory.
-   */
-  def aggregate(pipeline: JavaList[BsonDocument],
-                explain: Boolean,
-                allowDiskUse: Boolean,
-                ec: ExecutionContext,
-                timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
-    toCompletableFuture {
-      proxy.aggregate(pipeline.asScala.toList, explain = Some(explain), allowDiskUse = Some(allowDiskUse))(ec, timeout)
-        .map(source => Source.adapt(source.map(_.asJava)))(ec)
-    }(ec)
-  }
-
-  /**
-   * Calculates aggregate values for the data in this collection.
-   *
-   * @param pipeline A sequence of data aggregation operations or stages.
-   * @param explain Specifies to return the information on the processing of the pipeline.
-   * @param allowDiskUse Enables writing to temporary files. When set to true, aggregation operations can write data
-   *                     to the _tmp subdirectory in the dbPath directory.
-   * @param cursor Specifies the initial batch size for the cursor. The value of the cursor field is a document with
-   *               the field batchSize.
-   */
-  def aggregate(pipeline: JavaList[BsonDocument],
-                explain: Boolean,
-                allowDiskUse: Boolean,
-                cursor: BsonDocument,
-                ec: ExecutionContext,
-                timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
-    toCompletableFuture {
-      proxy.aggregate(
-        pipeline.asScala.toList,
-        explain = Some(explain),
-        allowDiskUse = Some(allowDiskUse),
-        cursor = Some(cursor))(ec, timeout)
+      proxy.aggregate(pipeline.asScala.toList, options.explain, options.allowDiskUse, options.cursor)(ec, timeout)
         .map(source => Source.adapt(source.map(_.asJava)))(ec)
     }(ec)
   }
@@ -201,6 +157,12 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
              ec: ExecutionContext,
              timeout: FiniteDuration): CompletableFuture[InsertResult] = toCompletableFuture {
     proxy.insert(Seq(document))(ec, timeout)
+  }(ec)
+
+  def insert(documents: JavaList[BsonDocument],
+             ec: ExecutionContext,
+             timeout: FiniteDuration): CompletableFuture[InsertResult] = toCompletableFuture {
+    proxy.insert(documents.asScala)(ec, timeout)
   }(ec)
 
   def insertFromSource[M](source: Source[JavaList[BsonDocument], M],
