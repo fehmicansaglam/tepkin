@@ -176,9 +176,7 @@ Find and update
   MongoClient mongoClient = MongoClient.create("mongodb://localhost");
   MongoCollection collection = mongoClient.db("tepkin").collection("test");
 
-  BsonDocumentBuilder builder = new BsonDocumentBuilder();
-  builder.addString("name", "fehmi");
-  BsonDocument document = builder.build();
+  BsonDocument document = BsonDocumentBuilder.create().addString("name", "fehmi").build();
 
   FiniteDuration timeout = Duration.create(5, TimeUnit.SECONDS);
 
