@@ -125,31 +125,31 @@ public class MongoCollectionTest {
         final FlowMaterializer mat = ActorFlowMaterializer.create(mongoClient.context());
 
         List<BsonDocument> documents = Arrays.asList(
-                new BsonDocumentBuilder()
+                BsonDocumentBuilder.create()
                         .addInt("_id", 1)
                         .addString("cust_id", "abc1")
                         .addString("status", "A")
                         .addInt("amount", 50)
                         .build(),
-                new BsonDocumentBuilder()
+                BsonDocumentBuilder.create()
                         .addInt("_id", 2)
                         .addString("cust_id", "xyz1")
                         .addString("status", "A")
                         .addInt("amount", 100)
                         .build(),
-                new BsonDocumentBuilder()
+                BsonDocumentBuilder.create()
                         .addInt("_id", 3)
                         .addString("cust_id", "xyz1")
                         .addString("status", "D")
                         .addInt("amount", 25)
                         .build(),
-                new BsonDocumentBuilder()
+                BsonDocumentBuilder.create()
                         .addInt("_id", 4)
                         .addString("cust_id", "xyz1")
                         .addString("status", "D")
                         .addInt("amount", 125)
                         .build(),
-                new BsonDocumentBuilder()
+                BsonDocumentBuilder.create()
                         .addInt("_id", 5)
                         .addString("cust_id", "abc1")
                         .addString("status", "A")
@@ -158,17 +158,17 @@ public class MongoCollectionTest {
         );
 
         List<BsonDocument> pipeline = Arrays.asList(
-                new BsonDocumentBuilder()
-                        .add("$match", new BsonDocumentBuilder().addString("status", "A").build())
+                BsonDocumentBuilder.create()
+                        .add("$match", BsonDocumentBuilder.create().addString("status", "A").build())
                         .build(),
-                new BsonDocumentBuilder()
+                BsonDocumentBuilder.create()
                         .add("$group", new BsonDocumentBuilder()
                                 .addString("_id", "$cust_id")
-                                .add("total", new BsonDocumentBuilder().addString("$sum", "$amount").build())
+                                .add("total", BsonDocumentBuilder.create().addString("$sum", "$amount").build())
                                 .build())
                         .build(),
-                new BsonDocumentBuilder()
-                        .add("$sort", new BsonDocumentBuilder().addInt("total", -1).build())
+                BsonDocumentBuilder.create()
+                        .add("$sort", BsonDocumentBuilder.create().addInt("total", -1).build())
                         .build()
         );
 

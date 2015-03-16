@@ -1,9 +1,9 @@
 package net.fehmicansaglam.tepkin.api
 
-import net.fehmicansaglam.bson.{BsonDocument, BsonValue, BsonDsl, Implicits}
+import net.fehmicansaglam.bson.BsonDsl._
+import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.element.BsonElement
-import BsonDsl._
-import Implicits._
+import net.fehmicansaglam.bson.{BsonDocument, BsonDsl, BsonValue, Implicits}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -44,4 +44,8 @@ class BsonDocumentBuilder {
   def build(): BsonDocument = {
     BsonDocument(elements)
   }
+}
+
+object BsonDocumentBuilder {
+  def create: BsonDocumentBuilder = new BsonDocumentBuilder
 }
