@@ -31,12 +31,14 @@ libraryDependencies ++= Seq(
   "net.fehmicansaglam" %% "tepkin" % "0.1-SNAPSHOT"
 )
 ```
-For Java developers, _net.fehmicansaglam.tepkin.api_ package is intended to be used from Java. To use the package, add the following dependency to build.sbt.
+For Java developers, _net.fehmicansaglam.tepkin.api_ package is intended to be used from Java. To use the package, add the following dependency to your pom.xml.
 
-```scala
-libraryDependencies ++= Seq(
-  "net.fehmicansaglam" %% "tepkin-java" % "0.1-SNAPSHOT"
-)
+```xml
+<dependency>
+	<groupId>net.fehmicansaglam</groupId>
+	<artifactId>tepkin-java</artifactId>
+	<version>0.1-SNAPSHOT</version>
+</dependency>
 ```
 
 ## Scala API
