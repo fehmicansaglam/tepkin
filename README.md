@@ -92,7 +92,7 @@ To make a connection to MongoDB, use the <code>MongoClient</code> interface.
   // Obtain reference to database "tepkin" using client
   val db = client("tepkin")
 
-  // Obtain reference to the collection "Example" using database
+  // Obtain reference to the collection "example" using database
   val collection = db("example")
 
   import client.ec
