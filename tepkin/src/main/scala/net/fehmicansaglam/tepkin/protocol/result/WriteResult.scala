@@ -31,4 +31,8 @@ trait WriteResult extends Result {
   def writeErrors: Option[List[WriteError]]
 
   def writeConcernError: Option[WriteConcernError]
+
+  def hasWriteError: Boolean = writeErrors.exists(_.nonEmpty)
+
+  def hasWriteConcernError: Boolean = writeConcernError.isDefined
 }

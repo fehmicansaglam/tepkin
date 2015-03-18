@@ -92,10 +92,10 @@ class MongoCollection(databaseName: String,
       writeConcern = writeConcern.map(_.toDoc))).mapTo[Reply].map { reply =>
       val document = reply.documents(0)
       DeleteResult(
-        document.getAs[Int]("n"),
-        document.getAs[Int]("code"),
-        document.getAs[String]("errmsg"),
-        document.get[BsonValueNumber]("ok").get.toInt == 1
+        document.getAs[Int]("ok").get == 1,
+        document.getAs[Int]("n").get,
+        writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
+        writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       )
     }
   }
@@ -207,8 +207,10 @@ class MongoCollection(databaseName: String,
       .mapTo[Reply].map { reply =>
       val document = reply.documents(0)
       InsertResult(
+        document.getAs[Int]("ok").get == 1,
         document.getAs[Int]("n").get,
-        document.getAs[Int]("ok").get == 1
+        writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
+        writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       )
     }
   }

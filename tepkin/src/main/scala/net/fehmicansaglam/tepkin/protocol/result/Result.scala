@@ -6,17 +6,20 @@ protected[result] trait Result
 
 case class CountResult(missing: Option[Boolean] = None, n: Int, ok: Boolean) extends Result
 
-case class DeleteResult(n: Option[Int] = None,
-                        code: Option[Int] = None,
-                        errmsg: Option[String] = None,
-                        ok: Boolean) extends Result
+case class DeleteResult(ok: Boolean,
+                        n: Int,
+                        writeErrors: Option[List[WriteError]] = None,
+                        writeConcernError: Option[WriteConcernError] = None) extends WriteResult
 
-case class InsertResult(n: Int, ok: Boolean) extends Result
+case class InsertResult(ok: Boolean,
+                        n: Int,
+                        writeErrors: Option[List[WriteError]] = None,
+                        writeConcernError: Option[WriteConcernError] = None) extends WriteResult
 
 case class UpdateResult(ok: Boolean,
                         n: Int,
                         nModified: Int,
                         upserted: Option[List[BsonDocument]],
-                        writeErrors: Option[List[WriteError]],
-                        writeConcernError: Option[WriteConcernError]) extends WriteResult
+                        writeErrors: Option[List[WriteError]] = None,
+                        writeConcernError: Option[WriteConcernError] = None) extends WriteResult
 

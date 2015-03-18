@@ -54,7 +54,7 @@ class GridFsSpec
     whenReady(result) { case (put, file, delete) =>
       file shouldBe 'defined
       file.get.get[BsonValueObjectId]("_id") shouldBe put.get[BsonValueObjectId]("_id")
-      delete.n shouldBe Some(1)
+      delete.n shouldBe 1
     }
   }
 
@@ -75,7 +75,7 @@ class GridFsSpec
 
     whenReady(result) { case (put, md5, delete) =>
       Converters.hex2Str(md5) shouldBe put.getAs[String]("md5").get
-      delete.n shouldBe Some(1)
+      delete.n shouldBe 1
     }
   }
 
@@ -96,7 +96,7 @@ class GridFsSpec
 
     whenReady(result) { case (put, md5, delete) =>
       Converters.hex2Str(md5) shouldBe put.getAs[String]("md5").get
-      delete.n shouldBe Some(1)
+      delete.n shouldBe 1
     }
   }
 

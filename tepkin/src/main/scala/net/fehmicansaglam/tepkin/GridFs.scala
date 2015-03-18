@@ -161,7 +161,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
       case Some(file) =>
         delete(file.get[BsonValueObjectId]("_id").get)
       case None =>
-        Future.successful(DeleteResult(ok = true, n = Some(0)))
+        Future.successful(DeleteResult(ok = true, n = 0))
     }
   }
 }
