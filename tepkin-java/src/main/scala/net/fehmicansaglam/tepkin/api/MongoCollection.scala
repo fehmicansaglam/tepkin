@@ -11,7 +11,7 @@ import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.tepkin
 import net.fehmicansaglam.tepkin.api.JavaConverters._
 import net.fehmicansaglam.tepkin.api.options.{AggregationOptions, CountOptions}
-import net.fehmicansaglam.tepkin.protocol.command.Index
+import net.fehmicansaglam.tepkin.protocol.command.{Index, WriteConcern}
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result._
 
@@ -190,7 +190,7 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
 
   def insertFromSource[M](source: Source[JavaList[BsonDocument], M],
                           ordered: Boolean,
-                          writeConcern: BsonDocument,
+                          writeConcern: WriteConcern,
                           ec: ExecutionContext,
                           timeout: FiniteDuration): Source[InsertResult, M] = {
     Source.adapt {

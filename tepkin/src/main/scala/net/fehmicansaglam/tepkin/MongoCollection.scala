@@ -80,7 +80,7 @@ class MongoCollection(databaseName: String,
    * @param writeConcern A document expressing the write concern. Omit to use the default write concern.
    * @return A WriteResult object that contains the status of the operation.
    */
-  def delete(query: BsonDocument, justOne: Boolean = false, writeConcern: Option[BsonDocument] = None)
+  def delete(query: BsonDocument, justOne: Boolean = false, writeConcern: Option[WriteConcern] = None)
             (implicit ec: ExecutionContext, timeout: Timeout): Future[DeleteResult] = {
     (pool ? Delete(
       databaseName,
@@ -89,7 +89,7 @@ class MongoCollection(databaseName: String,
         case false => 0
         case true => 1
       })),
-      writeConcern = writeConcern)).mapTo[Reply].map { reply =>
+      writeConcern = writeConcern.map(_.toDoc))).mapTo[Reply].map { reply =>
       val document = reply.documents(0)
       DeleteResult(
         document.getAs[Int]("n"),
@@ -178,16 +178,17 @@ class MongoCollection(databaseName: String,
    * @param document document to insert into the collection.
    */
   def insert(document: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[InsertResult] = {
-    (pool ? Insert(
-      databaseName,
-      collectionName,
-      Seq(document))).mapTo[Reply].map { reply =>
-      val document = reply.documents(0)
-      InsertResult(
-        document.getAs[Int]("n").get,
-        document.getAs[Int]("ok").get == 1
-      )
-    }
+    insert(Seq(document))
+  }
+
+  /**
+   * Inserts document into this collection.
+   *
+   * @param document document to insert into the collection.
+   */
+  def insert(document: BsonDocument, writeConcern: WriteConcern)
+            (implicit ec: ExecutionContext, timeout: Timeout): Future[InsertResult] = {
+    insert(Seq(document), writeConcern = Some(writeConcern))
   }
 
   /**
@@ -200,9 +201,10 @@ class MongoCollection(databaseName: String,
    *                continue processing the remaining documents in the array.
    * @param writeConcern A document expressing the write concern.
    */
-  def insert(documents: Seq[BsonDocument], ordered: Option[Boolean] = None, writeConcern: Option[BsonDocument] = None)
+  def insert(documents: Seq[BsonDocument], ordered: Option[Boolean] = None, writeConcern: Option[WriteConcern] = None)
             (implicit ec: ExecutionContext, timeout: Timeout): Future[InsertResult] = {
-    (pool ? Insert(databaseName, collectionName, documents, ordered, writeConcern)).mapTo[Reply].map { reply =>
+    (pool ? Insert(databaseName, collectionName, documents, ordered, writeConcern.map(_.toDoc)))
+      .mapTo[Reply].map { reply =>
       val document = reply.documents(0)
       InsertResult(
         document.getAs[Int]("n").get,
@@ -223,7 +225,7 @@ class MongoCollection(databaseName: String,
    */
   def insertFromSource[M](source: Source[List[BsonDocument], M],
                           ordered: Option[Boolean] = None,
-                          writeConcern: Option[BsonDocument] = None)
+                          writeConcern: Option[WriteConcern] = None)
                          (implicit ec: ExecutionContext, timeout: Timeout): Source[InsertResult, M] = {
     source.mapAsyncUnordered(documents => insert(documents, ordered, writeConcern))
   }
@@ -257,13 +259,13 @@ class MongoCollection(databaseName: String,
              update: BsonDocument,
              upsert: Option[Boolean] = None,
              multi: Option[Boolean] = None,
-             writeConcern: Option[BsonDocument] = None)
+             writeConcern: Option[WriteConcern] = None)
             (implicit ec: ExecutionContext, timeout: Timeout): Future[UpdateResult] = {
     (pool ? Update(
       databaseName,
       collectionName,
       updates = Seq(UpdateElement(q = query, u = update, upsert = upsert, multi = multi)),
-      writeConcern = writeConcern
+      writeConcern = writeConcern.map(_.toDoc)
     )).mapTo[Reply].map { reply =>
       val document = reply.documents(0)
       UpdateResult(
