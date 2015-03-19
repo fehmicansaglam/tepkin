@@ -1,4 +1,4 @@
-package net.fehmicansaglam.tepkin.protocol.command
+package net.fehmicansaglam.tepkin.protocol
 
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._

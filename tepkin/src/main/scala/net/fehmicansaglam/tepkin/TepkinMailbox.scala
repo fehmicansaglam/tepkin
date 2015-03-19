@@ -3,7 +3,7 @@ package net.fehmicansaglam.tepkin
 import akka.actor.{ActorSystem, PoisonPill}
 import akka.dispatch.{PriorityGenerator, UnboundedPriorityMailbox}
 import com.typesafe.config.Config
-import net.fehmicansaglam.tepkin.TepkinMessages.{Idle, Init, ShutDown}
+import net.fehmicansaglam.tepkin.TepkinMessage.{Idle, Init, ShutDown}
 
 class TepkinMailbox(settings: ActorSystem.Settings, config: Config) extends UnboundedPriorityMailbox(
   PriorityGenerator {

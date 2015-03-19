@@ -1,8 +1,8 @@
 package net.fehmicansaglam.tepkin
 
-object TepkinMessages {
+sealed trait TepkinMessage
 
-  sealed trait TepkinMessage
+object TepkinMessage {
 
   case object Init extends TepkinMessage
 

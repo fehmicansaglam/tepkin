@@ -5,6 +5,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.bson.{BsonDocument, BsonValueNumber}
+import net.fehmicansaglam.tepkin.protocol.WriteConcern
 import net.fehmicansaglam.tepkin.protocol.command._
 import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
 import net.fehmicansaglam.tepkin.protocol.result._

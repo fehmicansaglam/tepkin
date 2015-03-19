@@ -4,7 +4,7 @@ import java.net.InetSocketAddress
 
 import akka.actor._
 import akka.io.{IO, Tcp}
-import net.fehmicansaglam.tepkin.TepkinMessages.{Idle, Init, ShutDown}
+import net.fehmicansaglam.tepkin.TepkinMessage.{Idle, Init, ShutDown}
 import net.fehmicansaglam.tepkin.protocol.message.Message
 
 import scala.collection.mutable
@@ -89,12 +89,11 @@ class MongoPool(remote: InetSocketAddress, poolSize: Int)
         idleConnections foreach (_ ! ShutDown)
       }
 
-    case Terminated(connection) => {
+    case Terminated(connection) =>
       idleConnections -= connection
       if (idleConnections.isEmpty) {
         context stop self
       }
-    }
   }
 
   override def postStop(): Unit = {

@@ -5,7 +5,7 @@ import akka.pattern.ask
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.tepkin.TepkinMessages.WhatsYourVersion
+import net.fehmicansaglam.tepkin.TepkinMessage.WhatsYourVersion
 import net.fehmicansaglam.tepkin.protocol.MongoWireVersion
 import net.fehmicansaglam.tepkin.protocol.command.ListCollections
 import net.fehmicansaglam.tepkin.protocol.message.Reply

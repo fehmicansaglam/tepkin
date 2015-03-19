@@ -6,7 +6,7 @@ import akka.stream.actor.ActorPublisher
 import akka.stream.actor.ActorPublisherMessage.{Cancel, Request}
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.tepkin.TepkinMessages.Fetch
+import net.fehmicansaglam.tepkin.TepkinMessage.Fetch
 import net.fehmicansaglam.tepkin.protocol.message.{GetMoreMessage, KillCursorsMessage, Reply}
 
 import scala.concurrent.duration._

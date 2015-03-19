@@ -7,7 +7,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.Tcp._
 import akka.util.ByteString
 import net.fehmicansaglam.tepkin.RetryStrategy.FixedRetryStrategy
-import net.fehmicansaglam.tepkin.TepkinMessages._
+import net.fehmicansaglam.tepkin.TepkinMessage._
 import net.fehmicansaglam.tepkin.protocol.message.{Message, Reply}
 
 class MongoConnection(manager: ActorRef, remote: InetSocketAddress, retryStrategy: RetryStrategy)

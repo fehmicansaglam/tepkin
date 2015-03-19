@@ -2,7 +2,7 @@ package net.fehmicansaglam.tepkin
 
 
 import akka.actor.{ActorRefFactory, ActorSystem}
-import net.fehmicansaglam.tepkin.TepkinMessages.ShutDown
+import net.fehmicansaglam.tepkin.TepkinMessage.ShutDown
 
 import scala.concurrent.ExecutionContext
 
