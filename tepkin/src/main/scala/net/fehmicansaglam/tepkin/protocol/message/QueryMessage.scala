@@ -1,9 +1,7 @@
 package net.fehmicansaglam.tepkin.protocol.message
 
 import akka.util.ByteString
-import net.fehmicansaglam.bson.{BsonDocument, BsonDsl, Implicits}
-import BsonDsl._
-import Implicits._
+import net.fehmicansaglam.bson.BsonDocument
 
 /**
  * The OP_QUERY message is used to query the database for documents in a collection.
@@ -23,7 +21,7 @@ import Implicits._
  */
 case class QueryMessage(fullCollectionName: String,
                         query: BsonDocument,
-                        fields: Seq[String] = Seq.empty[String],
+                        fields: Option[BsonDocument] = None,
                         numberToSkip: Int = 0,
                         numberToReturn: Int = 0) extends Message {
 
@@ -42,9 +40,7 @@ case class QueryMessage(fullCollectionName: String,
       .putInt(numberToReturn)
       .append(query.encode())
 
-    if (fields.nonEmpty) {
-      builder.append($document(fields.map(_ := 1): _*).encode())
-    }
+    fields.foreach(fields => builder.append(fields.encode()))
 
     builder.result()
   }

@@ -135,6 +135,13 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
     proxy.find(query)(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
   }(ec)
 
+  def find(query: BsonDocument,
+           fields: BsonDocument,
+           ec: ExecutionContext,
+           timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = toCompletableFuture {
+    proxy.find(query, Some(fields))(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
+  }(ec)
+
   def findAndRemove(query: BsonDocument,
                     ec: ExecutionContext,
                     timeout: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {

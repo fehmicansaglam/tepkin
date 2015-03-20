@@ -3,9 +3,9 @@ package net.fehmicansaglam.tepkin.protocol
 import java.nio.ByteOrder
 
 import akka.util.ByteString
+import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
-import net.fehmicansaglam.bson.{BsonDocument, BsonDsl, Implicits}
 import net.fehmicansaglam.tepkin.protocol.message._
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -120,11 +120,11 @@ class MessageSpec extends FlatSpec with Matchers {
 
   it should "construct correct QueryMessage" in {
     val query: BsonDocument = "age" := 18
-    val fields = Seq("age")
+    val fields: BsonDocument = "age" := 1
     val numberToSkip = 0
     val numberToReturn = 0
 
-    val actual = QueryMessage(fullCollectionName, query, fields, numberToSkip, numberToReturn)
+    val actual = QueryMessage(fullCollectionName, query, Some(fields), numberToSkip, numberToReturn)
 
     val expected = {
       val builder = ByteString.newBuilder
@@ -135,9 +135,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .putInt(numberToReturn)
         .append(query.encode())
 
-      if (fields.nonEmpty) {
-        builder.append($document(fields.map(_ := 1): _*).encode())
-      }
+      builder.append(fields.encode())
 
       val body = builder.result()
 

@@ -119,9 +119,9 @@ class MongoCollection(databaseName: String,
     (pool ? Drop(databaseName, collectionName)).mapTo[Reply]
   }
 
-  def find(query: BsonDocument)
+  def find(query: BsonDocument, fields: Option[BsonDocument] = None)
           (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
-    (pool ? QueryMessage(s"$databaseName.$collectionName", query)).mapTo[Reply].map { reply =>
+    (pool ? QueryMessage(s"$databaseName.$collectionName", query, fields =  fields)).mapTo[Reply].map { reply =>
       Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, reply.documents))
     }
   }

@@ -150,7 +150,7 @@ import net.fehmicansaglam.bson.Implicits._
 val documents = (1 to 100).map(i => $document("name" := s"fehmi$i"))
 collection.insert(documents)
 ```
-#### Insert large number of documents from an `akka.stream.scaladsl.Source`
+#### Insert a large number of documents from an `akka.stream.scaladsl.Source`
 
 ```scala
 import akka.stream.ActorFlowMaterializer
