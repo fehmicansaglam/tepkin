@@ -123,7 +123,7 @@ class MongoCollectionSpec
     val result = for {
       insert <- collection.insert(Seq(document))
       update <- collection.update(
-        query = ("name" := "fehmi"),
+        query = "name" := "fehmi",
         update = $set("name" := "fehmi can")
       )
     } yield update

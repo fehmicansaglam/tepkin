@@ -22,7 +22,7 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
 
   case class PingNodesResult(result: IsMasterResult, elapsed: Int)
 
-  case class NodeDetails(maxWireVersion: Int, var elapsed: Int)
+  case class NodeDetails(maxWireVersion: Int, elapsed: Int)
 
   import context.dispatcher
 
@@ -48,7 +48,7 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
 
     case PingNodesResult(result, elapsed) =>
       nodes += (sender() -> NodeDetails(result.maxWireVersion, elapsed))
-      log.info(s"$nodes")
+      log.debug(s"Nodes: $nodes")
 
       val newRemotes = result.replicaSet.map { replicaSet =>
         replicaSet.hosts.map { node =>
