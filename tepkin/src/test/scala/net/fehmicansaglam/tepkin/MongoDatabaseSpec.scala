@@ -3,8 +3,8 @@ package net.fehmicansaglam.tepkin
 import akka.stream.ActorFlowMaterializer
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
+import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers, OptionValues}
 
 import scala.concurrent.duration._
 
@@ -13,7 +13,8 @@ class MongoDatabaseSpec
   with Matchers
   with ScalaFutures
   with OptionValues
-  with BeforeAndAfter {
+  with BeforeAndAfter
+  with BeforeAndAfterAll {
 
   override implicit val patienceConfig = PatienceConfig(timeout = 30.seconds, interval = 1.seconds)
 
@@ -24,6 +25,7 @@ class MongoDatabaseSpec
 
   implicit val timeout: Timeout = 30.seconds
 
+  override def afterAll() = client.shutdown()
 
   "A MongoDatabase" should "list collections" in {
     implicit val mat = ActorFlowMaterializer()(client.context)

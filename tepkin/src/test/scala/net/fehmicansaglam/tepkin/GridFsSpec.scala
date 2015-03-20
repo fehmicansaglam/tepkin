@@ -8,8 +8,8 @@ import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.util.Converters
+import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers, OptionValues}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -19,7 +19,8 @@ class GridFsSpec
   with Matchers
   with ScalaFutures
   with OptionValues
-  with BeforeAndAfter {
+  with BeforeAndAfter
+  with BeforeAndAfterAll {
 
   override implicit val patienceConfig = PatienceConfig(timeout = 30.seconds, interval = 1.seconds)
 
@@ -41,6 +42,8 @@ class GridFsSpec
     Await.ready(db.collection("fs.files").drop(), 5.seconds)
     Await.ready(db.collection("fs.chunks").drop(), 5.seconds)
   }
+
+  override def afterAll() = client.shutdown()
 
   "A GridFs" should "put and find and delete File" in {
     implicit val mat = ActorFlowMaterializer()(client.context)

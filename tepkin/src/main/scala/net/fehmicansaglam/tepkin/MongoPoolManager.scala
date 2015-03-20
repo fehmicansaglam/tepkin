@@ -22,26 +22,24 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
 
   case class PingNodesResult(result: IsMasterResult, elapsed: Int)
 
-  case class NodeEntry(remote: InetSocketAddress, pool: ActorRef, maxWireVersion: Int, var elapsed: Int)
+  case class NodeDetails(maxWireVersion: Int, var elapsed: Int)
 
   import context.dispatcher
 
+  var remotes = seeds
+  val nodes = mutable.Map.empty[ActorRef, NodeDetails]
   var pools = Set.empty[ActorRef]
-  var nodes = seeds
   var primary: Option[ActorRef] = None
   var maxWireVersion: Int = MongoWireVersion.v26
   val stash = mutable.Queue.empty[(ActorRef, Any)]
 
-  seeds foreach { seed =>
-    val pool = context.actorOf(
-      MongoPool.props(seed, nConnectionsPerNode),
-      s"pool-$seed".replaceAll("\\W", "_")
-    )
+  for (seed <- seeds) {
+    val pool = context.actorOf(MongoPool.props(seed, nConnectionsPerNode), s"pool-$seed".replaceAll("\\W", "_"))
     log.info("Created pool for {}", seed)
     pools += pool
   }
 
-  context.system.scheduler.schedule(initialDelay = 0.seconds, interval = 10.seconds, self, PingNodes)
+  val pinger = context.system.scheduler.schedule(initialDelay = 0.seconds, interval = 10.seconds, self, PingNodes)
 
   def receive = {
 
@@ -49,23 +47,23 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
       pingNodes()
 
     case PingNodesResult(result, elapsed) =>
-      val newNodes = result.replicaSet.map {
-        _.hosts.map { node =>
+      nodes += (sender() -> NodeDetails(result.maxWireVersion, elapsed))
+      log.info(s"$nodes")
+
+      val newRemotes = result.replicaSet.map { replicaSet =>
+        replicaSet.hosts.map { node =>
           val Array(host, port) = node.split(":")
           new InetSocketAddress(host, port.toInt)
         }.toSet
       }.getOrElse(Set.empty)
 
-      (newNodes diff nodes) foreach { node =>
-        val pool = context.actorOf(
-          MongoPool.props(node, nConnectionsPerNode),
-          s"pool-$node".replaceAll("\\W", "_")
-        )
-        log.info("New node found. Created pool for {}", node)
+      for (remote <- newRemotes.diff(remotes)) {
+        val pool = context.actorOf(MongoPool.props(remote, nConnectionsPerNode), s"pool-$remote".replaceAll("\\W", "_"))
+        log.info("New node found. Created pool for {}", remote)
         pools += pool
       }
 
-      nodes ++= newNodes
+      remotes ++= newRemotes
 
       if (result.isMaster) {
         primary match {
@@ -89,6 +87,7 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
       sender() ! maxWireVersion
 
     case ShutDown =>
+      pinger.cancel()
       pools foreach (_ ! ShutDown)
 
     case message =>
@@ -99,7 +98,7 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
   }
 
   private def pingNodes(): Unit = {
-    pools foreach { pool =>
+    for (pool <- pools) {
       implicit val timeout: Timeout = 10.seconds
       val begin = System.currentTimeMillis()
       (pool ? IsMaster).mapTo[Reply].map { reply =>

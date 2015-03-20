@@ -7,8 +7,8 @@ import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.tepkin.protocol.command.Index
+import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers, OptionValues}
 
 import scala.collection.immutable.Iterable
 import scala.concurrent.Await
@@ -19,7 +19,8 @@ class MongoCollectionSpec
   with Matchers
   with ScalaFutures
   with OptionValues
-  with BeforeAndAfter {
+  with BeforeAndAfter
+  with BeforeAndAfterAll {
 
   override implicit val patienceConfig = PatienceConfig(timeout = 30.seconds, interval = 1.seconds)
 
@@ -38,6 +39,8 @@ class MongoCollectionSpec
   after {
     Await.ready(collection.drop(), 5.seconds)
   }
+
+  override def afterAll() = client.shutdown()
 
   "A MongoCollection" should "findAndUpdate" in {
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")
