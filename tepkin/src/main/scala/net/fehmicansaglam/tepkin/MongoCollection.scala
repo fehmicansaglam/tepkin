@@ -119,9 +119,19 @@ class MongoCollection(databaseName: String,
     (pool ? Drop(databaseName, collectionName)).mapTo[Reply]
   }
 
-  def find(query: BsonDocument, fields: Option[BsonDocument] = None)
+  /**
+   * Selects documents in this collection.
+   *
+   * @param query Specifies selection criteria using query operators. To return all documents in a collection,
+   *              pass an empty document ({}).
+   * @param fields Specifies the fields to return using projection operators. To return all fields in the matching
+   *               document, omit this parameter.
+   */
+  def find(query: BsonDocument, fields: Option[BsonDocument] = None, skip: Int = 0)
           (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
-    (pool ? QueryMessage(s"$databaseName.$collectionName", query, fields =  fields)).mapTo[Reply].map { reply =>
+    (pool ? QueryMessage(s"$databaseName.$collectionName", query, fields = fields, numberToSkip = skip))
+      .mapTo[Reply]
+      .map { reply =>
       Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, reply.documents))
     }
   }

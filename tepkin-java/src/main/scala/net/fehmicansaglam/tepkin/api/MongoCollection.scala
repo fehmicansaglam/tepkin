@@ -129,12 +129,18 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
     proxy.drop()(ec, timeout)
   }(ec)
 
+  /**
+   * Selects documents in this collection.
+   */
   def find(query: BsonDocument,
            ec: ExecutionContext,
            timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = toCompletableFuture {
     proxy.find(query)(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
   }(ec)
 
+  /**
+   * Selects documents in this collection.
+   */
   def find(query: BsonDocument,
            fields: BsonDocument,
            ec: ExecutionContext,
