@@ -50,7 +50,7 @@ Scala developers, add the following repository and dependency:
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "net.fehmicansaglam" %% "tepkin" % "0.1-SNAPSHOT"
+  "net.fehmicansaglam" %% "tepkin" % "0.2-SNAPSHOT"
 )
 ```
 
@@ -65,7 +65,7 @@ Java developers add the following repository and dependency to your pom.xml:
 <dependency>
 	<groupId>net.fehmicansaglam</groupId>
 	<artifactId>tepkin-java_2.11</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.2-SNAPSHOT</version>
 </dependency>
 ```
 
