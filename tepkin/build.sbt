@@ -1,6 +1,6 @@
 name := "tepkin"
 
-version := "0.1-SNAPSHOT"
+version := "0.2-SNAPSHOT"
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3",

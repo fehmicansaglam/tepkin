@@ -23,24 +23,48 @@ Please read our Scala Guide first: https://github.com/fehmicansaglam/tepkin/wiki
 
 ### Setting up dependencies
 
-Current release is *0.1-SNAPSHOT*. So you need to add Sonatype Snapshots repository to your build.sbt:
+Latest stable Tepkin release is **0.1** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin).
+
+Scala developers, add the following dependency:
 
 ```scala
-resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+libraryDependencies ++= Seq(
+  "net.fehmicansaglam" %% "tepkin" % "0.1"
+)
 ```
 
-For Scala developers, add the following dependency:
+Java developers, `net.fehmicansaglam.tepkin.api` package is intended to be used from Java. To use the package, add the following dependency to your pom.xml:
+
+```xml
+<dependency>
+  <groupId>net.fehmicansaglam</groupId>
+  <artifactId>tepkin-java_2.11</artifactId>
+  <version>0.1</version>
+</dependency>
+```
+
+Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.2-SNAPSHOT**.
+
+Scala developers, add the following repository and dependency:
 ```scala
+resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+
 libraryDependencies ++= Seq(
   "net.fehmicansaglam" %% "tepkin" % "0.1-SNAPSHOT"
 )
 ```
-For Java developers, _net.fehmicansaglam.tepkin.api_ package is intended to be used from Java. To use the package, add the following dependency to your pom.xml.
+
+Java developers add the following repository and dependency to your pom.xml:
 
 ```xml
+<repository>
+  <id>Sonatype Snapshots</id>
+  <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+</repository>
+
 <dependency>
 	<groupId>net.fehmicansaglam</groupId>
-	<artifactId>tepkin-java</artifactId>
+	<artifactId>tepkin-java_2.11</artifactId>
 	<version>0.1-SNAPSHOT</version>
 </dependency>
 ```
