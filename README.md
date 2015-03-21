@@ -79,6 +79,18 @@ val document = $document(
 )
 ```
 
+There is an implicit conversion from any `BsonElement` to `BsonDocument` for convenience.
+
+```scala
+import net.fehmicansaglam.bson.BsonDocument
+import net.fehmicansaglam.bson.element.BsonElement
+import net.fehmicansaglam.bson.BsonDsl._
+import net.fehmicansaglam.bson.Implicits._
+
+val element: BsonElement = "name" := "fehmi"
+val document: BsonDocument = "name" := "fehmi"
+```
+
 ### Connecting to MongoDB
 
 To make a connection to MongoDB, use the `MongoClient` interface.
@@ -89,6 +101,8 @@ import net.fehmicansaglam.tepkin.MongoClient
 // Connect to a MongoDB node.
 val client = MongoClient("mongodb://localhost")
 ```
+
+`MongoClient` manages multiple connection pools to MongoDB instances and therefore is a heavy class. Most of the time you will need only one `MongoClient` instance per application.
 
 Use `MongoDatabase` and `MongoCollection` in order to obtain a reference to a database and a collection.
 
@@ -101,8 +115,6 @@ val collection = db("example")
 ```
 
 `MongoDatabase` and `MongoCollection` are lightweight classes and may be instantiated more than once if needed. However they are both immutable and reusable.
-
-In most circumstances you will need only one `MongoClient` per application.
 
 All methods in the `MongoCollection` class need an implicit `scala.concurrent.ExecutionContext` and an `akka.util.Timeout`. You can define a default timeout and use the client's execution context as shown below:
 
@@ -150,7 +162,7 @@ import net.fehmicansaglam.bson.Implicits._
 val documents = (1 to 100).map(i => $document("name" := s"fehmi$i"))
 collection.insert(documents)
 ```
-#### Insert a large number of documents from an `akka.stream.scaladsl.Source`
+#### Insert a large number of documents from a stream
 
 ```scala
 import akka.stream.ActorFlowMaterializer
@@ -173,7 +185,29 @@ collection.insertFromSource(documents).runForeach(_ => ())
 ```
 ### Other queries
 
-Find and update
+#### Update
+
+```scala
+import net.fehmicansaglam.bson.BsonDsl._
+import net.fehmicansaglam.bson.Implicits._
+
+import scala.concurrent.Future
+
+val document = ("name" := "fehmi") ~ ("surname" := "saglam")
+
+val result: Future[UpdateResult] = for {
+  insert <- collection.insert(document)
+  update <- collection.update(
+    query = "name" := "fehmi",
+    update = $set("name" := "fehmi can")
+  )
+} yield update
+```
+
+#### Find and update
+
+Update and return the old document.
+
 ```scala
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
@@ -182,15 +216,22 @@ collection.findAndUpdate(
   query = Some("name" := "fehmi"),
   update = $set("name" := "fehmi can")
 )
+```
 
-val newDocument = collection.findAndUpdate(
+Update and return the updated document.
+
+```scala
+import net.fehmicansaglam.bson.BsonDsl._
+import net.fehmicansaglam.bson.Implicits._
+
+collection.findAndUpdate(
   query = Some("name" := "fehmi"),
   update = $set("name" := "fehmi can"),
   returnNew = true
 )
 ```
 
-### Create index
+#### Create index
 ```scala
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
@@ -216,5 +257,3 @@ CompletableFuture<Optional<BsonDocument>> cf = collection
   .thenCompose(insert -> collection.findOne(mongoClient.ec(), timeout));
 Optional<BsonDocument> actual = cf.get(5, TimeUnit.SECONDS);
 ```
-## Samples
-Sample applications will be added as soon as possible to demonstrate Scala and Java API usage.
