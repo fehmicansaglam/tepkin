@@ -1,5 +1,7 @@
 # Tepkin
 
+[![Join the chat at https://gitter.im/fehmicansaglam/tepkin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fehmicansaglam/tepkin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/fehmicansaglam/tepkin.svg?branch=master)](https://travis-ci.org/fehmicansaglam/tepkin)
 [![Codacy Badge](https://www.codacy.com/project/badge/d5039668605d44fea3adf2302e7e6c31)](https://www.codacy.com/public/fehmicansaglam/tepkin)
 ![Progress](http://progressed.io/bar/0?title=0.2)
