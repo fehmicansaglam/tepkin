@@ -29,12 +29,13 @@ class MongoCollection(databaseName: String,
   def aggregate(pipeline: List[BsonDocument],
                 explain: Option[Boolean] = None,
                 allowDiskUse: Option[Boolean] = None,
-                cursor: Option[BsonDocument] = None)
+                cursor: Option[BsonDocument] = None,
+                batchMultiplier: Int = 1000)
                (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
     (pool ? Aggregate(databaseName, collectionName, pipeline, explain, allowDiskUse, cursor)).mapTo[Reply]
       .map { reply =>
       val result = reply.documents(0).getAsList[BsonDocument]("result").get
-      Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, result))
+      Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, result, batchMultiplier))
     }
   }
 
@@ -127,12 +128,17 @@ class MongoCollection(databaseName: String,
    * @param fields Specifies the fields to return using projection operators. To return all fields in the matching
    *               document, omit this parameter.
    */
-  def find(query: BsonDocument, fields: Option[BsonDocument] = None, skip: Int = 0)
+  def find(query: BsonDocument, fields: Option[BsonDocument] = None, skip: Int = 0, batchMultiplier: Int = 1000)
           (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
     (pool ? QueryMessage(s"$databaseName.$collectionName", query, fields = fields, numberToSkip = skip))
       .mapTo[Reply]
       .map { reply =>
-      Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, reply.documents))
+      Source(MongoCursor.props(
+        pool,
+        s"$databaseName.$collectionName",
+        reply.cursorID,
+        reply.documents,
+        batchMultiplier))
     }
   }
 

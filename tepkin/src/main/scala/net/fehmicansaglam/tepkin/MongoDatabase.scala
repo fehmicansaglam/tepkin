@@ -24,7 +24,7 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
     new GridFs(this, prefix)
   }
 
-  def listCollections(filter: Option[BsonDocument] = None)
+  def listCollections(filter: Option[BsonDocument] = None, batchMultiplier: Int = 1000)
                      (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
     (pool ? WhatsYourVersion).mapTo[Int].flatMap { maxWireVersion =>
       if (maxWireVersion == MongoWireVersion.v30) {
@@ -34,7 +34,7 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
           val ns = cursor.getAs[String]("ns").get
           val initial = cursor.getAsList[BsonDocument]("firstBatch").get
 
-          Source(MongoCursor.props(pool, ns, cursorID, initial))
+          Source(MongoCursor.props(pool, ns, cursorID, initial, batchMultiplier))
         }
       } else {
         apply("system.namespaces").find(BsonDocument.empty)
