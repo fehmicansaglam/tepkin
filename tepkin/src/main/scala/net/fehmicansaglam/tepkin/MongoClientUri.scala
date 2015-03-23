@@ -9,7 +9,9 @@ case class MongoCredentials(username: String, password: Option[String] = None)
 case class MongoClientUri(credentials: Option[MongoCredentials] = None,
                           hosts: Set[InetSocketAddress],
                           database: Option[String] = None,
-                          options: Map[String, String] = Map.empty)
+                          options: Map[String, String] = Map.empty) {
+  def option(key: String): Option[String] = options.get(key)
+}
 
 object MongoClientUri {
   def apply(input: String): MongoClientUri = MongoClientUriParser.parseAll(uri, input) match {

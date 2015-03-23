@@ -3,12 +3,16 @@ package net.fehmicansaglam.tepkin
 
 import akka.actor.{ActorRefFactory, ActorSystem}
 import net.fehmicansaglam.tepkin.TepkinMessage.ShutDown
+import net.fehmicansaglam.tepkin.protocol.ReadPreference
 
 import scala.concurrent.ExecutionContext
 
 class MongoClient(val context: ActorRefFactory, uri: MongoClientUri, nConnectionsPerNode: Int = 10) {
-  val poolManager = context.actorOf(MongoPoolManager.props(uri.hosts, nConnectionsPerNode)
-    .withMailbox("tepkin-mailbox"), name = "tepkin-pool")
+  val poolManager = context.actorOf(
+    MongoPoolManager
+      .props(uri.hosts, nConnectionsPerNode, uri.option("readPreference").map(ReadPreference.apply))
+      .withMailbox("tepkin-mailbox"),
+    name = "tepkin-pool")
 
   implicit def ec: ExecutionContext = context.dispatcher
 

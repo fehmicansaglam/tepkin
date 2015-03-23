@@ -6,15 +6,15 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 import net.fehmicansaglam.tepkin.TepkinMessage.{ShutDown, WhatsYourVersion}
-import net.fehmicansaglam.tepkin.protocol.MongoWireVersion
 import net.fehmicansaglam.tepkin.protocol.command.IsMaster
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result.IsMasterResult
+import net.fehmicansaglam.tepkin.protocol.{MongoWireVersion, ReadPreference}
 
 import scala.collection.mutable
 import scala.concurrent.duration._
 
-class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
+class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int, readPreference: ReadPreference)
   extends Actor
   with ActorLogging {
 
@@ -110,7 +110,9 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int)
 }
 
 object MongoPoolManager {
-  def props(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int): Props = {
-    Props(classOf[MongoPoolManager], seeds, nConnectionsPerNode)
+  def props(seeds: Set[InetSocketAddress],
+            nConnectionsPerNode: Int,
+            readPreference: Option[ReadPreference] = None): Props = {
+    Props(classOf[MongoPoolManager], seeds, nConnectionsPerNode, readPreference.getOrElse(ReadPreference.Primary))
   }
 }
