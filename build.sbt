@@ -39,6 +39,11 @@ lazy val tepkinJava = project.in(file("tepkin-java"))
   .settings(commonSettings: _*)
   .dependsOn(tepkin)
 
+lazy val examples = project.in(file("examples"))
+  .dependsOn(tepkin)
+  .settings(commonSettings: _*)
+  .settings(publishArtifact := false)
+
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishArtifact in Test := false,
