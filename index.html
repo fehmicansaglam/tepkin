@@ -27,9 +27,278 @@
         </ul>
       </header>
       <section>
-        <p>Non-blocking Reactive MongoDB Driver for Scala 2.11 and Java 8</p>
+        <p><a href="https://gitter.im/fehmicansaglam/tepkin?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/fehmicansaglam/tepkin"></a></p>
+
+<p><a href="https://travis-ci.org/fehmicansaglam/tepkin"><img src="https://travis-ci.org/fehmicansaglam/tepkin.svg?branch=master" alt="Build Status"></a>
+<a href="https://www.codacy.com/public/fehmicansaglam/tepkin"><img src="https://www.codacy.com/project/badge/d5039668605d44fea3adf2302e7e6c31" alt="Codacy Badge"></a>
+<img src="http://progressed.io/bar/0?title=0.2" alt="Progress"></p>
+
+<p>Reactive MongoDB Driver for Scala 2.11 and Java 8 built on top of Akka IO and Akka Streams.</p>
 
 <p>Only MongoDB 2.6+ is supported.</p>
+
+<p>Don't hesitate to ask questions in the <a href="https://groups.google.com/forum/#!forum/tepkin">Tepkin Google Group</a></p>
+
+<h2>
+<a id="contributions" class="anchor" href="#contributions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributions</h2>
+
+<p>Tepkin is a young but very active project and absolutely needs your help. Good ways to contribute include:</p>
+
+<ul>
+<li>Raising bugs and feature requests</li>
+<li>Fixing bugs</li>
+<li>Improving the performance</li>
+<li>Adding to the documentation</li>
+</ul>
+
+<p>Please read our Scala Guide first: <a href="https://github.com/fehmicansaglam/tepkin/wiki/Scala-Guide">https://github.com/fehmicansaglam/tepkin/wiki/Scala-Guide</a></p>
+
+<h2>
+<a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span class="octicon octicon-link"></span></a>Quick Start</h2>
+
+<h3>
+<a id="setting-up-dependencies" class="anchor" href="#setting-up-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up dependencies</h3>
+
+<p>Latest stable Tepkin release is <strong>0.1</strong> and is available on <a href="http://search.maven.org/#search%7Cga%7C1%7Ctepkin">Maven Central</a>.</p>
+
+<p>Scala developers, add the following dependency:</p>
+
+<div class="highlight highlight-scala"><pre>libraryDependencies <span class="pl-k">++</span><span class="pl-k">=</span> <span class="pl-en">Seq</span>(
+  <span class="pl-s"><span class="pl-pds">"</span>net.fehmicansaglam<span class="pl-pds">"</span></span> <span class="pl-k">%%</span> <span class="pl-s"><span class="pl-pds">"</span>tepkin<span class="pl-pds">"</span></span> <span class="pl-k">%</span> <span class="pl-s"><span class="pl-pds">"</span>0.1<span class="pl-pds">"</span></span>
+)</pre></div>
+
+<p>Java developers, <code>net.fehmicansaglam.tepkin.api</code> package is intended to be used from Java. To use the package, add the following dependency to your pom.xml:</p>
+
+<div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">dependency</span>&gt;
+  &lt;<span class="pl-ent">groupId</span>&gt;net.fehmicansaglam&lt;/<span class="pl-ent">groupId</span>&gt;
+  &lt;<span class="pl-ent">artifactId</span>&gt;tepkin-java_2.11&lt;/<span class="pl-ent">artifactId</span>&gt;
+  &lt;<span class="pl-ent">version</span>&gt;0.1&lt;/<span class="pl-ent">version</span>&gt;
+&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+
+<p>Or if you want to be on the bleeding edge using snapshots, latest snapshot release is <strong>0.2-SNAPSHOT</strong>.</p>
+
+<p>Scala developers, add the following repository and dependency:</p>
+
+<div class="highlight highlight-scala"><pre>resolvers <span class="pl-k">+</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Sonatype Snapshots<span class="pl-pds">"</span></span> at <span class="pl-s"><span class="pl-pds">"</span>https://oss.sonatype.org/content/repositories/snapshots/<span class="pl-pds">"</span></span>
+
+libraryDependencies <span class="pl-k">++</span><span class="pl-k">=</span> <span class="pl-en">Seq</span>(
+  <span class="pl-s"><span class="pl-pds">"</span>net.fehmicansaglam<span class="pl-pds">"</span></span> <span class="pl-k">%%</span> <span class="pl-s"><span class="pl-pds">"</span>tepkin<span class="pl-pds">"</span></span> <span class="pl-k">%</span> <span class="pl-s"><span class="pl-pds">"</span>0.2-SNAPSHOT<span class="pl-pds">"</span></span>
+)</pre></div>
+
+<p>Java developers add the following repository and dependency to your pom.xml:</p>
+
+<div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">repository</span>&gt;
+  &lt;<span class="pl-ent">id</span>&gt;Sonatype Snapshots&lt;/<span class="pl-ent">id</span>&gt;
+  &lt;<span class="pl-ent">url</span>&gt;https://oss.sonatype.org/content/repositories/snapshots/&lt;/<span class="pl-ent">url</span>&gt;
+&lt;/<span class="pl-ent">repository</span>&gt;
+
+&lt;<span class="pl-ent">dependency</span>&gt;
+    &lt;<span class="pl-ent">groupId</span>&gt;net.fehmicansaglam&lt;/<span class="pl-ent">groupId</span>&gt;
+    &lt;<span class="pl-ent">artifactId</span>&gt;tepkin-java_2.11&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;0.2-SNAPSHOT&lt;/<span class="pl-ent">version</span>&gt;
+&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+
+<h2>
+<a id="scala-api" class="anchor" href="#scala-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scala API</h2>
+
+<h3>
+<a id="working-with-bson-dsl" class="anchor" href="#working-with-bson-dsl" aria-hidden="true"><span class="octicon octicon-link"></span></a>Working with BSON DSL</h3>
+
+<p>To construct a Bson document, you can either create BsonElements and join them with <code>~</code> or create a document directly.</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.element.</span><span class="pl-v">BsonObjectId</span>
+<span class="pl-k">import</span> <span class="pl-v">org.joda.time.</span><span class="pl-v">DateTime</span>
+
+<span class="pl-c">// Construct a BsonDocument from BsonElements</span>
+<span class="pl-k">val</span> <span class="pl-en">element</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Johny<span class="pl-pds">"</span></span>
+<span class="pl-k">val</span> <span class="pl-en">document</span> <span class="pl-k">=</span> element <span class="pl-k">~</span>
+  (<span class="pl-s"><span class="pl-pds">"</span>surname<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Doe<span class="pl-pds">"</span></span>) <span class="pl-k">~</span>
+  (<span class="pl-s"><span class="pl-pds">"</span>age<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-c1">28</span>) <span class="pl-k">~</span>
+  (<span class="pl-s"><span class="pl-pds">"</span>months<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> $array(<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>))
+
+<span class="pl-c">// Construct a BsonDocument</span>
+<span class="pl-k">val</span> <span class="pl-en">document</span> <span class="pl-k">=</span> $document(
+  <span class="pl-s"><span class="pl-pds">"</span>_id<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-en">BsonObjectId</span>.generate,
+  <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Johny<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>surname<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Doe<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>age<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-c1">28</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>months<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> $array(<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>),
+  <span class="pl-s"><span class="pl-pds">"</span>details<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> $document(
+    <span class="pl-s"><span class="pl-pds">"</span>salary<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-c1">455.5</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>inventory<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> $array(<span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>, <span class="pl-c1">3.5</span>, <span class="pl-c1">1L</span>, <span class="pl-c1">true</span>),
+    <span class="pl-s"><span class="pl-pds">"</span>birthday<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">DateTime</span>(<span class="pl-c1">1987</span>, <span class="pl-c1">3</span>, <span class="pl-c1">5</span>, <span class="pl-c1">0</span>, <span class="pl-c1">0</span>)
+  )
+)</pre></div>
+
+<p>There is an implicit conversion from any <code>BsonElement</code> to <code>BsonDocument</code> for convenience.</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.</span><span class="pl-v">BsonDocument</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.element.</span><span class="pl-v">BsonElement</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+
+<span class="pl-k">val</span> <span class="pl-en">element</span><span class="pl-k">:</span> <span class="pl-en">BsonElement</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span>
+<span class="pl-k">val</span> <span class="pl-en">document</span><span class="pl-k">:</span> <span class="pl-en">BsonDocument</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span></pre></div>
+
+<h3>
+<a id="connecting-to-mongodb" class="anchor" href="#connecting-to-mongodb" aria-hidden="true"><span class="octicon octicon-link"></span></a>Connecting to MongoDB</h3>
+
+<p>To make a connection to MongoDB, use the <code>MongoClient</code> interface.</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.tepkin.</span><span class="pl-v">MongoClient</span>
+
+<span class="pl-c">// Connect to a MongoDB node.</span>
+<span class="pl-k">val</span> <span class="pl-en">client</span> <span class="pl-k">=</span> <span class="pl-en">MongoClient</span>(<span class="pl-s"><span class="pl-pds">"</span>mongodb://localhost<span class="pl-pds">"</span></span>)</pre></div>
+
+<p><code>MongoClient</code> manages multiple connection pools to MongoDB instances and therefore is a heavy class. Most of the time you will need only one <code>MongoClient</code> instance per application.</p>
+
+<p>Use <code>MongoDatabase</code> and <code>MongoCollection</code> in order to obtain a reference to a database and a collection.</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-c">// Obtain a reference to the "tepkin" database</span>
+<span class="pl-k">val</span> <span class="pl-en">db</span> <span class="pl-k">=</span> client(<span class="pl-s"><span class="pl-pds">"</span>tepkin<span class="pl-pds">"</span></span>)
+
+<span class="pl-c">// Obtain a reference to the "example" collection in "tepkin" database.</span>
+<span class="pl-k">val</span> <span class="pl-en">collection</span> <span class="pl-k">=</span> db(<span class="pl-s"><span class="pl-pds">"</span>example<span class="pl-pds">"</span></span>)</pre></div>
+
+<p><code>MongoDatabase</code> and <code>MongoCollection</code> are lightweight classes and may be instantiated more than once if needed. However they are both immutable and reusable.</p>
+
+<p>All methods in the <code>MongoCollection</code> class need an implicit <code>scala.concurrent.ExecutionContext</code> and an <code>akka.util.Timeout</code>. You can define a default timeout and use the client's execution context as shown below:</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">akka.util.</span><span class="pl-v">Timeout</span>
+<span class="pl-k">import</span> <span class="pl-v">scala.concurrent.duration.</span><span class="pl-v">_</span>
+
+<span class="pl-c">// val client = ...</span>
+
+<span class="pl-k">import</span> <span class="pl-v">client.</span><span class="pl-v">ec</span>
+<span class="pl-k">implicit</span> <span class="pl-k">val</span> <span class="pl-en">timeout</span><span class="pl-k">:</span> <span class="pl-en">Timeout</span> <span class="pl-k">=</span> <span class="pl-c1">5.</span>seconds</pre></div>
+
+<h3>
+<a id="find-documents" class="anchor" href="#find-documents" aria-hidden="true"><span class="octicon octicon-link"></span></a>Find documents</h3>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.</span><span class="pl-v">BsonDocument</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+
+<span class="pl-k">val</span> <span class="pl-en">query</span><span class="pl-k">:</span> <span class="pl-en">BsonDocument</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span>
+
+<span class="pl-k">val</span> <span class="pl-en">source</span> <span class="pl-k">=</span> collection.find(query)</pre></div>
+
+<p>All find methods in Tepkin return an <code>akka.stream.scaladsl.Source[List[BsonDocument], ActorRef]</code>. Then you can use any method in Akka Streams to process the returned stream.</p>
+
+<h3>
+<a id="insert-operations" class="anchor" href="#insert-operations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Insert operations</h3>
+
+<h4>
+<a id="insert-a-single-document" class="anchor" href="#insert-a-single-document" aria-hidden="true"><span class="octicon octicon-link"></span></a>Insert a single document</h4>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+
+<span class="pl-k">val</span> <span class="pl-en">document</span> <span class="pl-k">=</span> (<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span>) <span class="pl-k">~</span> (<span class="pl-s"><span class="pl-pds">"</span>surname<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>saglam<span class="pl-pds">"</span></span>)
+collection.insert(document)</pre></div>
+
+<h4>
+<a id="insert-a-collection-of-documents" class="anchor" href="#insert-a-collection-of-documents" aria-hidden="true"><span class="octicon octicon-link"></span></a>Insert a collection of documents</h4>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+
+<span class="pl-k">val</span> <span class="pl-en">documents</span> <span class="pl-k">=</span> (<span class="pl-c1">1</span> to <span class="pl-c1">100</span>).map(i <span class="pl-k">=&gt;</span> $document(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> s<span class="pl-s"><span class="pl-pds">"</span>fehmi$i<span class="pl-pds">"</span></span>))
+collection.insert(documents)</pre></div>
+
+<h4>
+<a id="insert-a-large-number-of-documents-from-a-stream" class="anchor" href="#insert-a-large-number-of-documents-from-a-stream" aria-hidden="true"><span class="octicon octicon-link"></span></a>Insert a large number of documents from a stream</h4>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">akka.stream.</span><span class="pl-v">ActorFlowMaterializer</span>
+<span class="pl-k">import</span> <span class="pl-v">akka.stream.scaladsl.</span><span class="pl-v">Source</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.</span><span class="pl-v">BsonDocument</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+
+<span class="pl-k">import</span> <span class="pl-v">scala.collection.immutable.</span><span class="pl-v">Iterable</span>
+
+<span class="pl-k">implicit</span> <span class="pl-k">val</span> <span class="pl-en">mat</span> <span class="pl-k">=</span> <span class="pl-en">ActorFlowMaterializer</span>()(client.context)
+
+<span class="pl-k">val</span> <span class="pl-en">documents</span><span class="pl-k">:</span> <span class="pl-en">Source</span>[<span class="pl-en">List</span>[<span class="pl-en">BsonDocument</span>], <span class="pl-k">Unit</span>] <span class="pl-k">=</span> <span class="pl-en">Source</span> {
+  <span class="pl-en">Iterable</span>.tabulate(<span class="pl-c1">100</span>) { _ <span class="pl-k">=&gt;</span>
+    (<span class="pl-c1">1</span> to <span class="pl-c1">1000</span>).map(i <span class="pl-k">=&gt;</span> $document(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> s<span class="pl-s"><span class="pl-pds">"</span>fehmi$i<span class="pl-pds">"</span></span>)).toList
+  }
+}
+
+collection.insertFromSource(documents).runForeach(_ <span class="pl-k">=&gt;</span> ())</pre></div>
+
+<h3>
+<a id="other-queries" class="anchor" href="#other-queries" aria-hidden="true"><span class="octicon octicon-link"></span></a>Other queries</h3>
+
+<h4>
+<a id="update" class="anchor" href="#update" aria-hidden="true"><span class="octicon octicon-link"></span></a>Update</h4>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+
+<span class="pl-k">import</span> <span class="pl-v">scala.concurrent.</span><span class="pl-v">Future</span>
+
+<span class="pl-k">val</span> <span class="pl-en">document</span> <span class="pl-k">=</span> (<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span>) <span class="pl-k">~</span> (<span class="pl-s"><span class="pl-pds">"</span>surname<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>saglam<span class="pl-pds">"</span></span>)
+
+<span class="pl-k">val</span> <span class="pl-en">result</span><span class="pl-k">:</span> <span class="pl-en">Future</span>[<span class="pl-en">UpdateResult</span>] <span class="pl-k">=</span> <span class="pl-k">for</span> {
+  insert <span class="pl-k">&lt;</span><span class="pl-k">-</span> collection.insert(document)
+  update <span class="pl-k">&lt;</span><span class="pl-k">-</span> collection.update(
+    query <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span>,
+    update <span class="pl-k">=</span> $set(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi can<span class="pl-pds">"</span></span>)
+  )
+} <span class="pl-k">yield</span> update</pre></div>
+
+<h4>
+<a id="find-and-update" class="anchor" href="#find-and-update" aria-hidden="true"><span class="octicon octicon-link"></span></a>Find and update</h4>
+
+<p>Update and return the old document.</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+
+collection.findAndUpdate(
+  query <span class="pl-k">=</span> <span class="pl-en">Some</span>(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span>),
+  update <span class="pl-k">=</span> $set(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi can<span class="pl-pds">"</span></span>)
+)</pre></div>
+
+<p>Update and return the updated document.</p>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+
+collection.findAndUpdate(
+  query <span class="pl-k">=</span> <span class="pl-en">Some</span>(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span>),
+  update <span class="pl-k">=</span> $set(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>fehmi can<span class="pl-pds">"</span></span>),
+  returnNew <span class="pl-k">=</span> <span class="pl-c1">true</span>
+)</pre></div>
+
+<h4>
+<a id="create-index" class="anchor" href="#create-index" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create index</h4>
+
+<div class="highlight highlight-scala"><pre><span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.BsonDsl.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.bson.Implicits.</span><span class="pl-v">_</span>
+<span class="pl-k">import</span> <span class="pl-v">net.fehmicansaglam.tepkin.protocol.command.</span><span class="pl-v">Index</span>
+
+collection.createIndexes(<span class="pl-en">Index</span>(name <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>name_surname<span class="pl-pds">"</span></span>, key <span class="pl-k">=</span> (<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-c1">1</span>) <span class="pl-k">~</span> (<span class="pl-s"><span class="pl-pds">"</span>surname<span class="pl-pds">"</span></span> <span class="pl-k">:</span><span class="pl-k">=</span> <span class="pl-c1">1</span>)))</pre></div>
+
+<h2>
+<a id="java-api" class="anchor" href="#java-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Java API</h2>
+
+<div class="highlight highlight-java"><pre><span class="pl-k">import</span> <span class="pl-smi">net.fehmicansaglam.tepkin.api.*</span>;
+
+<span class="pl-smi">MongoClient</span> mongoClient <span class="pl-k">=</span> <span class="pl-smi">MongoClient</span><span class="pl-k">.</span>create(<span class="pl-s"><span class="pl-pds">"</span>mongodb://localhost<span class="pl-pds">"</span></span>);
+<span class="pl-smi">MongoCollection</span> collection <span class="pl-k">=</span> mongoClient<span class="pl-k">.</span>db(<span class="pl-s"><span class="pl-pds">"</span>tepkin<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>collection(<span class="pl-s"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>);
+
+<span class="pl-smi">BsonDocument</span> document <span class="pl-k">=</span> <span class="pl-smi">BsonDocumentBuilder</span><span class="pl-k">.</span>create()<span class="pl-k">.</span>addString(<span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>fehmi<span class="pl-pds">"</span></span>)<span class="pl-k">.</span>build();
+
+<span class="pl-smi">FiniteDuration</span> timeout <span class="pl-k">=</span> <span class="pl-smi">Duration</span><span class="pl-k">.</span>create(<span class="pl-c1">5</span>, <span class="pl-smi">TimeUnit</span><span class="pl-c1"><span class="pl-k">.</span>SECONDS</span>);
+
+<span class="pl-k">CompletableFuture&lt;<span class="pl-k">Optional&lt;<span class="pl-smi">BsonDocument</span>&gt;</span>&gt;</span> cf <span class="pl-k">=</span> collection
+  .insert(document, mongoClient<span class="pl-k">.</span>ec(), timeout)
+  .thenCompose(insert <span class="pl-k">-</span><span class="pl-k">&gt;</span> collection<span class="pl-k">.</span>findOne(mongoClient<span class="pl-k">.</span>ec(), timeout));
+<span class="pl-k">Optional&lt;<span class="pl-smi">BsonDocument</span>&gt;</span> actual <span class="pl-k">=</span> cf<span class="pl-k">.</span>get(<span class="pl-c1">5</span>, <span class="pl-smi">TimeUnit</span><span class="pl-c1"><span class="pl-k">.</span>SECONDS</span>);</pre></div>
       </section>
     </div>
     <footer>
