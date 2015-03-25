@@ -1,7 +1,7 @@
 package net.fehmicansaglam.pide
 
-import net.fehmicansaglam.bson.Implicits.BsonValueObjectId
+import net.fehmicansaglam.bson.Implicits.ObjectId
 
 trait Entity {
-  def id: BsonValueObjectId
+  def id: ObjectId
 }

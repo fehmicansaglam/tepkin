@@ -141,6 +141,11 @@ object Implicits {
     override def toString(): String = s"""ObjectId("$identifier")"""
   }
 
+  /**
+   * Type alias for BsonValueObjectId
+   */
+  type ObjectId = BsonValueObjectId
+
   implicit class BsonValueDateTime(value: DateTime) extends BsonValue with Identifiable[DateTime] {
 
     override def identifier: DateTime = value

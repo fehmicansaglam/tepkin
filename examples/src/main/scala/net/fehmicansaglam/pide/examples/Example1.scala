@@ -17,7 +17,7 @@ object Example1 extends App {
   val client = MongoClient("mongodb://localhost")
   val db = client("tepkin")
 
-  case class Person(id: BsonValueObjectId,
+  case class Person(id: ObjectId,
                     name: String,
                     surname: String,
                     age: Int) extends Entity
@@ -29,7 +29,7 @@ object Example1 extends App {
   implicit object PersonPide extends Pide[Person] {
     override def read(document: BsonDocument): Person = {
       Person(
-        id = document.get[BsonValueObjectId]("_id").get,
+        id = document.get[ObjectId]("_id").get,
         name = document.getAs[String]("name").get,
         surname = document.getAs[String]("surname").get,
         age = document.getAs[Int]("age").get
