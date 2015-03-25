@@ -1,15 +1,11 @@
 package net.fehmicansaglam.tepkin
 
 import akka.actor.{ActorLogging, ActorRef, Props}
-import akka.pattern.{ask, pipe}
 import akka.stream.actor.ActorPublisher
 import akka.stream.actor.ActorPublisherMessage.{Cancel, Request}
-import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.tepkin.TepkinMessage.Fetch
 import net.fehmicansaglam.tepkin.protocol.message.{GetMoreMessage, KillCursorsMessage, Reply}
-
-import scala.concurrent.duration._
 
 class MongoCursor(pool: ActorRef,
                   fullCollectionName: String,
@@ -19,18 +15,15 @@ class MongoCursor(pool: ActorRef,
   extends ActorPublisher[List[BsonDocument]]
   with ActorLogging {
 
-  implicit val timeout: Timeout = 10.seconds
-
-  import context.dispatcher
-
   override def receive: Receive = {
     case request@Request(demand) =>
       log.debug("Received {}", request)
       onNext(initial)
       if (cursorID == 0) {
         onComplete()
+        context.stop(self)
       } else {
-        context become fetching
+        context.become(fetching)
         self ! Fetch
       }
 
@@ -59,13 +52,12 @@ class MongoCursor(pool: ActorRef,
       } else if (totalDemand > 0) {
         self ! Fetch
       } else {
-        context become sleeping
+        context.become(sleeping)
       }
 
     case Fetch =>
       log.debug("Received Fetch request")
-      (pool ? GetMoreMessage(fullCollectionName, cursorID, totalDemand.toInt * batchMultiplier)).mapTo[Reply] pipeTo self
-      ()
+      pool ! GetMoreMessage(fullCollectionName, cursorID, totalDemand.toInt * batchMultiplier)
 
     case Cancel =>
       killCursor()
@@ -74,7 +66,7 @@ class MongoCursor(pool: ActorRef,
   private def killCursor(): Unit = {
     log.debug("Killing cursor[{}]", cursorID)
     pool ! KillCursorsMessage(cursorID)
-    context stop self
+    context.stop(self)
   }
 }
 
