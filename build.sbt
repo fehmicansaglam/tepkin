@@ -1,5 +1,6 @@
 lazy val commonSettings = Seq(
   organization := "net.fehmicansaglam",
+  version := "0.2-SNAPSHOT",
   scalaVersion := "2.11.6",
   scalacOptions := Seq(
     "-deprecation",
@@ -24,7 +25,7 @@ lazy val commonSettings = Seq(
 shellPrompt in ThisBuild := Common.prompt
 
 lazy val root = project.in(file("."))
-  .aggregate(bson, tepkin, tepkinJava)
+  .aggregate(bson, tepkin, tepkinJava, pide, examples)
   .settings(commonSettings: _*)
   .settings(publishArtifact := false)
 
@@ -39,8 +40,12 @@ lazy val tepkinJava = project.in(file("tepkin-java"))
   .settings(commonSettings: _*)
   .dependsOn(tepkin)
 
-lazy val examples = project.in(file("examples"))
+lazy val pide = project.in(file("pide"))
+  .settings(commonSettings: _*)
   .dependsOn(tepkin)
+
+lazy val examples = project.in(file("examples"))
+  .dependsOn(pide)
   .settings(commonSettings: _*)
   .settings(publishArtifact := false)
 
