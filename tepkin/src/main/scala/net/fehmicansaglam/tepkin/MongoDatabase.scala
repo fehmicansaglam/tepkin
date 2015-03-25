@@ -7,7 +7,7 @@ import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.tepkin.TepkinMessage.WhatsYourVersion
 import net.fehmicansaglam.tepkin.protocol.MongoWireVersion
-import net.fehmicansaglam.tepkin.protocol.command.ListCollections
+import net.fehmicansaglam.tepkin.protocol.command.{Command, ListCollections}
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -19,6 +19,8 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
       "Collection name must be shorter than 123 bytes")
     new MongoCollection(databaseName, collectionName, pool)
   }
+
+  def collection = apply _
 
   def gridFs(prefix: String = "fs"): GridFs = {
     new GridFs(this, prefix)
@@ -42,6 +44,16 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
     }
   }
 
-  def collection = apply _
+  def runCommand(document: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Reply] = {
+    val command = new Command {
+
+      override def command: BsonDocument = document
+
+      override def databaseName: String = MongoDatabase.this.databaseName
+    }
+
+    (pool ? command).mapTo[Reply]
+  }
+
 }
 
