@@ -5,7 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
-import net.fehmicansaglam.tepkin.TepkinMessage.{ShutDown, WhatsYourVersion}
+import net.fehmicansaglam.tepkin.TepkinMessage.{CursorClosed, CursorOpened, ShutDown, WhatsYourVersion}
 import net.fehmicansaglam.tepkin.protocol.command.IsMaster
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result.IsMasterResult
@@ -32,6 +32,7 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int, 
   var primary: Option[ActorRef] = None
   var maxWireVersion: Int = MongoWireVersion.v26
   val stash = mutable.Queue.empty[(ActorRef, Any)]
+  val cursors = mutable.Map.empty[Long, ActorRef]
 
   for (seed <- seeds) {
     val pool = context.actorOf(MongoPool.props(seed, nConnectionsPerNode), s"pool-$seed".replaceAll("\\W", "_"))
@@ -89,6 +90,14 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int, 
     case ShutDown =>
       pinger.cancel()
       pools foreach (_ ! ShutDown)
+
+    case CursorOpened(cursorID) =>
+      cursors += cursorID -> sender()
+      log.debug("Cursor {} opened.", cursorID)
+
+    case CursorClosed(cursorID) =>
+      cursors -= cursorID
+      log.debug("Cursor {} closed.", cursorID)
 
     case message =>
       primary match {

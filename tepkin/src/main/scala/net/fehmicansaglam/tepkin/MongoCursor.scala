@@ -4,7 +4,7 @@ import akka.actor.{ActorLogging, ActorRef, Props}
 import akka.stream.actor.ActorPublisher
 import akka.stream.actor.ActorPublisherMessage.{Cancel, Request}
 import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.tepkin.TepkinMessage.Fetch
+import net.fehmicansaglam.tepkin.TepkinMessage.{CursorClosed, CursorOpened, Fetch}
 import net.fehmicansaglam.tepkin.protocol.message.{GetMoreMessage, KillCursorsMessage, Reply}
 
 class MongoCursor(pool: ActorRef,
@@ -14,6 +14,11 @@ class MongoCursor(pool: ActorRef,
                   batchMultiplier: Int)
   extends ActorPublisher[List[BsonDocument]]
   with ActorLogging {
+
+  // Notify pool manager about the opened cursor.
+  if (cursorID != 0) {
+    pool ! CursorOpened(cursorID)
+  }
 
   override def receive: Receive = {
     case request@Request(demand) =>
@@ -66,6 +71,9 @@ class MongoCursor(pool: ActorRef,
   private def killCursor(): Unit = {
     log.debug("Killing cursor[{}]", cursorID)
     pool ! KillCursorsMessage(cursorID)
+    if (cursorID != 0) {
+      pool ! CursorClosed(cursorID)
+    }
     context.stop(self)
   }
 }

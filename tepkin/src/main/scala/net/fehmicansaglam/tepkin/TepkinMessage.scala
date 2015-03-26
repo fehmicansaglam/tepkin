@@ -20,4 +20,8 @@ object TepkinMessage {
 
   case object WhatsYourVersion extends TepkinMessage
 
+  case class CursorOpened(cursorID: Long) extends TepkinMessage
+
+  case class CursorClosed(cursorID: Long) extends TepkinMessage
+
 }
