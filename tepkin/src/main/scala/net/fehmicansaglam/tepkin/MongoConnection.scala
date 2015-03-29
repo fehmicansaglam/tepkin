@@ -8,7 +8,7 @@ import akka.io.Tcp._
 import akka.util.ByteString
 import net.fehmicansaglam.tepkin.RetryStrategy.FixedRetryStrategy
 import net.fehmicansaglam.tepkin.TepkinMessage._
-import net.fehmicansaglam.tepkin.auth.{Authentication, MongoDbCrAuthentication, NoAuthentication}
+import net.fehmicansaglam.tepkin.auth.{Authentication, MongoDbCrAuthentication, NoAuthentication, ScramSha1Authentication}
 import net.fehmicansaglam.tepkin.protocol.AuthMechanism
 import net.fehmicansaglam.tepkin.protocol.message.{Message, Reply}
 
@@ -44,7 +44,7 @@ class MongoConnection(manager: ActorRef,
       authenticate(connection, databaseName, credentials)
   }
 
-  override def working(connection: ActorRef): Receive = {
+  def working(connection: ActorRef): Receive = {
     case m: Message =>
       log.debug("Received request {}", m)
       requests += (m.requestID -> sender())
@@ -103,6 +103,11 @@ class MongoConnection(manager: ActorRef,
       retry()
   }
 
+  override def authenticated(connection: ActorRef): Unit = {
+    context.become(working(connection))
+    context.parent ! Idle
+  }
+
   private def retry() = {
     if (nRetries == retryStrategy.maxRetries) {
       log.info("Max retry count has been reached. Giving up.")
@@ -127,9 +132,14 @@ object MongoConnection {
             retryStrategy: RetryStrategy = FixedRetryStrategy()): Props = {
     Props {
       authMechanism match {
+        case Some(AuthMechanism.SCRAM_SHA_1) =>
+          new MongoConnection(manager, remote, databaseName, credentials, retryStrategy)
+            with ScramSha1Authentication
+
         case Some(AuthMechanism.MONGODB_CR) =>
           new MongoConnection(manager, remote, databaseName, credentials, retryStrategy)
             with MongoDbCrAuthentication
+
         case _ =>
           new MongoConnection(manager, remote, databaseName, credentials, retryStrategy)
             with NoAuthentication

@@ -7,8 +7,12 @@ import javax.crypto.{Mac, SecretKeyFactory}
 trait Crypto extends Codec {
 
   def sha1(value: String): String = {
-    val digest = MessageDigest.getInstance("SHA-1").digest(value.getBytes("UTF-8"))
+    val digest = sha1(value.getBytes("UTF-8"))
     encodeBase64(digest)
+  }
+
+  def sha1(value: Array[Byte]): Array[Byte] = {
+    MessageDigest.getInstance("SHA-1").digest(value)
   }
 
   def hmac(value: Array[Byte], key: String): Array[Byte] = {

@@ -3,7 +3,6 @@ package net.fehmicansaglam.tepkin.auth
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.io.Tcp.{Received, Write}
 import net.fehmicansaglam.tepkin.MongoCredentials
-import net.fehmicansaglam.tepkin.TepkinMessage.Idle
 import net.fehmicansaglam.tepkin.protocol.command.{Authenticate, GetNonce}
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 
@@ -44,8 +43,7 @@ trait MongoDbCrAuthentication extends Authentication {
         result <- reply.documents.headOption
       } {
         log.info("Authentication result: {}", result)
-        context.become(working(connection))
-        context.parent ! Idle
+        authenticated(connection)
       }
   }
 
