@@ -14,7 +14,7 @@ import net.fehmicansaglam.tepkin.protocol.{MongoWireVersion, ReadPreference}
 import scala.collection.mutable
 import scala.concurrent.duration._
 
-class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int, readPreference: ReadPreference)
+class MongoPoolManager(uri: MongoClientUri, nConnectionsPerNode: Int, readPreference: ReadPreference)
   extends Actor
   with ActorLogging {
 
@@ -26,7 +26,7 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int, 
 
   import context.dispatcher
 
-  var remotes = seeds
+  var remotes = uri.hosts
   val nodes = mutable.Map.empty[ActorRef, NodeDetails]
   var pools = Set.empty[ActorRef]
   var primary: Option[ActorRef] = None
@@ -34,9 +34,15 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int, 
   val stash = mutable.Queue.empty[(ActorRef, Any)]
   val cursors = mutable.Map.empty[Long, ActorRef]
 
-  for (seed <- seeds) {
-    val pool = context.actorOf(MongoPool.props(seed, nConnectionsPerNode), s"pool-$seed".replaceAll("\\W", "_"))
-    log.info("Created pool for {}", seed)
+  for (remote <- remotes) {
+    val pool = context.actorOf(
+      MongoPool.props(
+        remote,
+        uri.database.getOrElse("admin"),
+        uri.credentials,
+        nConnectionsPerNode),
+      s"pool-$remote".replaceAll("\\W", "_"))
+    log.info("Created pool for {}", remote)
     pools += pool
   }
 
@@ -59,7 +65,13 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int, 
       }.getOrElse(Set.empty)
 
       for (remote <- newRemotes.diff(remotes)) {
-        val pool = context.actorOf(MongoPool.props(remote, nConnectionsPerNode), s"pool-$remote".replaceAll("\\W", "_"))
+        val pool = context.actorOf(
+          MongoPool.props(
+            remote,
+            uri.database.getOrElse("admin"),
+            uri.credentials,
+            nConnectionsPerNode),
+          s"pool-$remote".replaceAll("\\W", "_"))
         log.info("New node found. Created pool for {}", remote)
         pools += pool
       }
@@ -119,9 +131,9 @@ class MongoPoolManager(seeds: Set[InetSocketAddress], nConnectionsPerNode: Int, 
 }
 
 object MongoPoolManager {
-  def props(seeds: Set[InetSocketAddress],
+  def props(uri: MongoClientUri,
             nConnectionsPerNode: Int,
             readPreference: Option[ReadPreference] = None): Props = {
-    Props(classOf[MongoPoolManager], seeds, nConnectionsPerNode, readPreference.getOrElse(ReadPreference.Primary))
+    Props(classOf[MongoPoolManager], uri, nConnectionsPerNode, readPreference.getOrElse(ReadPreference.Primary))
   }
 }

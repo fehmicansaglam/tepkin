@@ -9,7 +9,7 @@ import net.fehmicansaglam.tepkin.protocol.message.Message
 
 import scala.collection.mutable
 
-class MongoPool(remote: InetSocketAddress, poolSize: Int)
+class MongoPool(remote: InetSocketAddress, databaseName: String, credentials: Option[MongoCredentials], poolSize: Int)
   extends Actor {
 
   import context.system
@@ -29,7 +29,7 @@ class MongoPool(remote: InetSocketAddress, poolSize: Int)
       (0 until poolSize) foreach { i =>
         context.watch {
           context.actorOf(
-            MongoConnection.props(manager, remote),
+            MongoConnection.props(manager, remote, databaseName, credentials),
             s"connection-$i"
           )
         }
@@ -102,7 +102,10 @@ class MongoPool(remote: InetSocketAddress, poolSize: Int)
 }
 
 object MongoPool {
-  def props(remote: InetSocketAddress, poolSize: Int): Props = {
-    Props(classOf[MongoPool], remote, poolSize)
+  def props(remote: InetSocketAddress,
+            databaseName: String,
+            credentials: Option[MongoCredentials] = None,
+            poolSize: Int): Props = {
+    Props(classOf[MongoPool], remote, databaseName, credentials, poolSize)
   }
 }

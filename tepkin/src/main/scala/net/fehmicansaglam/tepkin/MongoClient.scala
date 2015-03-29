@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext
 class MongoClient(val context: ActorRefFactory, uri: MongoClientUri, nConnectionsPerNode: Int = 10) {
   val poolManager = context.actorOf(
     MongoPoolManager
-      .props(uri.hosts, nConnectionsPerNode, uri.option("readPreference").map(ReadPreference.apply))
+      .props(uri, nConnectionsPerNode, uri.option("readPreference").map(ReadPreference.apply))
       .withMailbox("tepkin-mailbox"),
     name = "tepkin-pool")
 
