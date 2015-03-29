@@ -5,11 +5,16 @@ import java.net.InetSocketAddress
 import akka.actor._
 import akka.io.{IO, Tcp}
 import net.fehmicansaglam.tepkin.TepkinMessage.{Idle, Init, ShutDown}
+import net.fehmicansaglam.tepkin.protocol.AuthMechanism
 import net.fehmicansaglam.tepkin.protocol.message.Message
 
 import scala.collection.mutable
 
-class MongoPool(remote: InetSocketAddress, databaseName: String, credentials: Option[MongoCredentials], poolSize: Int)
+class MongoPool(remote: InetSocketAddress,
+                databaseName: String,
+                credentials: Option[MongoCredentials],
+                authMechanism: Option[AuthMechanism],
+                poolSize: Int)
   extends Actor {
 
   import context.system
@@ -29,7 +34,7 @@ class MongoPool(remote: InetSocketAddress, databaseName: String, credentials: Op
       (0 until poolSize) foreach { i =>
         context.watch {
           context.actorOf(
-            MongoConnection.props(manager, remote, databaseName, credentials),
+            MongoConnection.props(manager, remote, databaseName, credentials, authMechanism),
             s"connection-$i"
           )
         }
@@ -105,7 +110,8 @@ object MongoPool {
   def props(remote: InetSocketAddress,
             databaseName: String,
             credentials: Option[MongoCredentials] = None,
+            authMechanism: Option[AuthMechanism] = None,
             poolSize: Int): Props = {
-    Props(classOf[MongoPool], remote, databaseName, credentials, poolSize)
+    Props(classOf[MongoPool], remote, databaseName, credentials, authMechanism, poolSize)
   }
 }

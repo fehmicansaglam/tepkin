@@ -8,7 +8,8 @@ import akka.io.Tcp._
 import akka.util.ByteString
 import net.fehmicansaglam.tepkin.RetryStrategy.FixedRetryStrategy
 import net.fehmicansaglam.tepkin.TepkinMessage._
-import net.fehmicansaglam.tepkin.protocol.command.{Authenticate, GetNonce}
+import net.fehmicansaglam.tepkin.auth.{Authentication, MongoDbCrAuthentication, NoAuthentication}
+import net.fehmicansaglam.tepkin.protocol.AuthMechanism
 import net.fehmicansaglam.tepkin.protocol.message.{Message, Reply}
 
 class MongoConnection(manager: ActorRef,
@@ -18,6 +19,7 @@ class MongoConnection(manager: ActorRef,
                       retryStrategy: RetryStrategy)
   extends Actor
   with ActorLogging {
+  this: Authentication =>
 
   import context.dispatcher
 
@@ -34,59 +36,15 @@ class MongoConnection(manager: ActorRef,
       log.info("Connection failed.")
       retry()
 
-    case Connected(remote, local) =>
+    case Connected(_, local) =>
       log.info("Connected to {}", remote)
       nRetries = 0
       val connection = sender()
       connection ! Register(self)
-
-      //If we have credentials, start with MONGODB-CR authentication process.
-      log.info("Authenticating to {}", remote)
-      credentials match {
-        case Some(credentials) =>
-          context.become(noncing(connection))
-          connection ! Write(GetNonce(databaseName).encode())
-
-        case None =>
-          context.become(working(connection))
-          context.parent ! Idle
-      }
+      authenticate(connection, databaseName, credentials)
   }
 
-  def noncing(connection: ActorRef): Receive = {
-    // Received nonce
-    case Received(data) =>
-      for {
-        reply <- Reply.decode(data.asByteBuffer)
-        nonce <- reply.documents.head.getAs[String]("nonce")
-        credentials <- credentials
-      } {
-        log.debug("Received nonce: {}", nonce)
-        context.become(authenticating(connection))
-        val authenticate = Authenticate(
-          databaseName,
-          credentials.username,
-          credentials.password.getOrElse(""),
-          nonce
-        )
-        connection ! Write(authenticate.encode())
-      }
-  }
-
-  def authenticating(connection: ActorRef): Receive = {
-    // Received authentication result
-    case Received(data) =>
-      for {
-        reply <- Reply.decode(data.asByteBuffer)
-        result <- reply.documents.headOption
-      } {
-        log.info("Authentication result: {}", result)
-        context.become(working(connection))
-        context.parent ! Idle
-      }
-  }
-
-  def working(connection: ActorRef): Receive = {
+  override def working(connection: ActorRef): Receive = {
     case m: Message =>
       log.debug("Received request {}", m)
       requests += (m.requestID -> sender())
@@ -165,7 +123,17 @@ object MongoConnection {
             remote: InetSocketAddress,
             databaseName: String,
             credentials: Option[MongoCredentials] = None,
+            authMechanism: Option[AuthMechanism] = None,
             retryStrategy: RetryStrategy = FixedRetryStrategy()): Props = {
-    Props(classOf[MongoConnection], manager, remote, databaseName, credentials, retryStrategy)
+    Props {
+      authMechanism match {
+        case Some(AuthMechanism.MONGODB_CR) =>
+          new MongoConnection(manager, remote, databaseName, credentials, retryStrategy)
+            with MongoDbCrAuthentication
+        case _ =>
+          new MongoConnection(manager, remote, databaseName, credentials, retryStrategy)
+            with NoAuthentication
+      }
+    }
   }
 }

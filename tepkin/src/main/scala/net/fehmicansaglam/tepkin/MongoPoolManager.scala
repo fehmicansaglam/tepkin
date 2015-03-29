@@ -9,7 +9,7 @@ import net.fehmicansaglam.tepkin.TepkinMessage.{CursorClosed, CursorOpened, Shut
 import net.fehmicansaglam.tepkin.protocol.command.IsMaster
 import net.fehmicansaglam.tepkin.protocol.message.Reply
 import net.fehmicansaglam.tepkin.protocol.result.IsMasterResult
-import net.fehmicansaglam.tepkin.protocol.{MongoWireVersion, ReadPreference}
+import net.fehmicansaglam.tepkin.protocol.{AuthMechanism, MongoWireVersion, ReadPreference}
 
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -40,6 +40,7 @@ class MongoPoolManager(uri: MongoClientUri, nConnectionsPerNode: Int, readPrefer
         remote,
         uri.database.getOrElse("admin"),
         uri.credentials,
+        uri.option("authMechanism").map(AuthMechanism.apply),
         nConnectionsPerNode),
       s"pool-$remote".replaceAll("\\W", "_"))
     log.info("Created pool for {}", remote)
@@ -70,6 +71,7 @@ class MongoPoolManager(uri: MongoClientUri, nConnectionsPerNode: Int, readPrefer
             remote,
             uri.database.getOrElse("admin"),
             uri.credentials,
+            uri.option("authMechanism").map(AuthMechanism.apply),
             nConnectionsPerNode),
           s"pool-$remote".replaceAll("\\W", "_"))
         log.info("New node found. Created pool for {}", remote)
