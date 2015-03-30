@@ -27,7 +27,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
     override def command: BsonDocument = {
       ("saslStart" := 1) ~
         ("mechanism" := "SCRAM-SHA-1") ~
-        ("payload" := BsonValueBinary(message, BinarySubtype.Generic))
+        ("payload" := Binary(message, BinarySubtype.Generic))
     }
   }
 
@@ -35,7 +35,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
     override def command: BsonDocument = {
       ("saslContinue" := 1) ~
         ("conversationId" := conversationId) ~
-        ("payload" := BsonValueBinary(message, BinarySubtype.Generic))
+        ("payload" := Binary(message, BinarySubtype.Generic))
     }
   }
 
@@ -120,7 +120,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
         reply <- Reply.decode(data.asByteBuffer)
         result <- reply.documents.headOption
         conversationId <- result.getAs[Int]("conversationId")
-        payload <- result.get[BsonValueBinary]("payload")
+        payload <- result.get[Binary]("payload")
       } {
         val step1 = computeStep1(payload.value.toArray, credentials.get.username, credentials.get.password.get, step0)
         val command = SaslContinue(databaseName, conversationId, ByteString(step1.clientFinalMessage))
@@ -145,7 +145,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
               authenticated(connection)
 
             case Some(false) if n == 2 =>
-              val payload = result.get[BsonValueBinary]("payload").get
+              val payload = result.get[Binary]("payload").get
               val command = SaslContinue(databaseName, conversationId, computeStep2(payload.value, step1))
               context.become(stepN(n + 1, connection, databaseName, conversationId, step1))
               connection ! Write(command.encode())

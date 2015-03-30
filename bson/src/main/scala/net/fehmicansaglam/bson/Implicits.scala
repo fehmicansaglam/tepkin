@@ -181,6 +181,12 @@ object Implicits {
     }
   }
 
+  /**
+   * Type alias for BsonValueBinary
+   */
+  val Binary = BsonValueBinary
+  type Binary = BsonValueBinary
+
   case class BsonValueRegex(pattern: String, options: String) extends BsonValue with Identifiable[(String, String)] {
     override def identifier: (String, String) = (pattern, options)
 
