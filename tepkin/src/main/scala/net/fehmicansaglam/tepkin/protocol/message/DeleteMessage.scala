@@ -27,13 +27,13 @@ case class DeleteMessage(fullCollectionName: String,
 
   override val opCode: Int = 2006
 
-  override def encodeBody(): ByteString = {
+  override def encodeBody: ByteString = {
     val builder = ByteString.newBuilder
       .putInt(0) // ZERO
       .putBytes(fullCollectionName.getBytes("utf-8"))
       .putByte(0)
       .putInt(flags)
-      .append(selector.encode())
+      .append(selector.encode)
     builder.result()
   }
 

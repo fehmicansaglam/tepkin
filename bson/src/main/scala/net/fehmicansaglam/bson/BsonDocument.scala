@@ -5,9 +5,9 @@ import net.fehmicansaglam.bson.element.BsonElement
 
 case class BsonDocument(elements: BsonElement*) extends BsonValue {
 
-  override def encode(): ByteString = {
+  override def encode: ByteString = {
     val builder = elements.foldLeft(new ByteStringBuilder) { (builder, element) =>
-      builder.append(element.encode())
+      builder.append(element.encode)
     }
     builder.putByte(0)
 
@@ -20,14 +20,14 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
   def ~(element: BsonElement): BsonDocument = BsonDocument(elements :+ element)
 
   def ~(element: Option[BsonElement]): BsonDocument = element match {
-    case Some(element) => BsonDocument(elements :+ element)
+    case Some(_element) => BsonDocument(elements :+ _element)
     case None => this
   }
 
   def ++(that: BsonDocument): BsonDocument = BsonDocument(elements ++ that.elements)
 
   def ++(that: Option[BsonDocument]): BsonDocument = that match {
-    case Some(that) => BsonDocument(elements ++ that.elements)
+    case Some(_that) => BsonDocument(elements ++ _that.elements)
     case None => this
   }
 
@@ -45,7 +45,7 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
     }
   }
 
-  override def toString(): String = s"{ ${elements.mkString(", ")} }"
+  override def toString: String = s"{ ${elements.mkString(", ")} }"
 
   override def pretty(level: Int = 0): String = {
     val prefix = "\t" * level

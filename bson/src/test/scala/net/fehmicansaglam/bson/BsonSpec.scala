@@ -24,7 +24,7 @@ class BsonSpec extends WordSpec with Matchers {
         )
       )
 
-      val encoded = expected.encode()
+      val encoded = expected.encode
       val actual = BsonDocumentReader(encoded).read
       actual should be(Some(expected))
     }

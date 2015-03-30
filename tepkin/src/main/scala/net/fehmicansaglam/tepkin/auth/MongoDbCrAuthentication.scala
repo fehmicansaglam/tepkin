@@ -12,7 +12,7 @@ trait MongoDbCrAuthentication extends Authentication {
   override def authenticate(connection: ActorRef, databaseName: String, credentials: Option[MongoCredentials]): Unit = {
     log.info("Authenticating to {}", databaseName)
     context.become(noncing(connection, databaseName, credentials))
-    connection ! Write(GetNonce(databaseName).encode())
+    connection ! Write(GetNonce(databaseName).encode)
   }
 
   def noncing(connection: ActorRef, databaseName: String, credentials: Option[MongoCredentials]): Receive = {
@@ -31,7 +31,7 @@ trait MongoDbCrAuthentication extends Authentication {
           credentials.password.getOrElse(""),
           nonce
         )
-        connection ! Write(authenticate.encode())
+        connection ! Write(authenticate.encode)
       }
   }
 

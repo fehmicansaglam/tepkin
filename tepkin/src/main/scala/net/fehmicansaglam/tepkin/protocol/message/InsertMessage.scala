@@ -26,12 +26,12 @@ case class InsertMessage(fullCollectionName: String,
 
   override val opCode: Int = 2002
 
-  override def encodeBody(): ByteString = {
+  override def encodeBody: ByteString = {
     val builder = ByteString.newBuilder
       .putInt(flags)
       .putBytes(fullCollectionName.getBytes("utf-8"))
       .putByte(0)
-    documents.foreach(builder append _.encode())
+    documents.foreach(builder append _.encode)
     builder.result()
   }
 

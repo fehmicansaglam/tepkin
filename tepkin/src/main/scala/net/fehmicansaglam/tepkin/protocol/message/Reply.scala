@@ -33,14 +33,14 @@ case class Reply(responseTo: Int,
 
   override def opCode: Int = 1
 
-  override def encodeBody(): ByteString = {
+  override def encodeBody: ByteString = {
     val builder = ByteString.newBuilder
       .putInt(flags)
       .putLong(cursorID)
       .putInt(startingFrom)
       .putInt(numberReturned)
 
-    documents.foreach(doc => builder.append(doc.encode()))
+    documents.foreach(doc => builder.append(doc.encode))
 
     builder.result()
   }

@@ -19,7 +19,7 @@ trait Command extends Message {
 
   def command: BsonDocument
 
-  override def encodeBody(): ByteString = {
+  override def encodeBody: ByteString = {
     val flags: Int = 0
 
     ByteString.newBuilder
@@ -28,7 +28,7 @@ trait Command extends Message {
       .putByte(0)
       .putInt(0) // numberToSkip
       .putInt(1) // numberToReturn
-      .append(command.encode())
+      .append(command.encode)
       .result()
   }
 }

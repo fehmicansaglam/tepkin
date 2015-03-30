@@ -27,7 +27,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append((("count" := collectionName) ~ ("query" := query)).encode())
+        .append((("count" := collectionName) ~ ("query" := query)).encode)
         .result()
 
       ByteString.newBuilder
@@ -39,7 +39,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct Delete" in {
@@ -54,7 +54,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append((("delete" := collectionName) ~ ("deletes" := $array(deletes.map(_.asBsonDocument): _*))).encode())
+        .append((("delete" := collectionName) ~ ("deletes" := $array(deletes.map(_.asBsonDocument): _*))).encode)
         .result()
 
       ByteString.newBuilder
@@ -66,7 +66,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct FindAndModify" in {
@@ -87,7 +87,7 @@ class CommandSpec extends FlatSpec with Matchers {
           ("remove" := true) ~
           ("new" := false) ~
           ("upsert" := false))
-        .encode())
+        .encode)
         .result()
 
       ByteString.newBuilder
@@ -99,7 +99,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct GetLastError" in {
@@ -112,7 +112,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append($document("getLastError" := 1).encode())
+        .append($document("getLastError" := 1).encode)
         .result()
 
       ByteString.newBuilder
@@ -124,7 +124,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct Insert" in {
@@ -139,7 +139,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(0) // numberToSkip
         .putInt(1) // numberToReturn
-        .append((("insert" := collectionName) ~ ("documents" := $array(documents: _*))).encode())
+        .append((("insert" := collectionName) ~ ("documents" := $array(documents: _*))).encode)
         .result()
 
       ByteString.newBuilder
@@ -151,7 +151,7 @@ class CommandSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
 }

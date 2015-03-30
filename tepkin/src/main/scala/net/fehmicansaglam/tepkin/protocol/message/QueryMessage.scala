@@ -31,16 +31,16 @@ case class QueryMessage(fullCollectionName: String,
 
   override val opCode: Int = 2004
 
-  override def encodeBody(): ByteString = {
+  override def encodeBody: ByteString = {
     val builder = ByteString.newBuilder
       .putInt(flags)
       .putBytes(fullCollectionName.getBytes("utf-8"))
       .putByte(0)
       .putInt(numberToSkip)
       .putInt(numberToReturn)
-      .append(query.encode())
+      .append(query.encode)
 
-    fields.foreach(fields => builder.append(fields.encode()))
+    fields.foreach(fields => builder.append(fields.encode))
 
     builder.result()
   }

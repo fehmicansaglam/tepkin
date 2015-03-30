@@ -111,7 +111,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
     val step0 = computeStep0(credentials.get.username)
     val command = SaslStart(databaseName, ByteString(step0.clientFirstMessage))
     context.become(step1(connection, databaseName, credentials, step0))
-    connection ! Write(command.encode())
+    connection ! Write(command.encode)
   }
 
   private def step1(connection: ActorRef, databaseName: String, credentials: Option[MongoCredentials], step0: Step0): Receive = {
@@ -126,7 +126,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
         val command = SaslContinue(databaseName, conversationId, ByteString(step1.clientFinalMessage))
 
         context.become(stepN(2, connection, databaseName, conversationId, step1))
-        connection ! Write(command.encode())
+        connection ! Write(command.encode)
       }
   }
 
@@ -148,7 +148,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
               val payload = result.get[Binary]("payload").get
               val command = SaslContinue(databaseName, conversationId, computeStep2(payload.value, step1))
               context.become(stepN(n + 1, connection, databaseName, conversationId, step1))
-              connection ! Write(command.encode())
+              connection ! Write(command.encode)
 
             case _ =>
               log.error("Too many steps involved in the SCRAM-SHA-1 negotiation.")

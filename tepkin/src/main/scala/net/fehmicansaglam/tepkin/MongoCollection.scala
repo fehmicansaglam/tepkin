@@ -35,7 +35,7 @@ class MongoCollection(databaseName: String,
                (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
     (pool ? Aggregate(databaseName, collectionName, pipeline, explain, allowDiskUse, cursor)).mapTo[Reply]
       .map { reply =>
-      val result = reply.documents(0).getAsList[BsonDocument]("result").get
+      val result = reply.documents.head.getAsList[BsonDocument]("result").get
       Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, result, batchMultiplier))
     }
   }
@@ -53,7 +53,7 @@ class MongoCollection(databaseName: String,
            (implicit ec: ExecutionContext, timeout: Timeout): Future[CountResult] = {
 
     (pool ? Count(databaseName, collectionName, query, limit, skip)).mapTo[Reply].map { reply =>
-      val document = reply.documents(0)
+      val document = reply.documents.head
       CountResult(
         document.getAs[Boolean]("missing"),
         document.get[BsonValueNumber]("n").map(_.toInt).getOrElse(0),
@@ -68,7 +68,7 @@ class MongoCollection(databaseName: String,
   def createIndexes(indexes: Index*)
                    (implicit ec: ExecutionContext, timeout: Timeout): Future[CreateIndexesResult] = {
     (pool ? CreateIndexes(databaseName, collectionName, indexes: _*)).mapTo[Reply].map { reply =>
-      val document = reply.documents(0)
+      val document = reply.documents.head
       CreateIndexesResult(document)
     }
   }
@@ -93,7 +93,7 @@ class MongoCollection(databaseName: String,
         case true => 1
       })),
       writeConcern = writeConcern.map(_.toDoc))).mapTo[Reply].map { reply =>
-      val document = reply.documents(0)
+      val document = reply.documents.head
       DeleteResult(
         document.getAs[Int]("ok").get == 1,
         document.getAs[Int]("n").get,
@@ -234,7 +234,7 @@ class MongoCollection(databaseName: String,
             (implicit ec: ExecutionContext, timeout: Timeout): Future[InsertResult] = {
     (pool ? Insert(databaseName, collectionName, documents, ordered, writeConcern.map(_.toDoc)))
       .mapTo[Reply].map { reply =>
-      val document = reply.documents(0)
+      val document = reply.documents.head
       InsertResult(
         document.getAs[Int]("ok").get == 1,
         document.getAs[Int]("n").get,
@@ -298,7 +298,7 @@ class MongoCollection(databaseName: String,
       updates = Seq(UpdateElement(q = query, u = update, upsert = upsert, multi = multi)),
       writeConcern = writeConcern.map(_.toDoc)
     )).mapTo[Reply].map { reply =>
-      val document = reply.documents(0)
+      val document = reply.documents.head
       UpdateResult(
         ok = document.getAs[Int]("ok").get == 1,
         n = document.getAs[Int]("n").get,

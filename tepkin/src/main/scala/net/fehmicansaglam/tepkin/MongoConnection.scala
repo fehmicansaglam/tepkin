@@ -48,7 +48,7 @@ class MongoConnection(manager: ActorRef,
     case m: Message =>
       log.debug("Received request {}", m)
       requests += (m.requestID -> sender())
-      connection ! Write(m.encode())
+      connection ! Write(m.encode)
 
     case CommandFailed(w: Write) =>
       // O/S buffer was full

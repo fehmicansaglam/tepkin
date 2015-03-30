@@ -22,7 +22,7 @@ case class KillCursorsMessage(cursorIDs: Long*) extends Message {
 
   override val opCode: Int = 2007
 
-  override def encodeBody(): ByteString = {
+  override def encodeBody: ByteString = {
     val builder = ByteString.newBuilder
       .putInt(0) // ZERO
       .putInt(cursorIDs.size)

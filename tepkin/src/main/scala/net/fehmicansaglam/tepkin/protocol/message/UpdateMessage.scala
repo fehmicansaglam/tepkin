@@ -29,7 +29,7 @@ case class UpdateMessage(fullCollectionName: String,
 
   override val opCode: Int = 2001
 
-  override def encodeBody(): ByteString = {
+  override def encodeBody: ByteString = {
     val flags = (if (upsert) 0x00000001 else 0x00000000) | (if (multi) 0x00000002 else 0x00000000)
 
     ByteString.newBuilder
@@ -37,8 +37,8 @@ case class UpdateMessage(fullCollectionName: String,
       .putBytes(fullCollectionName.getBytes("utf-8"))
       .putByte(0)
       .putInt(flags)
-      .append(selector.encode())
-      .append(update.encode())
+      .append(selector.encode)
+      .append(update.encode)
       .result()
   }
 

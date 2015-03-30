@@ -8,14 +8,13 @@ import org.joda.time.format.ISODateTimeFormat
 
 object Implicits {
 
-
   implicit class BsonValueDouble(value: Double) extends BsonValueNumber with Identifiable[Double] {
 
     override def identifier: Double = value
 
-    override def encode(): ByteString = new ByteStringBuilder().putDouble(value).result()
+    override def encode: ByteString = new ByteStringBuilder().putDouble(value).result()
 
-    override def toString(): String = s"$value"
+    override def toString: String = s"$value"
 
     override def toInt: Int = value.toInt
 
@@ -32,7 +31,7 @@ object Implicits {
 
     override def identifier: String = value
 
-    override def encode(): ByteString = {
+    override def encode: ByteString = {
       val builder = new ByteStringBuilder()
       val bytes = value.getBytes("utf-8")
       builder.putInt(bytes.length + 1)
@@ -41,7 +40,7 @@ object Implicits {
       builder.result()
     }
 
-    override def toString(): String = s""" "$value" """.trim
+    override def toString: String = s""" "$value" """.trim
   }
 
   object BsonValueString {
@@ -52,9 +51,9 @@ object Implicits {
 
     override def identifier: BsonDocument = document
 
-    override def encode(): ByteString = document.encode
+    override def encode: ByteString = document.encode
 
-    override def toString(): String = document.toString()
+    override def toString: String = document.toString()
 
     override def pretty(level: Int = 0): String = document.pretty(level)
   }
@@ -63,9 +62,9 @@ object Implicits {
 
     override def identifier: BsonDocument = document
 
-    override def encode(): ByteString = document.encode
+    override def encode: ByteString = document.encode
 
-    override def toString(): String = s"[ ${document.elements.map(_.value).mkString(", ")} ]"
+    override def toString: String = s"[ ${document.elements.map(_.value).mkString(", ")} ]"
 
     override def pretty(level: Int = 0): String = {
       val prefix = "\t" * (level + 1)
@@ -80,13 +79,13 @@ object Implicits {
 
     override def identifier: Boolean = value
 
-    override def encode(): ByteString = {
+    override def encode: ByteString = {
       val builder = new ByteStringBuilder()
       if (value) builder.putByte(0x01) else builder.putByte(0x00)
       builder.result()
     }
 
-    override def toString(): String = s"$value"
+    override def toString: String = s"$value"
   }
 
   object BsonValueBoolean {
@@ -97,9 +96,9 @@ object Implicits {
 
     override def identifier: Int = value
 
-    override def encode(): ByteString = new ByteStringBuilder().putInt(value).result()
+    override def encode: ByteString = new ByteStringBuilder().putInt(value).result()
 
-    override def toString(): String = s"$value"
+    override def toString: String = s"$value"
 
     override def toInt: Int = value
 
@@ -116,9 +115,9 @@ object Implicits {
 
     override def identifier: Long = value
 
-    override def encode(): ByteString = new ByteStringBuilder().putLong(value).result()
+    override def encode: ByteString = new ByteStringBuilder().putLong(value).result()
 
-    override def toString(): String = s"$value"
+    override def toString: String = s"$value"
 
     override def toInt: Int = value.toInt
 
@@ -136,9 +135,9 @@ object Implicits {
 
     override val identifier: String = Converters.hex2Str(value)
 
-    override def encode(): ByteString = ByteString.newBuilder.putBytes(value).result()
+    override def encode: ByteString = ByteString.newBuilder.putBytes(value).result()
 
-    override def toString(): String = s"""ObjectId("$identifier")"""
+    override def toString: String = s"""ObjectId("$identifier")"""
   }
 
   /**
@@ -150,9 +149,9 @@ object Implicits {
 
     override def identifier: DateTime = value
 
-    override def encode(): ByteString = ByteString.newBuilder.putLong(value.getMillis()).result()
+    override def encode: ByteString = ByteString.newBuilder.putLong(value.getMillis).result()
 
-    override def toString(): String = s"""ISODate("${ISODateTimeFormat.dateTime().print(value)}")"""
+    override def toString: String = s"""ISODate("${ISODateTimeFormat.dateTime().print(value)}")"""
   }
 
   object BsonValueDateTime {
@@ -163,16 +162,16 @@ object Implicits {
 
     override def identifier: Long = value
 
-    override def encode(): ByteString = new ByteStringBuilder().putLong(value).result()
+    override def encode: ByteString = new ByteStringBuilder().putLong(value).result()
 
-    override def toString(): String = s"$value"
+    override def toString: String = s"$value"
   }
 
   case class BsonValueBinary(value: ByteString, subtype: BinarySubtype) extends BsonValue with Identifiable[ByteString] {
 
     override def identifier: ByteString = value
 
-    override def encode(): ByteString = {
+    override def encode: ByteString = {
       ByteString.newBuilder
         .putInt(value.length)
         .putByte(subtype.code)
@@ -190,7 +189,7 @@ object Implicits {
   case class BsonValueRegex(pattern: String, options: String) extends BsonValue with Identifiable[(String, String)] {
     override def identifier: (String, String) = (pattern, options)
 
-    override def encode(): ByteString = {
+    override def encode: ByteString = {
       val builder = ByteString.newBuilder
       putCString(builder, pattern)
       putCString(builder, options)

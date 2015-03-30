@@ -15,10 +15,10 @@ trait Message extends Writable {
 
   def opCode: Int
 
-  def encodeBody(): ByteString
+  def encodeBody: ByteString
 
-  override def encode(): ByteString = {
-    val body = encodeBody()
+  override def encode: ByteString = {
+    val body = encodeBody
 
     ByteString.newBuilder
       .putInt(body.length + 16) // header length is always 16

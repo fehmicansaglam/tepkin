@@ -25,7 +25,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .putBytes(fullCollectionName.getBytes("utf-8"))
         .putByte(0)
         .putInt(0)
-        .append(selector.encode())
+        .append(selector.encode)
         .result()
 
       ByteString.newBuilder
@@ -37,7 +37,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct GetMoreMessage" in {
@@ -64,7 +64,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct InsertMessage" in {
@@ -77,7 +77,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .putInt(0) // flags
         .putBytes(fullCollectionName.getBytes("utf-8"))
         .putByte(0)
-        .append(document.encode())
+        .append(document.encode)
         .result()
 
       ByteString.newBuilder
@@ -89,7 +89,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct KillCursorsMessage" in {
@@ -115,7 +115,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct QueryMessage" in {
@@ -133,9 +133,9 @@ class MessageSpec extends FlatSpec with Matchers {
         .putByte(0)
         .putInt(numberToSkip)
         .putInt(numberToReturn)
-        .append(query.encode())
+        .append(query.encode)
 
-      builder.append(fields.encode())
+      builder.append(fields.encode)
 
       val body = builder.result()
 
@@ -148,7 +148,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
   it should "construct correct UpdateMessage" in {
@@ -163,8 +163,8 @@ class MessageSpec extends FlatSpec with Matchers {
         .putBytes(fullCollectionName.getBytes("utf-8"))
         .putByte(0)
         .putInt(0) // flags
-        .append(selector.encode())
-        .append(update.encode())
+        .append(selector.encode)
+        .append(update.encode)
         .result()
 
       ByteString.newBuilder
@@ -176,7 +176,7 @@ class MessageSpec extends FlatSpec with Matchers {
         .result()
     }
 
-    actual.encode() should be(expected)
+    actual.encode should be(expected)
   }
 
 }

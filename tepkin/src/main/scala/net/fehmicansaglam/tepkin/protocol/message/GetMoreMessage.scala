@@ -24,7 +24,7 @@ case class GetMoreMessage(fullCollectionName: String,
 
   override val opCode: Int = 2005
 
-  override def encodeBody(): ByteString = {
+  override def encodeBody: ByteString = {
     ByteString.newBuilder
       .putInt(0) // ZERO
       .putBytes(fullCollectionName.getBytes("utf-8"))
