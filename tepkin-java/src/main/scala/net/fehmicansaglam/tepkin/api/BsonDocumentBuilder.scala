@@ -3,7 +3,7 @@ package net.fehmicansaglam.tepkin.api
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.element.BsonElement
-import net.fehmicansaglam.bson.{BsonDocument, BsonDsl, BsonValue, Implicits}
+import net.fehmicansaglam.bson.{BsonDocument, BsonValue}
 
 import scala.collection.mutable.ArrayBuffer
 

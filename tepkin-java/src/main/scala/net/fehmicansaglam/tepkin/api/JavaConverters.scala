@@ -19,7 +19,7 @@ object JavaConverters {
   }
 
   implicit def toOption[T](optional: Optional[T]): Option[T] = {
-    if (optional.isPresent()) Some(optional.get()) else None
+    if (optional.isPresent) Some(optional.get()) else None
   }
 
 }
