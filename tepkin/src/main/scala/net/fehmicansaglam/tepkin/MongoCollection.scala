@@ -11,6 +11,7 @@ import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
 import net.fehmicansaglam.tepkin.protocol.result._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
 
 class MongoCollection(databaseName: String,
                       collectionName: String,
@@ -183,10 +184,21 @@ class MongoCollection(databaseName: String,
   }
 
   /** Retrieves at most one document matching the given selector. */
-  def findOne(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {
-    (pool ? QueryMessage(s"$databaseName.$collectionName", query, numberToReturn = 1))
+  def findOne(query: BsonDocument = BsonDocument.empty, numberToSkip: Int = 0)
+             (implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {
+    (pool ? QueryMessage(s"$databaseName.$collectionName", query, numberToSkip = numberToSkip, numberToReturn = 1))
       .mapTo[Reply]
       .map(_.documents.headOption)
+  }
+
+  /** Retrieves a random document matching the given selector. */
+  def findRandom(query: Option[BsonDocument] = None)
+                (implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {
+    for {
+      count <- count(query)
+      index = if (count.n == 0) 0 else Random.nextInt(count.n)
+      random <- findOne(query.getOrElse(BsonDocument.empty), numberToSkip = index)
+    } yield random
   }
 
   /**
