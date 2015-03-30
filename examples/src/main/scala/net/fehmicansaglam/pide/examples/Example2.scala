@@ -3,10 +3,10 @@ package net.fehmicansaglam.pide.examples
 import java.util.UUID
 
 import akka.util.Timeout
+import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
-import net.fehmicansaglam.bson.{BsonDocument, BsonValue}
-import net.fehmicansaglam.pide.{Dao, Entity, Pide}
+import net.fehmicansaglam.pide.{Dao, Entity, StringPide}
 import net.fehmicansaglam.tepkin.{MongoClient, MongoCollection}
 
 import scala.concurrent.Await
@@ -27,9 +27,7 @@ object Example2 extends App {
     override val collection: MongoCollection = db("person")
   }
 
-  implicit object PersonPide extends Pide[String, Person] {
-
-    override def id(id: String): BsonValue = BsonValueString(id)
+  implicit object PersonPide extends StringPide[Person] {
 
     override def read(document: BsonDocument): Person = {
       Person(
