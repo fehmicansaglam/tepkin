@@ -37,6 +37,8 @@ object BsonDsl {
 
   def $set(document: BsonDocument): BsonElement = "$set" := document
 
+  def $unset(field: String, fields: String*): BsonElement = "$unset" := BsonDocument(fields.+:(field).map(_ := ""))
+
   def $query(document: BsonDocument): BsonElement = "$query" := document
 
   def $orderBy(document: BsonDocument): BsonElement = "$orderBy" := document
