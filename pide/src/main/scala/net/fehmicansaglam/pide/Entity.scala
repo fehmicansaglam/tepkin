@@ -1,7 +1,6 @@
 package net.fehmicansaglam.pide
 
-import net.fehmicansaglam.bson.Implicits.ObjectId
+trait Entity[ID] {
 
-trait Entity {
-  def id: ObjectId
+  def id: ID
 }

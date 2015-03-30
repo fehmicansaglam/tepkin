@@ -1,9 +1,10 @@
 package net.fehmicansaglam.pide.examples
 
+import java.util.UUID
+
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
-import net.fehmicansaglam.bson.element.BsonObjectId
 import net.fehmicansaglam.bson.{BsonDocument, BsonValue}
 import net.fehmicansaglam.pide.{Dao, Entity, Pide}
 import net.fehmicansaglam.tepkin.{MongoClient, MongoCollection}
@@ -12,24 +13,27 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 
-object Example1 extends App {
+object Example2 extends App {
 
   val client = MongoClient("mongodb://localhost")
   val db = client("tepkin")
 
-  case class Person(id: ObjectId,
+  case class Person(id: String,
                     name: String,
                     surname: String,
-                    age: Int) extends Entity[ObjectId]
+                    age: Int) extends Entity[String]
 
-  object PersonDao extends Dao[ObjectId, Person] {
+  object PersonDao extends Dao[String, Person] {
     override val collection: MongoCollection = db("person")
   }
 
-  implicit object PersonPide extends Pide[ObjectId, Person] {
+  implicit object PersonPide extends Pide[String, Person] {
+
+    override def id(id: String): BsonValue = BsonValueString(id)
+
     override def read(document: BsonDocument): Person = {
       Person(
-        id = document.get[ObjectId]("_id").get,
+        id = document.getAs[String]("_id").get,
         name = document.getAs[String]("name").get,
         surname = document.getAs[String]("surname").get,
         age = document.getAs[Int]("age").get
@@ -42,12 +46,10 @@ object Example1 extends App {
         ("surname" := person.surname) ~
         ("age" := person.age)
     }
-
-    override def id(id: ObjectId): BsonValue = id
   }
 
-  val person1 = Person(BsonObjectId.generate, "name1", "surname1", 16)
-  val person2 = Person(BsonObjectId.generate, "name2", "surname2", 32)
+  val person1 = Person(UUID.randomUUID().toString, "name1", "surname1", 16)
+  val person2 = Person(UUID.randomUUID().toString, "name2", "surname2", 32)
 
   import client.ec
 

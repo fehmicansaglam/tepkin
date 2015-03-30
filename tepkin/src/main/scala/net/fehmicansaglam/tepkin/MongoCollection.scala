@@ -184,9 +184,9 @@ class MongoCollection(databaseName: String,
   }
 
   /** Retrieves at most one document matching the given selector. */
-  def findOne(query: BsonDocument = BsonDocument.empty, numberToSkip: Int = 0)
+  def findOne(query: BsonDocument = BsonDocument.empty, skip: Int = 0)
              (implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {
-    (pool ? QueryMessage(s"$databaseName.$collectionName", query, numberToSkip = numberToSkip, numberToReturn = 1))
+    (pool ? QueryMessage(s"$databaseName.$collectionName", query, numberToSkip = skip, numberToReturn = 1))
       .mapTo[Reply]
       .map(_.documents.headOption)
   }
@@ -197,7 +197,7 @@ class MongoCollection(databaseName: String,
     for {
       count <- count(query)
       index = if (count.n == 0) 0 else Random.nextInt(count.n)
-      random <- findOne(query.getOrElse(BsonDocument.empty), numberToSkip = index)
+      random <- findOne(query.getOrElse(BsonDocument.empty), skip = index)
     } yield random
   }
 
