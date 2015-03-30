@@ -40,7 +40,7 @@ class MongoCollectionSpec
     Await.ready(collection.drop(), 5.seconds)
   }
 
-  override def afterAll() = client.shutdown()
+  override protected def afterAll() = client.shutdown()
 
   "A MongoCollection" should "findAndUpdate" in {
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")

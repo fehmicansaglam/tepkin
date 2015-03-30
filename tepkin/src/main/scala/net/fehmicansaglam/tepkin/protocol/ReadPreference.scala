@@ -5,23 +5,23 @@ sealed trait ReadPreference
 object ReadPreference {
 
   case object Primary extends ReadPreference {
-    override def toString = "primary"
+    override def toString: String = "primary"
   }
 
   case object PrimaryPreferred extends ReadPreference {
-    override def toString = "primaryPreferred"
+    override def toString: String = "primaryPreferred"
   }
 
   case object Secondary extends ReadPreference {
-    override def toString = "secondary"
+    override def toString: String = "secondary"
   }
 
   case object SecondaryPreferred extends ReadPreference {
-    override def toString = "secondaryPreferred"
+    override def toString: String = "secondaryPreferred"
   }
 
   case object Nearest extends ReadPreference {
-    override def toString = "nearest"
+    override def toString: String = "nearest"
   }
 
   def apply(str: String): ReadPreference = {

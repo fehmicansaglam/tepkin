@@ -25,7 +25,7 @@ class MongoPool(remote: InetSocketAddress,
 
   self ! Init
 
-  def receive = initing
+  def receive: Receive = initing
 
   def initing: Receive = {
 

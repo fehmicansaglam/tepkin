@@ -34,7 +34,7 @@ object BinarySubtype {
     val code: Byte = 0x80.toByte
   }
 
-  def apply(code: Byte) = code match {
+  def apply(code: Byte): BinarySubtype = code match {
     case 0x00 => Generic
     case 0x01 => Function
     case 0x02 => DeprecatedGeneric

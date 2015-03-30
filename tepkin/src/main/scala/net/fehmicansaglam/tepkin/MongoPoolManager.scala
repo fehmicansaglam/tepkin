@@ -49,7 +49,7 @@ class MongoPoolManager(uri: MongoClientUri, nConnectionsPerNode: Int, readPrefer
 
   val pinger = context.system.scheduler.schedule(initialDelay = 0.seconds, interval = 10.seconds, self, PingNodes)
 
-  def receive = {
+  def receive: Receive = {
 
     case PingNodes =>
       pingNodes()

@@ -20,7 +20,7 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
     new MongoCollection(databaseName, collectionName, pool)
   }
 
-  def collection = apply _
+  def collection(collectionName: String): MongoCollection = apply(collectionName)
 
   def gridFs(prefix: String = "fs"): GridFs = {
     new GridFs(this, prefix)

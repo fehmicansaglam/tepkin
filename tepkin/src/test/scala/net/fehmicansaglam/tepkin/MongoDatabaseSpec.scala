@@ -25,7 +25,7 @@ class MongoDatabaseSpec
 
   implicit val timeout: Timeout = 30.seconds
 
-  override def afterAll() = client.shutdown()
+  override protected def afterAll() = client.shutdown()
 
   "A MongoDatabase" should "list collections" in {
     implicit val mat = ActorFlowMaterializer()(client.context)

@@ -43,7 +43,7 @@ class GridFsSpec
     Await.ready(db.collection("fs.chunks").drop(), 5.seconds)
   }
 
-  override def afterAll() = client.shutdown()
+  override protected def afterAll() = client.shutdown()
 
   "A GridFs" should "put and find and delete File" in {
     implicit val mat = ActorFlowMaterializer()(client.context)

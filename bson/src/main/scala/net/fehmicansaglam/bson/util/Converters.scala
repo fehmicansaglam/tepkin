@@ -28,10 +28,10 @@ object Converters {
   }
 
   /** Computes the MD5 hash of the given String. */
-  def md5(s: String) = java.security.MessageDigest.getInstance("MD5").digest(s.getBytes)
+  def md5(s: String): Array[Byte] = java.security.MessageDigest.getInstance("MD5").digest(s.getBytes)
 
   /** Computes the MD5 hash of the given Array of Bytes. */
-  def md5(array: Array[Byte]) = java.security.MessageDigest.getInstance("MD5").digest(array)
+  def md5(array: Array[Byte]): Array[Byte] = java.security.MessageDigest.getInstance("MD5").digest(array)
 
   /** Computes the MD5 hash of the given String and turns it into a hexadecimal String representation. */
   def md5Hex(s: String): String = hex2Str(md5(s))
