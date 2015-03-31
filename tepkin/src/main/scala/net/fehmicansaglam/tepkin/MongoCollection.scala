@@ -301,7 +301,7 @@ class MongoCollection(databaseName: String,
       val document = reply.documents.head
       UpdateResult(
         ok = document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
-        n = document.getAs[BsonValueNumber]("n").map(_.toInt).getOrElse(0),
+        n = document.get[BsonValueNumber]("n").map(_.toInt).getOrElse(0),
         nModified = document.get[BsonValueNumber]("nModified").map(_.toInt).getOrElse(0),
         upserted = document.getAsList[BsonDocument]("upserted"),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
