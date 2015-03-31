@@ -1,9 +1,21 @@
 package net.fehmicansaglam.tepkin.protocol.command
 
-import net.fehmicansaglam.bson.{BsonDocument, BsonDsl, Implicits}
-import BsonDsl._
-import Implicits._
+import net.fehmicansaglam.bson.BsonDocument
+import net.fehmicansaglam.bson.BsonDsl._
+import net.fehmicansaglam.bson.Implicits._
 
+/**
+ * The delete command removes documents from a collection. A single delete command can contain multiple delete
+ * specifications. The command cannot operate on capped collections.
+ *
+ * @param collectionName The name of the target collection.
+ * @param deletes An array of one or more delete statements to perform in the named collection.
+ * @param ordered Optional. If true, then when a delete statement fails, return without performing the remaining delete
+ *                statements. If false, then when a delete statement fails, continue with the remaining delete
+ *                statements, if any. Defaults to true.
+ * @param writeConcern Optional. A document expressing the write concern of the delete command. Omit to use the default
+ *                     write concern.
+ */
 case class Delete(databaseName: String,
                   collectionName: String,
                   deletes: Seq[DeleteElement],
@@ -17,6 +29,13 @@ case class Delete(databaseName: String,
   }
 }
 
+/**
+ * Delete statement.
+ *
+ * @param q The query that matches documents to delete.
+ * @param limit The number of matching documents to delete. Specify either a 0 to delete all matching documents
+ *              or 1 to delete a single document.
+ */
 case class DeleteElement(q: BsonDocument, limit: Int) {
   val asBsonDocument: BsonDocument = ("q" := q) ~ ("limit" := limit)
 }

@@ -237,7 +237,7 @@ class MongoCollection(databaseName: String,
       val document = reply.documents.head
       InsertResult(
         document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
-        document.getAs[Int]("n").get,
+        document.getAs[Int]("n").getOrElse(0),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       )
