@@ -57,7 +57,7 @@ class MongoCollection(databaseName: String,
       CountResult(
         document.getAs[Boolean]("missing"),
         document.get[BsonValueNumber]("n").map(_.toInt).getOrElse(0),
-        document.getAs[Double]("ok").get == 1.0
+        document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1
       )
     }
   }
@@ -95,7 +95,7 @@ class MongoCollection(databaseName: String,
       writeConcern = writeConcern.map(_.toDoc))).mapTo[Reply].map { reply =>
       val document = reply.documents.head
       DeleteResult(
-        document.getAs[Int]("ok").get == 1,
+        document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
         document.getAs[Int]("n").get,
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
@@ -236,7 +236,7 @@ class MongoCollection(databaseName: String,
       .mapTo[Reply].map { reply =>
       val document = reply.documents.head
       InsertResult(
-        document.getAs[Int]("ok").get == 1,
+        document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
         document.getAs[Int]("n").get,
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
@@ -300,7 +300,7 @@ class MongoCollection(databaseName: String,
     )).mapTo[Reply].map { reply =>
       val document = reply.documents.head
       UpdateResult(
-        ok = document.getAs[Int]("ok").get == 1,
+        ok = document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
         n = document.getAs[Int]("n").get,
         nModified = document.getAs[Int]("nModified").get,
         upserted = document.getAsList[BsonDocument]("upserted"),
