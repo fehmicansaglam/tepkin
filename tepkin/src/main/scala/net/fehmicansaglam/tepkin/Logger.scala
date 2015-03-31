@@ -10,23 +10,23 @@ trait LoggerLike {
 
   /** `true` if the logger instance is enabled for the `TRACE` level.
     */
-  def isTraceEnabled = logger.isTraceEnabled
+  def isTraceEnabled: Boolean = logger.isTraceEnabled
 
   /** `true` if the logger instance is enabled for the `DEBUG` level.
     */
-  def isDebugEnabled = logger.isDebugEnabled
+  def isDebugEnabled: Boolean = logger.isDebugEnabled
 
   /** `true` if the logger instance is enabled for the `INFO` level.
     */
-  def isInfoEnabled = logger.isInfoEnabled
+  def isInfoEnabled: Boolean = logger.isInfoEnabled
 
   /** `true` if the logger instance is enabled for the `WARN` level.
     */
-  def isWarnEnabled = logger.isWarnEnabled
+  def isWarnEnabled: Boolean = logger.isWarnEnabled
 
   /** `true` if the logger instance is enabled for the `ERROR` level.
     */
-  def isErrorEnabled = logger.isErrorEnabled
+  def isErrorEnabled: Boolean = logger.isErrorEnabled
 
   /** Logs a message with the `TRACE` level.
     *
