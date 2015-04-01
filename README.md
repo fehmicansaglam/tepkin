@@ -285,3 +285,9 @@ CompletableFuture<Optional<BsonDocument>> cf = collection
   .thenCompose(insert -> collection.findOne(mongoClient.ec(), timeout));
 Optional<BsonDocument> actual = cf.get(5, TimeUnit.SECONDS);
 ```
+
+## Donations
+
+Tepkin is a free software project and will always be. I work hard to make it stable and to add new features. I am always available if you encounter a problem and file an issue on Github. If you like Tepkin and find it helpful, you might give me a gift from some of the books (Kindle) I have in my wish list:
+
+[My Wish List on Amazon](http://amzn.com/w/1P7899I22B046). Thanks!
