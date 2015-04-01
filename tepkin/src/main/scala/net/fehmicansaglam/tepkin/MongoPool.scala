@@ -10,12 +10,20 @@ import net.fehmicansaglam.tepkin.protocol.message.Message
 
 import scala.collection.mutable
 
+/**
+ * Manages a connection pool to a single MongoDB instance.
+ *
+ * @param remote MongoDB instance remote address
+ * @param poolSize Number of connections.
+ * @param databaseName Authentication database
+ * @param credentials Optional. Authentication credentials.
+ * @param authMechanism Optional. Authentication mechanism.
+ */
 class MongoPool(remote: InetSocketAddress,
+                poolSize: Int,
                 databaseName: String,
                 credentials: Option[MongoCredentials],
-                authMechanism: Option[AuthMechanism],
-                poolSize: Int)
-  extends Actor {
+                authMechanism: Option[AuthMechanism]) extends Actor {
 
   import context.system
 
@@ -25,9 +33,7 @@ class MongoPool(remote: InetSocketAddress,
 
   self ! Init
 
-  def receive: Receive = initing
-
-  def initing: Receive = {
+  def receive: Receive = {
 
     // Create initial pool of connections.
     case Init =>
@@ -91,13 +97,13 @@ class MongoPool(remote: InetSocketAddress,
       }
 
       if (stash.isEmpty) {
-        idleConnections foreach (_ ! ShutDown)
+        idleConnections.foreach(_ ! ShutDown)
       }
 
     case Terminated(connection) =>
       idleConnections -= connection
       if (idleConnections.isEmpty) {
-        context stop self
+        context.stop(self)
       }
   }
 
@@ -108,10 +114,10 @@ class MongoPool(remote: InetSocketAddress,
 
 object MongoPool {
   def props(remote: InetSocketAddress,
+            poolSize: Int,
             databaseName: String,
             credentials: Option[MongoCredentials] = None,
-            authMechanism: Option[AuthMechanism] = None,
-            poolSize: Int): Props = {
-    Props(classOf[MongoPool], remote, databaseName, credentials, authMechanism, poolSize)
+            authMechanism: Option[AuthMechanism] = None): Props = {
+    Props(classOf[MongoPool], remote, poolSize, databaseName, credentials, authMechanism)
   }
 }

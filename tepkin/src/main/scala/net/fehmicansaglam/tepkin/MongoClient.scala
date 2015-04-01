@@ -7,7 +7,7 @@ import net.fehmicansaglam.tepkin.protocol.ReadPreference
 
 import scala.concurrent.ExecutionContext
 
-class MongoClient(val context: ActorRefFactory, uri: MongoClientUri, nConnectionsPerNode: Int = 10) {
+class MongoClient(val context: ActorRefFactory, uri: MongoClientUri, nConnectionsPerNode: Int) {
   val poolManager = context.actorOf(
     MongoPoolManager
       .props(uri, nConnectionsPerNode, uri.option("readPreference").map(ReadPreference.apply))
@@ -33,8 +33,10 @@ class MongoClient(val context: ActorRefFactory, uri: MongoClientUri, nConnection
 
 object MongoClient {
 
-  def apply(uri: String, context: ActorRefFactory = ActorSystem("tepkin-system")): MongoClient = {
-    new MongoClient(context, MongoClientUri(uri))
+  def apply(uri: String,
+            nConnectionsPerNode: Int = 10,
+            context: ActorRefFactory = ActorSystem("tepkin-system")): MongoClient = {
+    new MongoClient(context, MongoClientUri(uri), nConnectionsPerNode)
   }
 
 }

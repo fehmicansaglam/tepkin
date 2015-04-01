@@ -38,11 +38,11 @@ class MongoPoolManager(uri: MongoClientUri, nConnectionsPerNode: Int, readPrefer
     val pool = context.actorOf(
       MongoPool.props(
         remote,
+        nConnectionsPerNode,
         uri.database.getOrElse("admin"),
         uri.credentials,
-        uri.option("authMechanism").map(AuthMechanism.apply),
-        nConnectionsPerNode),
-      s"pool-$remote".replaceAll("\\W", "_"))
+        uri.option("authMechanism").map(AuthMechanism.apply)),
+    s"pool-$remote".replaceAll("\\W", "_"))
     log.info("Created pool for {}", remote)
     pools += pool
   }
@@ -69,11 +69,11 @@ class MongoPoolManager(uri: MongoClientUri, nConnectionsPerNode: Int, readPrefer
         val pool = context.actorOf(
           MongoPool.props(
             remote,
+            nConnectionsPerNode,
             uri.database.getOrElse("admin"),
             uri.credentials,
-            uri.option("authMechanism").map(AuthMechanism.apply),
-            nConnectionsPerNode),
-          s"pool-$remote".replaceAll("\\W", "_"))
+            uri.option("authMechanism").map(AuthMechanism.apply)),
+        s"pool-$remote".replaceAll("\\W", "_"))
         log.info("New node found. Created pool for {}", remote)
         pools += pool
       }
