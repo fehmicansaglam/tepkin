@@ -82,7 +82,7 @@ public class MongoCollectionTest {
 
         final CompletableFuture<Optional<BsonDocument>> cf = collection
                 .insert(document, mongoClient.ec(), timeout)
-                .thenCompose(insert -> collection.findOne(mongoClient.ec(), timeout));
+                .thenCompose(insert -> collection.findOne(BsonDocument.empty(), mongoClient.ec(), timeout));
         final Optional<BsonDocument> actual = cf.get(5, TimeUnit.SECONDS);
         assertTrue(actual.isPresent());
         assertEquals("fehmi", actual.get().<String>getAs("name").get());

@@ -148,20 +148,75 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
     proxy.find(query, Some(fields))(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
   }(ec)
 
-  def findAndRemove(query: BsonDocument,
+  /**
+   * Updates and returns a single document. It returns the old document by default.
+   *
+   * @param query The selection criteria for the update.
+   * @param sort Determines which model the operation updates if the query selects multiple models.
+   *             findAndUpdate() updates the first model in the sort order specified by this argument.
+   * @param update Performs an update of the selected model.
+   * @param returnNew When true, returns the updated model rather than the original.
+   * @param fields A subset of fields to return.
+   * @param upsert When true, findAndUpdate() creates a new model if no model matches the query.
+   */
+  def findAndUpdate(query: Optional[BsonDocument],
+                    sort: Optional[BsonDocument],
+                    update: BsonDocument,
+                    returnNew: Boolean,
+                    fields: Optional[JavaList[String]],
+                    upsert: Boolean,
                     ec: ExecutionContext,
                     timeout: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
-    proxy.findAndRemove(query = Some(query))(ec, timeout).map(toOptional)(ec)
+    proxy.findAndUpdate(query, sort, update, returnNew, toOption(fields).map(_.asScala), upsert)(ec, timeout)
+      .map(toOptional)(ec)
   }(ec)
 
-  def findOne(ec: ExecutionContext, timeout: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = {
-    findOne(BsonDocument.empty, ec, timeout)
-  }
 
+  /**
+   * Removes and returns a single document.
+   *
+   * @param query The selection criteria for the remove.
+   * @param sort Determines which model the operation removes if the query selects multiple models.
+   *             findAndRemove() removes the first model in the sort order specified by this argument.
+   * @param fields A subset of fields to return.
+   */
+  def findAndRemove(query: Optional[BsonDocument],
+                    sort: Optional[BsonDocument],
+                    fields: Optional[JavaList[String]],
+                    ec: ExecutionContext,
+                    timeout: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
+    proxy.findAndRemove(query, sort, toOption(fields).map(_.asScala))(ec, timeout).map(toOptional)(ec)
+  }(ec)
+
+  /**
+   * Retrieves at most one document matching the given selector.
+   *
+   * @param query Selector document.
+   **/
   def findOne(query: BsonDocument,
               ec: ExecutionContext,
               timeout: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
     proxy.findOne(query)(ec, timeout).map(toOptional)(ec)
+  }(ec)
+
+  /**
+   * Retrieves at most one document matching the given selector.
+   *
+   * @param query Selector document.
+   * @param skip number of documents to skip. Set to 0 if you don't want to skip any documents.
+   **/
+  def findOne(query: BsonDocument,
+              skip: Integer,
+              ec: ExecutionContext,
+              timeout: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
+    proxy.findOne(query, skip)(ec, timeout).map(toOptional)(ec)
+  }(ec)
+
+  /** Retrieves a random document matching the given selector. */
+  def findRandom(query: Optional[BsonDocument],
+                 ec: ExecutionContext,
+                 timeout: FiniteDuration): CompletableFuture[Optional[BsonDocument]] = toCompletableFuture {
+    proxy.findRandom(query)(ec, timeout).map(toOptional)(ec)
   }(ec)
 
   /**
