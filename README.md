@@ -1,17 +1,17 @@
 # Tepkin
 
-[![Join the chat at https://gitter.im/fehmicansaglam/tepkin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fehmicansaglam/tepkin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Reactive MongoDB Driver for Scala 2.11 and Java 8 built on top of Akka IO and Akka Streams.
 
 [![Build Status](https://travis-ci.org/fehmicansaglam/tepkin.svg?branch=master)](https://travis-ci.org/fehmicansaglam/tepkin)
 [![Codacy Badge](https://www.codacy.com/project/badge/d5039668605d44fea3adf2302e7e6c31)](https://www.codacy.com/public/fehmicansaglam/tepkin)
 [![Progress](http://progressed.io/bar/0?title=0.3)]()
 [![Licence](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-Reactive MongoDB Driver for Scala 2.11 and Java 8 built on top of Akka IO and Akka Streams.
-
 Only MongoDB 2.6+ is supported.
 
-Don't hesitate to ask questions in the [Tepkin Google Group](https://groups.google.com/forum/#!forum/tepkin)
+Don't hesitate to ask questions in the [Tepkin Google Group](https://groups.google.com/forum/#!forum/tepkin) or join chat on Gitter:
+
+[![Join the chat at https://gitter.im/fehmicansaglam/tepkin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fehmicansaglam/tepkin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Contributions
 Tepkin is a young but very active project and absolutely needs your help. Good ways to contribute include:
