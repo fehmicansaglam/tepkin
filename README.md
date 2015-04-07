@@ -1,13 +1,13 @@
 # Tepkin
 
-Reactive MongoDB Driver for Scala 2.11 and Java 8 built on top of Akka IO and Akka Streams.
+Reactive MongoDB Driver for Scala and Java built on top of Akka IO and Akka Streams.
 
 [![Build Status](https://travis-ci.org/fehmicansaglam/tepkin.svg?branch=master)](https://travis-ci.org/fehmicansaglam/tepkin)
 [![Codacy Badge](https://www.codacy.com/project/badge/d5039668605d44fea3adf2302e7e6c31)](https://www.codacy.com/public/fehmicansaglam/tepkin)
 [![Progress](http://progressed.io/bar/0?title=0.3)]()
 [![Licence](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-Only MongoDB 2.6+ is supported.
+Only MongoDB 2.6+, Scala 2.11+ and Java 8+ is supported.
 
 Don't hesitate to ask questions in the [Tepkin Google Group](https://groups.google.com/forum/#!forum/tepkin) or join chat on Gitter:
 
