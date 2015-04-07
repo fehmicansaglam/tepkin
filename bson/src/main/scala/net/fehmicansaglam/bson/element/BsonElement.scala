@@ -19,7 +19,7 @@ trait BsonElement extends Writable {
     builder.result()
   }
 
-  override def toString: String = s"$name: $value"
+  override def toString: String = s""" "$name": $value """.trim
 
   override def equals(other: Any): Boolean = {
     other.isInstanceOf[BsonElement] &&
@@ -37,8 +37,11 @@ trait BsonElement extends Writable {
 
   def toDoc: BsonDocument = BsonDocument(this)
 
-  def pretty(level: Int = 0): String = {
+  def pretty(level: Int): String = {
     val prefix = "\t" * level
-    s"$prefix$name: ${value.pretty(level)}"
+    s"""$prefix"$name": ${value.pretty(level)}"""
   }
+
+  /** Overloaded empty paren method because of java interop. */
+  def pretty(): String = pretty(0)
 }

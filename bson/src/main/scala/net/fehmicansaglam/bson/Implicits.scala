@@ -55,7 +55,7 @@ object Implicits {
 
     override def toString: String = document.toString()
 
-    override def pretty(level: Int = 0): String = document.pretty(level)
+    override def pretty(level: Int): String = document.pretty(level)
   }
 
   implicit class BsonValueArray(document: BsonDocument) extends BsonValue with Identifiable[BsonDocument] {
@@ -66,10 +66,10 @@ object Implicits {
 
     override def toString: String = s"[ ${document.elements.map(_.value).mkString(", ")} ]"
 
-    override def pretty(level: Int = 0): String = {
+    override def pretty(level: Int): String = {
       val prefix = "\t" * (level + 1)
       val values = document.elements.map(_.value)
-      val init = if (values.isEmpty) "" else values.init.foldLeft("")(_ + prefix + _.pretty(level + 1) + s",\n")
+      val init = if (values.isEmpty) "" else values.init.foldLeft("")(_ + prefix + _.pretty(level + 1) + ",\n")
       val last = if (values.isEmpty) "" else prefix + values.last.pretty(level + 1)
       s"[\n$init$last\n${"\t" * level}]"
     }

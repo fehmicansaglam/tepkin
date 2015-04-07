@@ -47,7 +47,7 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
 
   override def toString: String = s"{ ${elements.mkString(", ")} }"
 
-  override def pretty(level: Int = 0): String = {
+  override def pretty(level: Int): String = {
     val prefix = "\t" * level
     val init = elements.init.foldLeft("")(_ + _.pretty(level + 1) + s",\n")
     val last = elements.last.pretty(level + 1)
