@@ -7,6 +7,7 @@ import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.tepkin.protocol.command.Index
+import net.fehmicansaglam.tepkin.protocol.exception.WriteException
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 
@@ -197,5 +198,14 @@ class MongoCollectionSpec
       results(1).getAs[String]("_id") shouldBe Some("abc1")
       results(1).getAs[Int]("total") shouldBe Some(75)
     }
+  }
+
+  it should "throw WriteException" in {
+    val thrown = the[WriteException] thrownBy {
+      Await.result(collection.update("name" := "fehmi", "$unknown" := "whatever"), 5.seconds)
+    }
+
+    thrown.writeErrors should have size 1
+    thrown.writeErrors.head.errmsg shouldBe "Unknown modifier: $unknown"
   }
 }

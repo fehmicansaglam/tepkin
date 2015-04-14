@@ -1,6 +1,7 @@
 package net.fehmicansaglam.tepkin.protocol.result
 
 import net.fehmicansaglam.bson.{BsonDocument, BsonValueNumber}
+import net.fehmicansaglam.tepkin.protocol.exception.WriteException
 
 case class CreateIndexesResult(ok: Boolean,
                                createdCollectionAutomatically: Boolean,
@@ -8,7 +9,22 @@ case class CreateIndexesResult(ok: Boolean,
                                numIndexesAfter: Int,
                                note: Option[String] = None,
                                errmsg: Option[String] = None,
-                               code: Option[Int] = None)
+                               code: Option[Int] = None) {
+  /**
+   * Used to explicitly throw an exception when the result is not OK.
+   */
+  def convertErrorToException(): this.type = {
+    if (!ok && code.isEmpty) {
+      throw new IllegalStateException("Result is not OK but there are no errors.")
+    }
+
+    if (!ok) {
+      throw WriteException(List(WriteError(code.get, errmsg.getOrElse(""))))
+    }
+
+    this
+  }
+}
 
 object CreateIndexesResult {
   def apply(document: BsonDocument): CreateIndexesResult = {

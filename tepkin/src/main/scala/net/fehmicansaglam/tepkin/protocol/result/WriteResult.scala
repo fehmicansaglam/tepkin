@@ -1,6 +1,7 @@
 package net.fehmicansaglam.tepkin.protocol.result
 
 import net.fehmicansaglam.bson.BsonDocument
+import net.fehmicansaglam.tepkin.protocol.exception.{WriteConcernException, WriteException}
 
 case class WriteError(code: Int, errmsg: String)
 
@@ -35,4 +36,19 @@ trait WriteResult extends Result {
   def hasWriteError: Boolean = writeErrors.exists(_.nonEmpty)
 
   def hasWriteConcernError: Boolean = writeConcernError.isDefined
+
+  /**
+   * Used to explicitly throw an exception when the result is not OK.
+   */
+  def convertErrorToException(): this.type = {
+    if (!ok && !hasWriteError && !hasWriteConcernError) {
+      throw new IllegalStateException("Result is not OK but there are no errors.")
+    }
+
+    if (hasWriteError) throw WriteException(writeErrors.get)
+    if (hasWriteConcernError) throw WriteConcernException(writeConcernError.get)
+
+    this
+  }
+
 }

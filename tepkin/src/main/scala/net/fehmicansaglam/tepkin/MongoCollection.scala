@@ -69,7 +69,7 @@ class MongoCollection(databaseName: String,
                    (implicit ec: ExecutionContext, timeout: Timeout): Future[CreateIndexesResult] = {
     (pool ? CreateIndexes(databaseName, collectionName, indexes: _*)).mapTo[Reply].map { reply =>
       val document = reply.documents.head
-      CreateIndexesResult(document)
+      CreateIndexesResult(document).convertErrorToException()
     }
   }
 
@@ -96,10 +96,10 @@ class MongoCollection(databaseName: String,
       val document = reply.documents.head
       DeleteResult(
         document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
-        document.getAs[Int]("n").get,
+        document.getAs[Int]("n").getOrElse(0),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
-      )
+      ).convertErrorToException()
     }
   }
 
@@ -240,7 +240,7 @@ class MongoCollection(databaseName: String,
         document.getAs[Int]("n").getOrElse(0),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
-      )
+      ).convertErrorToException()
     }
   }
 
@@ -306,7 +306,7 @@ class MongoCollection(databaseName: String,
         upserted = document.getAsList[BsonDocument]("upserted"),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
-      )
+      ).convertErrorToException()
     }
   }
 

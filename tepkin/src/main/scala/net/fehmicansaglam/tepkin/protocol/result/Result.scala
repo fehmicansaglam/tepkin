@@ -4,7 +4,10 @@ import net.fehmicansaglam.bson.BsonDocument
 
 protected[result] trait Result
 
-case class CountResult(missing: Option[Boolean] = None, n: Int, ok: Boolean) extends Result
+case class CountResult(missing: Option[Boolean] = None, n: Int, ok: Boolean) extends Result {
+  /** Alias for n **/
+  def count: Int = n
+}
 
 case class DeleteResult(ok: Boolean,
                         n: Int,
