@@ -11,7 +11,8 @@ case class BsonTimestampReader(buffer: ByteBuffer) extends Reader[BsonTimestamp]
 
   def read: Option[BsonTimestamp] = {
     val name = readCString()
-    val value = buffer.getLong()
-    Some(BsonTimestamp(name, new BsonValueTimestamp(value)))
+    val increment = buffer.getInt
+    val timestamp = buffer.getInt
+    Some(BsonTimestamp(name, new BsonValueTimestamp(increment, timestamp)))
   }
 }

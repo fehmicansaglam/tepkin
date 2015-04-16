@@ -2,7 +2,7 @@ package net.fehmicansaglam.bson
 
 import akka.util.{ByteString, ByteStringBuilder}
 import net.fehmicansaglam.bson.element.BinarySubtype
-import net.fehmicansaglam.bson.util.Converters
+import net.fehmicansaglam.bson.util.{Codec, Converters}
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 
@@ -53,9 +53,11 @@ object Implicits {
 
     override def encode: ByteString = document.encode
 
-    override def toString: String = document.toString()
+    override def toString: String = document.toString
 
     override def pretty(level: Int): String = document.pretty(level)
+
+    override def toJson(extended: Boolean): String = document.toJson(extended)
   }
 
   implicit class BsonValueArray(document: BsonDocument) extends BsonValue with Identifiable[BsonDocument] {
@@ -72,6 +74,10 @@ object Implicits {
       val init = if (values.isEmpty) "" else values.init.foldLeft("")(_ + prefix + _.pretty(level + 1) + ",\n")
       val last = if (values.isEmpty) "" else prefix + values.last.pretty(level + 1)
       s"[\n$init$last\n${"\t" * level}]"
+    }
+
+    override def toJson(extended: Boolean): String = {
+      s"[ ${document.elements.map(_.value.toJson(extended)).mkString(", ")} ]"
     }
   }
 
@@ -124,6 +130,12 @@ object Implicits {
     override def toDouble: Double = value.toDouble
 
     override def toLong: Long = value
+
+    override def toJson(extended: Boolean): String = if (extended) {
+      s"""{ "$$numberLong": "$value" }"""
+    } else {
+      value.toString
+    }
   }
 
   object BsonValueLong {
@@ -138,6 +150,12 @@ object Implicits {
     override def encode: ByteString = ByteString.newBuilder.putBytes(value).result()
 
     override def toString: String = s"""ObjectId("$identifier")"""
+
+    override def toJson(extended: Boolean): String = if (extended) {
+      s"""{ "$$oid": "$identifier" }"""
+    } else {
+      identifier
+    }
   }
 
   /**
@@ -152,19 +170,25 @@ object Implicits {
     override def encode: ByteString = ByteString.newBuilder.putLong(value.getMillis).result()
 
     override def toString: String = s"""ISODate("${ISODateTimeFormat.dateTime().print(value)}")"""
+
+    override def toJson(extended: Boolean): String = if (extended) {
+      s"""{ "$$date": { "$$numberLong": "${value.getMillis}" } }"""
+    } else {
+      value.getMillis.toString
+    }
   }
 
   object BsonValueDateTime {
     def unapply(value: BsonValueDateTime): Option[DateTime] = Some(value.identifier)
   }
 
-  case class BsonValueTimestamp(value: Long) extends BsonValue with Identifiable[Long] {
+  case class BsonValueTimestamp(increment: Int, timestamp: Int) extends BsonValue with Identifiable[(Int, Int)] {
 
-    override def identifier: Long = value
+    override def identifier: (Int, Int) = (increment, timestamp)
 
-    override def encode: ByteString = new ByteStringBuilder().putLong(value).result()
+    override def encode: ByteString = new ByteStringBuilder().putInt(increment).putInt(timestamp).result()
 
-    override def toString: String = s"$value"
+    override def toString: String = s"""{ "$$timestamp": { "t": $timestamp, "i": $increment } }"""
   }
 
   case class BsonValueBinary(value: ByteString, subtype: BinarySubtype) extends BsonValue with Identifiable[ByteString] {
@@ -177,6 +201,12 @@ object Implicits {
         .putByte(subtype.code)
         .append(value)
         .result()
+    }
+
+    override def toJson(extended: Boolean): String = if (extended) {
+      s"""{ "$$binary": "${Codec.encodeBase64(value.toArray)}", "$$type": "${subtype.code.formatted("%02x")}" }"""
+    } else {
+      Codec.encodeBase64(value.toArray)
     }
   }
 
@@ -195,6 +225,8 @@ object Implicits {
       putCString(builder, options)
       builder.result()
     }
+
+    override def toJson(extended: Boolean): String = s"""{ "$$regex": "$pattern", "$$options": "$options" }"""
   }
 
 }

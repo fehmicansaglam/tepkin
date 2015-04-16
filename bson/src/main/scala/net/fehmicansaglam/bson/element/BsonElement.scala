@@ -44,4 +44,6 @@ trait BsonElement extends Writable {
 
   /** Overloaded empty paren method because of java interop. */
   def pretty(): String = pretty(0)
+
+  def toJson(extended: Boolean): String = s""" "$name": ${value.toJson(extended)} """.trim
 }

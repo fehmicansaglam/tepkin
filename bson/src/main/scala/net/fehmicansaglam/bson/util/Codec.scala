@@ -1,4 +1,4 @@
-package net.fehmicansaglam.tepkin.util
+package net.fehmicansaglam.bson.util
 
 import java.util.Base64
 

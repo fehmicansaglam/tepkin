@@ -53,6 +53,8 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
     val last = elements.last.pretty(level + 1)
     s"{\n$init$last\n$prefix}"
   }
+
+  override def toJson(extended: Boolean): String = s"{ ${elements.map(_.toJson(extended)).mkString(", ")} }"
 }
 
 object BsonDocument {

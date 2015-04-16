@@ -4,6 +4,8 @@ import java.security.MessageDigest
 import javax.crypto.spec.{PBEKeySpec, SecretKeySpec}
 import javax.crypto.{Mac, SecretKeyFactory}
 
+import net.fehmicansaglam.bson.util.Codec
+
 trait Crypto extends Codec {
 
   def sha1(value: String): String = {
