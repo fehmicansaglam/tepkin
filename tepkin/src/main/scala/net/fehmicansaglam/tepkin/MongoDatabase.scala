@@ -36,7 +36,7 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
           val ns = cursor.getAs[String]("ns").get
           val initial = cursor.getAsList[BsonDocument]("firstBatch").get
 
-          Source(MongoCursor.props(pool, ns, cursorID, initial, batchMultiplier))
+          Source.actorPublisher(MongoCursor.props(pool, ns, cursorID, initial, batchMultiplier))
         }
       } else {
         apply("system.namespaces").find(BsonDocument.empty)

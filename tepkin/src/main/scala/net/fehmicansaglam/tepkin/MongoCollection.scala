@@ -36,7 +36,8 @@ class MongoCollection(databaseName: String,
     (pool ? Aggregate(databaseName, collectionName, pipeline, explain, allowDiskUse, cursor)).mapTo[Reply]
       .map { reply =>
       val result = reply.documents.head.getAsList[BsonDocument]("result").get
-      Source(MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, result, batchMultiplier))
+      Source.actorPublisher(
+        MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, result, batchMultiplier))
     }
   }
 
@@ -183,7 +184,7 @@ class MongoCollection(databaseName: String,
     (pool ? QueryMessage(s"$databaseName.$collectionName", query, fields = fields, numberToSkip = skip))
       .mapTo[Reply]
       .map { reply =>
-      Source(MongoCursor.props(
+      Source.actorPublisher(MongoCursor.props(
         pool,
         s"$databaseName.$collectionName",
         reply.cursorID,
@@ -307,7 +308,7 @@ class MongoCollection(databaseName: String,
                           ordered: Option[Boolean] = None,
                           writeConcern: Option[WriteConcern] = None)
                          (implicit ec: ExecutionContext, timeout: Timeout): Source[InsertResult, M] = {
-    source.mapAsyncUnordered(documents => insert(documents, ordered, writeConcern))
+    source.mapAsync(1, documents => insert(documents, ordered, writeConcern))
   }
 
 
