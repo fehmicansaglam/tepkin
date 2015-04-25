@@ -5,6 +5,7 @@ import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
 import akka.actor.ActorRef
+import akka.stream.FlowMaterializer
 import akka.stream.javadsl.Source
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.Implicits.BsonValueObjectId
@@ -26,9 +27,10 @@ class GridFs(proxy: tepkin.GridFs) {
 
 
   def put(file: File,
+          mat: FlowMaterializer,
           ec: ExecutionContext,
           timeout: FiniteDuration): CompletableFuture[BsonDocument] = toCompletableFuture {
-    proxy.put(file)(ec, timeout)
+    proxy.put(file)(mat, ec, timeout)
   }(ec)
 
   /**

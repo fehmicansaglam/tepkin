@@ -1,11 +1,11 @@
 package net.fehmicansaglam.tepkin
 
 import java.io._
-import java.nio.ByteBuffer
-import java.nio.channels.FileChannel
 import java.security.MessageDigest
 
 import akka.actor.ActorRef
+import akka.stream.FlowMaterializer
+import akka.stream.io.SynchronousFileSource
 import akka.stream.scaladsl.Source
 import akka.util.{ByteString, Timeout}
 import net.fehmicansaglam.bson.BsonDocument
@@ -19,36 +19,12 @@ import net.fehmicansaglam.tepkin.protocol.command.Index
 import net.fehmicansaglam.tepkin.protocol.result.DeleteResult
 import org.joda.time.DateTime
 
-import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
 class GridFs(db: MongoDatabase, prefix: String = "fs") {
   val chunkSize = 255 * 1024
   val files = db(s"$prefix.files")
   val chunks = db(s"$prefix.chunks")
-
-  /**
-   * @return md5sum of the file
-   */
-  private def readFile(channel: FileChannel, consumer: (Int, ByteBuffer) => Unit): String = {
-    val buffer = ByteBuffer.allocateDirect(chunkSize)
-    val md = MessageDigest.getInstance("MD5")
-
-    @tailrec def readFile0(n: Int): Unit = {
-      val len = channel.read(buffer)
-      if (len > 0) {
-        buffer.flip()
-        md.update(buffer)
-        buffer.flip()
-        consumer(n, buffer)
-        buffer.clear()
-        readFile0(n + 1)
-      }
-    }
-
-    readFile0(0)
-    Converters.hex2Str(md.digest())
-  }
 
   def findOne(query: BsonDocument)(implicit ec: ExecutionContext, timeout: Timeout): Future[Option[BsonDocument]] = {
     files.findOne(query)
@@ -57,30 +33,28 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
   /**
    * Puts the given file into GridFS.
    */
-  def put(file: File)(implicit ec: ExecutionContext, timeout: Timeout): Future[BsonDocument] = {
-    val channel = new FileInputStream(file).getChannel
-
+  def put(file: File)(implicit mat: FlowMaterializer, ec: ExecutionContext, timeout: Timeout): Future[BsonDocument] = {
     val fileId = BsonObjectId.generate
+    val zero = (0, MessageDigest.getInstance("MD5"))
 
-    val md5 = readFile(channel, (n, buffer) => {
-      val chunk = Chunk(fileId = fileId, n = n, data = BsonValueBinary(ByteString(buffer), Generic))
+    SynchronousFileSource(file, chunkSize).runFold(zero) { case ((n, md), data) =>
+      md.update(data.asByteBuffer)
+      val chunk = Chunk(fileId = fileId, n = n, data = BsonValueBinary(data, Generic))
       chunks.insert(chunk.toDoc)
-      ()
-    })
-
-    channel.close()
-
-    chunks.createIndexes(Index(key = ("files_id" := 1) ~ ("n" := 1), name = "files_id_n"))
-
-    val document = {
-      ("_id" := fileId) ~
-        ("length" := file.length()) ~
-        ("chunkSize" := chunkSize) ~
-        ("uploadDate" := DateTime.now()) ~
-        ("filename" := file.getName) ~
-        ("md5" := md5)
+      (n + 1, md)
+    }.flatMap { case (_, md) =>
+      chunks.createIndexes(Index(key = ("files_id" := 1) ~ ("n" := 1), name = "files_id_n"))
+      val md5 = Converters.hex2Str(md.digest())
+      val document = {
+        ("_id" := fileId) ~
+          ("length" := file.length()) ~
+          ("chunkSize" := chunkSize) ~
+          ("uploadDate" := DateTime.now()) ~
+          ("filename" := file.getName) ~
+          ("md5" := md5)
+      }
+      files.insert(document).map(_ => document)
     }
-    files.insert(document).map(_ => document)
   }
 
   /**
