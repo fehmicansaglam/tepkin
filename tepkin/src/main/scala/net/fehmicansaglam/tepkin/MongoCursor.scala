@@ -49,7 +49,11 @@ class MongoCursor(pool: ActorRef,
   def fetching: Receive = {
     case reply: Reply =>
       log.debug("Received Reply. numberReturned: {} , cursorID: {}", reply.numberReturned, reply.cursorID)
-      onNext(reply.documents)
+
+      if (reply.numberReturned > 0) {
+        onNext(reply.documents)
+      }
+
       if (reply.cursorID == 0) {
         onComplete()
         log.debug("Cursor[{}] is totally read", cursorID)
