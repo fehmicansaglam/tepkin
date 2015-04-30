@@ -263,7 +263,7 @@ class MongoCollection(databaseName: String,
                           ordered: Option[Boolean] = None,
                           writeConcern: Option[WriteConcern] = None)
                          (implicit ec: ExecutionContext, timeout: Timeout): Source[InsertResult, M] = {
-    source.mapAsync(1, documents => insert(documents, ordered, writeConcern))
+    source.mapAsync(1)(documents => insert(documents, ordered, writeConcern))
   }
 
 
