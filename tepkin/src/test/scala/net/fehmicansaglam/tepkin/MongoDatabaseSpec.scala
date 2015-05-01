@@ -22,13 +22,14 @@ class MongoDatabaseSpec
   val db = client("tepkin")
 
   import client.ec
+  import client.context
 
   implicit val timeout: Timeout = 30.seconds
 
   override protected def afterAll() = client.shutdown()
 
   "A MongoDatabase" should "list collections" in {
-    implicit val mat = ActorFlowMaterializer()(client.context)
+    implicit val mat = ActorFlowMaterializer()
 
     val result = for {
       source <- db.listCollections()

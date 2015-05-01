@@ -21,6 +21,7 @@ object Example1 extends App {
   // Use client's execution context for async operations
 
   import client.ec
+  import client.context
 
   // Obtain reference to database "tepkin" using client
   val db = client("tepkin")
@@ -32,7 +33,7 @@ object Example1 extends App {
   val collection2 = db("collection2")
 
   implicit val timeout: Timeout = 30.seconds
-  implicit val mat = ActorFlowMaterializer()(client.context)
+  implicit val mat = ActorFlowMaterializer()
 
   // Batch document source
   def documents(n: Int): Source[List[BsonDocument], Unit] = Source {

@@ -2,9 +2,10 @@ package net.fehmicansaglam.tepkin
 
 import akka.actor.ActorRef
 import akka.pattern.ask
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{Sink, Source}
 import akka.util.Timeout
 import net.fehmicansaglam.bson.{BsonDocument, BsonValueNumber}
+import net.fehmicansaglam.tepkin.TepkinMessage.Bulk
 import net.fehmicansaglam.tepkin.protocol.WriteConcern
 import net.fehmicansaglam.tepkin.protocol.command._
 import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
@@ -277,6 +278,17 @@ class MongoCollection(databaseName: String,
         .getOrElse(Nil)
         .map(Index.apply)
     }
+  }
+
+  /**
+   * Returns a sink which inserts bulk documents.
+   *
+   * @param parallelism max number of parallel insert commands.
+   */
+  def sink(parallelism: Int = 1,
+           ordered: Option[Boolean] = None,
+           writeConcern: Option[WriteConcern] = None): Sink[Bulk, ActorRef] = {
+    Sink.actorSubscriber(InsertSink.props(databaseName, collectionName, pool, parallelism, ordered, writeConcern))
   }
 
   /**

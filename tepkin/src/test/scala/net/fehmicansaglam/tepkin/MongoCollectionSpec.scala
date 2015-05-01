@@ -30,6 +30,7 @@ class MongoCollectionSpec
   val collection = db("mongo_collection_spec")
 
   import client.ec
+  import client.context
 
   implicit val timeout: Timeout = 30.seconds
 
@@ -61,7 +62,7 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 10 documents" in {
-    implicit val mat = ActorFlowMaterializer()(client.context)
+    implicit val mat = ActorFlowMaterializer()
 
     val documents = (1 to 10).map(i => $document("name" := s"fehmi$i"))
 
@@ -79,7 +80,7 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 1000 documents" in {
-    implicit val mat = ActorFlowMaterializer()(client.context)
+    implicit val mat = ActorFlowMaterializer()
 
     val documents = (1 to 1000).map(i => $document("name" := s"fehmi$i"))
 
@@ -97,7 +98,7 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 100000 documents" in {
-    implicit val mat = ActorFlowMaterializer()(client.context)
+    implicit val mat = ActorFlowMaterializer()
 
     val documents: Source[List[BsonDocument], Unit] = Source {
       Iterable.tabulate(100) { _ =>
@@ -168,7 +169,7 @@ class MongoCollectionSpec
   }
 
   it should "group by and calculate a sum" in {
-    implicit val mat = ActorFlowMaterializer()(client.context)
+    implicit val mat = ActorFlowMaterializer()
 
     val documents: Seq[BsonDocument] = Seq(
       ("_id" := 1) ~ ("cust_id" := "abc1") ~ ("status" := "A") ~ ("amount" := 50),

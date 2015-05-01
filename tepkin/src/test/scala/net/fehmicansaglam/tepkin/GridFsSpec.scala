@@ -29,6 +29,7 @@ class GridFsSpec
   val fs = db.gridFs()
 
   import client.ec
+  import client.context
 
   implicit val timeout: Timeout = 30.seconds
 
@@ -46,7 +47,7 @@ class GridFsSpec
   override protected def afterAll() = client.shutdown()
 
   "A GridFs" should "put and find and delete File" in {
-    implicit val mat = ActorFlowMaterializer()(client.context)
+    implicit val mat = ActorFlowMaterializer()
 
     val result = for {
       put <- fs.put(new File(getClass.getResource("/sample.pdf").getPath))
@@ -62,7 +63,7 @@ class GridFsSpec
   }
 
   it should "put and get and delete File" in {
-    implicit val mat = ActorFlowMaterializer()(client.context)
+    implicit val mat = ActorFlowMaterializer()
 
     val result = for {
       put <- fs.put(new File(getClass.getResource("/sample.pdf").getPath))
@@ -83,7 +84,7 @@ class GridFsSpec
   }
 
   it should "put and get and delete FileInputStream" in {
-    implicit val mat = ActorFlowMaterializer()(client.context)
+    implicit val mat = ActorFlowMaterializer()
 
     val result = for {
       put <- fs.put("sample.pdf", new FileInputStream(getClass.getResource("/sample.pdf").getPath))

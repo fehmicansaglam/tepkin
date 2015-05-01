@@ -8,14 +8,15 @@ import net.fehmicansaglam.tepkin.protocol.message.QueryOptions
 
 import scala.concurrent.duration._
 
-object TailableCursor extends App {
+object TailableCursorExample extends App {
 
   val client = MongoClient("mongodb://localhost")
 
   import client.ec
+  import client.context
 
   implicit val timeout: Timeout = 5.seconds
-  implicit val mat = ActorFlowMaterializer()(client.context)
+  implicit val mat = ActorFlowMaterializer()
 
   val db = client("tepkin")
 

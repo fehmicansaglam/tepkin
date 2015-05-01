@@ -1,20 +1,24 @@
 package net.fehmicansaglam.tepkin
 
 
-import akka.actor.{ActorRefFactory, ActorSystem}
+import akka.actor.ActorDSL._
+import akka.actor.{ActorRef, ActorRefFactory, ActorSystem, Terminated}
 import net.fehmicansaglam.tepkin.TepkinMessage.ShutDown
 import net.fehmicansaglam.tepkin.protocol.ReadPreference
 
 import scala.concurrent.ExecutionContext
 
-class MongoClient(val context: ActorRefFactory, uri: MongoClientUri, nConnectionsPerNode: Int) {
-  val poolManager = context.actorOf(
+class MongoClient(_context: ActorRefFactory, uri: MongoClientUri, nConnectionsPerNode: Int) {
+  val poolManager = _context.actorOf(
     MongoPoolManager
       .props(uri, nConnectionsPerNode, uri.option("readPreference").map(ReadPreference.apply))
       .withMailbox("tepkin-mailbox"),
     name = "tepkin-pool")
 
-  implicit def ec: ExecutionContext = context.dispatcher
+
+  implicit def context: ActorRefFactory = _context
+
+  implicit def ec: ExecutionContext = _context.dispatcher
 
   def apply(databaseName: String): MongoDatabase = {
     require(databaseName != null && databaseName.getBytes("UTF-8").size < 123,
@@ -28,6 +32,30 @@ class MongoClient(val context: ActorRefFactory, uri: MongoClientUri, nConnection
 
   def shutdown(): Unit = {
     poolManager ! ShutDown
+  }
+
+  /** Shutdown after all specified actors are terminated */
+  def shutdown(ref: ActorRef, refs: ActorRef*): Unit = {
+    val allRefs = refs :+ ref
+
+    actor(new Act {
+      var remaining = allRefs.length
+
+      whenStarting {
+        allRefs.foreach(context.watch)
+      }
+
+      become {
+        case _: Terminated =>
+          remaining -= 1
+          if (remaining == 0) {
+            poolManager ! ShutDown
+            context.stop(self)
+          }
+      }
+    })
+
+    ()
   }
 }
 
