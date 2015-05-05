@@ -1,7 +1,6 @@
 package net.fehmicansaglam.bson
 
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
 import org.scalatest.{Matchers, WordSpec}
 
 class BsonDslSpec extends WordSpec with Matchers {

@@ -5,7 +5,6 @@ import java.util.UUID
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.pide.{Dao, Entity, StringPide}
 import net.fehmicansaglam.tepkin.{MongoClient, MongoCollection}
 

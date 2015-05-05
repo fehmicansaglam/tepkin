@@ -5,7 +5,6 @@ import java.nio.ByteOrder
 import akka.util.ByteString
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.tepkin.protocol.message._
 import org.scalatest.{FlatSpec, Matchers}
 

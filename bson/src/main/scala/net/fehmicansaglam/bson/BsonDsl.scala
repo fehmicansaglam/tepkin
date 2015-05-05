@@ -2,12 +2,21 @@ package net.fehmicansaglam.bson
 
 import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.element._
+import org.joda.time.DateTime
 
 object BsonDsl {
 
   implicit class BsonField(name: String) {
 
-    def :=(value: BsonValue): BsonElement = value match {
+    def := : PartialFunction[Any, BsonElement] = {
+      case value: Double => BsonDouble(name, value)
+      case value: String => BsonString(name, value)
+      case value: Boolean => BsonBoolean(name, value)
+      case value: DateTime => BsonDateTime(name, value)
+      case value: Int => BsonInteger(name, value)
+      case value: Long => BsonLong(name, value)
+      // For expressions like "$match" := ("status" := "A")
+      case value: BsonElement => BsonObject(name, value.toDoc)
       case value: BsonValueDouble => BsonDouble(name, value)
       case value: BsonValueString => BsonString(name, value)
       case value: BsonDocument => BsonObject(name, value)
@@ -22,6 +31,7 @@ object BsonDsl {
     }
 
     def :=[A](value: Option[A])(implicit ev: A => BsonValue): Option[BsonElement] = value map (name := _)
+
   }
 
   implicit def elementToDocument(element: BsonElement): BsonDocument = BsonDocument(element)

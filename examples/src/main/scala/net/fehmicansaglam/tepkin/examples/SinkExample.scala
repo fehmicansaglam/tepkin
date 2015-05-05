@@ -5,7 +5,6 @@ import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.tepkin.MongoClient
 import net.fehmicansaglam.tepkin.TepkinMessage.Bulk
 

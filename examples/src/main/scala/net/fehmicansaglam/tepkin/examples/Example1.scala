@@ -5,7 +5,6 @@ import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.tepkin.MongoClient
 
 import scala.collection.immutable.Iterable
@@ -20,8 +19,7 @@ object Example1 extends App {
 
   // Use client's execution context for async operations
 
-  import client.ec
-  import client.context
+  import client.{context, ec}
 
   // Obtain reference to database "tepkin" using client
   val db = client("tepkin")

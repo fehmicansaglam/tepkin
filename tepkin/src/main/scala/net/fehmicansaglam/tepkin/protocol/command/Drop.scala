@@ -2,7 +2,6 @@ package net.fehmicansaglam.tepkin.protocol.command
 
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
 
 /**
  * Removes an entire collection from a database.

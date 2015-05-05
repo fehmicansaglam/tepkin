@@ -1,7 +1,6 @@
 package net.fehmicansaglam.tepkin.api
 
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.element.BsonElement
 import net.fehmicansaglam.bson.{BsonDocument, BsonValue}
 

@@ -1,6 +1,7 @@
 package net.fehmicansaglam.bson
 
 import akka.util.{ByteString, ByteStringBuilder}
+import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.element.BsonElement
 
 case class BsonDocument(elements: BsonElement*) extends BsonValue {
@@ -59,7 +60,11 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
 
 object BsonDocument {
 
-  def apply(elements: TraversableOnce[BsonElement]): BsonDocument = BsonDocument(elements.toSeq: _*)
+  def apply(elements: TraversableOnce[BsonElement]): BsonDocument = apply(elements.toSeq: _*)
+
+  def from(elements: (String, Any)*): BsonDocument = apply(elements.map { case (k, v) => k := v }: _*)
+
+  def from(elements: TraversableOnce[(String, Any)]): BsonDocument = from(elements.toSeq: _*)
 
   val empty: BsonDocument = BsonDocument()
 }

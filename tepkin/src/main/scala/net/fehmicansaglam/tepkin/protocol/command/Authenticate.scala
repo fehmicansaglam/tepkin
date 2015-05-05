@@ -1,10 +1,8 @@
 package net.fehmicansaglam.tepkin.protocol.command
 
-import net.fehmicansaglam.bson.util.Converters
-import net.fehmicansaglam.bson.{BsonDocument, BsonDsl, Implicits}
-import BsonDsl._
-import Implicits._
-import Converters.md5Hex
+import net.fehmicansaglam.bson.BsonDocument
+import net.fehmicansaglam.bson.BsonDsl._
+import net.fehmicansaglam.bson.util.Converters.md5Hex
 
 case class Authenticate(databaseName: String,
                         username: String,
@@ -14,6 +12,6 @@ case class Authenticate(databaseName: String,
     ("authenticate" := 1) ~
       ("user" := username) ~
       ("nonce" := nonce) ~
-      ("key" := md5Hex(nonce + username + md5Hex(s"${username}:mongo:${password}")))
+      ("key" := md5Hex(nonce + username + md5Hex(s"$username:mongo:$password")))
   }
 }
