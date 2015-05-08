@@ -3,8 +3,7 @@ package net.fehmicansaglam.tepkin
 import akka.actor.{ActorLogging, ActorRef, Props}
 import akka.stream.actor.ActorSubscriberMessage.OnNext
 import akka.stream.actor.{ActorSubscriber, MaxInFlightRequestStrategy, RequestStrategy}
-import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.tepkin.TepkinMessage.Bulk
+import net.fehmicansaglam.bson.{BsonDocument, Bulk}
 import net.fehmicansaglam.tepkin.protocol.WriteConcern
 import net.fehmicansaglam.tepkin.protocol.command.Insert
 import net.fehmicansaglam.tepkin.protocol.message.Reply

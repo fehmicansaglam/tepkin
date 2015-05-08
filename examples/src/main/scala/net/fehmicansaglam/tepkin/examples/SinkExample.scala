@@ -2,18 +2,13 @@ package net.fehmicansaglam.tepkin.examples
 
 import akka.stream.ActorFlowMaterializer
 import akka.stream.scaladsl.Source
-import akka.util.Timeout
-import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
+import net.fehmicansaglam.bson.{BsonDocument, Bulk}
 import net.fehmicansaglam.tepkin.MongoClient
-import net.fehmicansaglam.tepkin.TepkinMessage.Bulk
 
 import scala.collection.immutable.Iterable
-import scala.concurrent.duration._
 
 object SinkExample extends App {
-  val begin = System.currentTimeMillis()
-
   // Connect to Mongo client
   val client = MongoClient("mongodb://localhost")
 
@@ -28,7 +23,6 @@ object SinkExample extends App {
   // Obtain reference to the collection "collection2" using database
   val collection2 = db("collection2")
 
-  implicit val timeout: Timeout = 30.seconds
   implicit val mat = ActorFlowMaterializer()
 
   // Batch document source

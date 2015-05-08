@@ -69,3 +69,12 @@ object BsonDocument {
   val empty: BsonDocument = BsonDocument()
 }
 
+case class Bulk(documents: List[BsonDocument]) {
+  def size: Int = documents.size
+
+  def isEmpty: Boolean = documents.isEmpty
+
+  def head: BsonDocument = documents.head
+
+  def headOption: Option[BsonDocument] = documents.headOption
+}

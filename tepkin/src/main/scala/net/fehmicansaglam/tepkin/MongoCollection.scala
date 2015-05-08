@@ -4,8 +4,7 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.stream.scaladsl.{Sink, Source}
 import akka.util.Timeout
-import net.fehmicansaglam.bson.{BsonDocument, BsonValueNumber}
-import net.fehmicansaglam.tepkin.TepkinMessage.Bulk
+import net.fehmicansaglam.bson.{BsonDocument, BsonValueNumber, Bulk}
 import net.fehmicansaglam.tepkin.protocol.WriteConcern
 import net.fehmicansaglam.tepkin.protocol.command._
 import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}

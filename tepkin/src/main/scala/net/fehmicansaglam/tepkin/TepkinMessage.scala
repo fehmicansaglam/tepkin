@@ -1,7 +1,5 @@
 package net.fehmicansaglam.tepkin
 
-import net.fehmicansaglam.bson.BsonDocument
-
 sealed trait TepkinMessage
 
 object TepkinMessage {
@@ -25,7 +23,5 @@ object TepkinMessage {
   case class CursorOpened(cursorID: Long) extends TepkinMessage
 
   case class CursorClosed(cursorID: Long) extends TepkinMessage
-
-  case class Bulk(documents: List[BsonDocument]) extends TepkinMessage
 
 }
