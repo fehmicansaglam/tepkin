@@ -154,7 +154,7 @@ object Implicits {
     override def toJson(extended: Boolean): String = if (extended) {
       s"""{ "$$oid": "$identifier" }"""
     } else {
-      identifier
+      s""" "$identifier" """.trim
     }
   }
 
