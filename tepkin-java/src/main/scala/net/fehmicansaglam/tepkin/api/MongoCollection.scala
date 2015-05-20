@@ -33,11 +33,8 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
    * @param pipeline A sequence of data aggregation operations or stages.
    */
   def aggregate(pipeline: JavaList[BsonDocument],
-                ec: ExecutionContext,
-                timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
-    toCompletableFuture {
-      proxy.aggregate(pipeline.asScala.toList)(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
-    }(ec)
+                timeout: FiniteDuration): Source[JavaList[BsonDocument], ActorRef] = Source.adapt {
+    proxy.aggregate(pipeline.asScala.toList)(timeout).map(_.asJava)
   }
 
   /**
@@ -48,12 +45,10 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
    */
   def aggregate(pipeline: JavaList[BsonDocument],
                 options: AggregationOptions,
-                ec: ExecutionContext,
-                timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = {
-    toCompletableFuture {
-      proxy.aggregate(pipeline.asScala.toList, options.explain, options.allowDiskUse, options.cursor)(ec, timeout)
-        .map(source => Source.adapt(source.map(_.asJava)))(ec)
-    }(ec)
+                timeout: FiniteDuration): Source[JavaList[BsonDocument], ActorRef] = Source.adapt {
+    proxy
+      .aggregate(pipeline.asScala.toList, options.explain, options.allowDiskUse, options.cursor)(timeout)
+      .map(_.asJava)
   }
 
   /**
@@ -133,20 +128,18 @@ class MongoCollection(proxy: tepkin.MongoCollection) {
    * Selects documents in this collection.
    */
   def find(query: BsonDocument,
-           ec: ExecutionContext,
-           timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = toCompletableFuture {
-    proxy.find(query)(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
-  }(ec)
+           timeout: FiniteDuration): Source[JavaList[BsonDocument], ActorRef] = Source.adapt {
+    proxy.find(query)(timeout).map(_.asJava)
+  }
 
   /**
    * Selects documents in this collection.
    */
   def find(query: BsonDocument,
            fields: BsonDocument,
-           ec: ExecutionContext,
-           timeout: FiniteDuration): CompletableFuture[Source[JavaList[BsonDocument], ActorRef]] = toCompletableFuture {
-    proxy.find(query, Some(fields))(ec, timeout).map(source => Source.adapt(source.map(_.asJava)))(ec)
-  }(ec)
+           timeout: FiniteDuration): Source[JavaList[BsonDocument], ActorRef] = Source.adapt {
+    proxy.find(query, Some(fields))(timeout).map(_.asJava)
+  }
 
   /**
    * Updates and returns a single document. It returns the old document by default.

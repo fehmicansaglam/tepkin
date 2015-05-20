@@ -15,9 +15,13 @@ trait Dao[ID, E <: Entity[ID]] {
 
   def collection: MongoCollection
 
-  def find(query: BsonDocument, fields: Option[BsonDocument] = None, skip: Int = 0, batchMultiplier: Int = 1000)
-          (implicit pide: Pide[ID, E], ec: ExecutionContext, timeout: Timeout): Future[Source[List[E], ActorRef]] = {
-    collection.find(query, fields, skip, batchMultiplier).map(source => source.map(list => list.map(pide.read)))
+  def find(query: BsonDocument,
+           fields: Option[BsonDocument] = None,
+           skip: Int = 0,
+           tailable: Boolean = false,
+           batchMultiplier: Int = 1000)
+          (implicit pide: Pide[ID, E], timeout: Timeout): Source[List[E], ActorRef] = {
+    collection.find(query, fields, skip, tailable, batchMultiplier).map(_.map(pide.read))
   }
 
   def findAndRemove(query: Option[BsonDocument] = None,

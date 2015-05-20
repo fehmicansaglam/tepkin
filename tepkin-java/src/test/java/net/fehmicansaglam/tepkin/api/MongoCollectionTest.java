@@ -1,5 +1,6 @@
 package net.fehmicansaglam.tepkin.api;
 
+import akka.actor.ActorRef;
 import akka.stream.ActorFlowMaterializer;
 import akka.stream.FlowMaterializer;
 import akka.stream.javadsl.Source;
@@ -110,11 +111,13 @@ public class MongoCollectionTest {
                         .runForeach(result -> {
                         }, mat),
                 mongoClient.ec())
-                .thenCompose(result -> collection.find(BsonDocument.empty(), mongoClient.ec(), timeout))
-                .thenCompose(source -> JavaConverters.toCompletableFuture(
-                        source.runFold(0, (accu, docs) -> accu + docs.size(), mat),
-                        mongoClient.ec()
-                ));
+                .thenCompose(result -> {
+                    Source<List<BsonDocument>, ActorRef> source = collection.find(BsonDocument.empty(), timeout);
+                    return JavaConverters.toCompletableFuture(
+                            source.runFold(0, (accu, docs) -> accu + docs.size(), mat),
+                            mongoClient.ec()
+                    );
+                });
 
         final int total = cf.get(20, TimeUnit.SECONDS);
         assertEquals(100000, total);
@@ -173,11 +176,10 @@ public class MongoCollectionTest {
         );
 
         CompletableFuture<List<BsonDocument>> cf = collection.insert(documents, mongoClient.ec(), timeout)
-                .thenCompose(insert -> collection.aggregate(pipeline,
-                        AggregationOptions.builder().allowDiskUse(true).build(),
-                        mongoClient.ec(),
-                        timeout))
-                .thenCompose(aggregate -> {
+                .thenCompose(insert -> {
+                    Source<List<BsonDocument>, ActorRef> aggregate = collection.aggregate(pipeline,
+                            AggregationOptions.builder().allowDiskUse(true).build(),
+                            timeout);
                     List<BsonDocument> zero = new ArrayList<>(0);
                     Future<List<BsonDocument>> f = aggregate.runFold(zero, (accu, list) -> {
                         accu.addAll(list);

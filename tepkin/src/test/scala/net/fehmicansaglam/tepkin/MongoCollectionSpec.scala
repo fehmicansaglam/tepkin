@@ -29,8 +29,7 @@ class MongoCollectionSpec
   val db = client("tepkin")
   val collection = db("mongo_collection_spec")
 
-  import client.ec
-  import client.context
+  import client.{context, ec}
 
   implicit val timeout: Timeout = 30.seconds
 
@@ -68,8 +67,7 @@ class MongoCollectionSpec
 
     val result = for {
       insertResult <- collection.insert(documents)
-      source <- collection.find(BsonDocument.empty)
-      count <- source.map(_.size).runFold(0) { (total, size) =>
+      count <- collection.find(BsonDocument.empty).map(_.size).runFold(0) { (total, size) =>
         total + size
       }
     } yield count
@@ -86,8 +84,7 @@ class MongoCollectionSpec
 
     val result = for {
       insertResult <- collection.insert(documents)
-      source <- collection.find(BsonDocument.empty)
-      count <- source.map(_.size).runFold(0) { (total, size) =>
+      count <- collection.find(BsonDocument.empty).map(_.size).runFold(0) { (total, size) =>
         total + size
       }
     } yield count
@@ -108,8 +105,7 @@ class MongoCollectionSpec
 
     val result = for {
       insertResult <- collection.insertFromSource(documents).runForeach(_ => ())
-      source <- collection.find(BsonDocument.empty)
-      count <- source.map(_.size).runFold(0) { (total, size) =>
+      count <- collection.find(BsonDocument.empty).map(_.size).runFold(0) { (total, size) =>
         total + size
       }
     } yield count
@@ -187,8 +183,7 @@ class MongoCollectionSpec
 
     val result = for {
       insert <- collection.insert(documents)
-      aggregate <- collection.aggregate(pipeline)
-      results <- aggregate.runFold(List.empty[BsonDocument])(_ ++ _)
+      results <- collection.aggregate(pipeline).runFold(List.empty[BsonDocument])(_ ++ _)
     } yield results
 
     whenReady(result) { results =>

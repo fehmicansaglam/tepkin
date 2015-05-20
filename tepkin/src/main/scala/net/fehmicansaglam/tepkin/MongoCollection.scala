@@ -7,7 +7,7 @@ import akka.util.Timeout
 import net.fehmicansaglam.bson.{BsonDocument, BsonValueNumber, Bulk}
 import net.fehmicansaglam.tepkin.protocol.WriteConcern
 import net.fehmicansaglam.tepkin.protocol.command._
-import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, Reply}
+import net.fehmicansaglam.tepkin.protocol.message.{QueryMessage, QueryOptions, Reply}
 import net.fehmicansaglam.tepkin.protocol.result._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,13 +32,15 @@ class MongoCollection(databaseName: String,
                 allowDiskUse: Option[Boolean] = None,
                 cursor: Option[BsonDocument] = None,
                 batchMultiplier: Int = 1000)
-               (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
-    (pool ? Aggregate(databaseName, collectionName, pipeline, explain, allowDiskUse, cursor)).mapTo[Reply]
-      .map { reply =>
-      val result = reply.documents.head.getAsList[BsonDocument]("result").get
-      Source.actorPublisher(
-        MongoCursor.props(pool, s"$databaseName.$collectionName", reply.cursorID, result, batchMultiplier))
-    }
+               (implicit timeout: Timeout): Source[List[BsonDocument], ActorRef] = {
+    val source: Source[List[BsonDocument], ActorRef] = Source.actorPublisher(MongoCursor.props(
+      pool,
+      Aggregate(databaseName, collectionName, pipeline, explain, allowDiskUse, cursor),
+      reply => (s"$databaseName.$collectionName", reply.cursorID, reply.documents),
+      batchMultiplier,
+      timeout))
+
+    source.mapConcat(_.flatMap(_.getAsList[BsonDocument]("result")))
   }
 
   /**
@@ -132,20 +134,17 @@ class MongoCollection(databaseName: String,
    */
   def find(query: BsonDocument,
            fields: Option[BsonDocument] = None,
-           flags: Int = 0,
            skip: Int = 0,
+           tailable: Boolean = false,
            batchMultiplier: Int = 1000)
-          (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
-    (pool ? QueryMessage(s"$databaseName.$collectionName", query, fields = fields, flags = flags, numberToSkip = skip))
-      .mapTo[Reply]
-      .map { reply =>
-      Source.actorPublisher(MongoCursor.props(
-        pool,
-        s"$databaseName.$collectionName",
-        reply.cursorID,
-        reply.documents,
-        batchMultiplier))
-    }
+          (implicit timeout: Timeout): Source[List[BsonDocument], ActorRef] = {
+    val flags = if (tailable) QueryOptions.TailableCursor | QueryOptions.AwaitData else 0
+    Source.actorPublisher(MongoCursor.props(
+      pool,
+      QueryMessage(s"$databaseName.$collectionName", query, fields = fields, flags = flags, numberToSkip = skip),
+      reply => (s"$databaseName.$collectionName", reply.cursorID, reply.documents),
+      batchMultiplier,
+      timeout))
   }
 
   /**

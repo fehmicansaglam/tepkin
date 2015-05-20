@@ -100,20 +100,18 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
    * @param id _id of the file
    */
   def get(id: BsonValueObjectId)
-         (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[Chunk, ActorRef]] = {
-    chunks.find($query("files_id" := id) ~ $orderBy("n" := 1)).map { source =>
-      source.mapConcat(_.map(Chunk.apply))
-    }
+         (implicit timeout: Timeout): Source[Chunk, ActorRef] = {
+    chunks.find($query("files_id" := id) ~ $orderBy("n" := 1)).mapConcat(_.map(Chunk.apply))
   }
 
   def getOne(query: BsonDocument)
             (implicit ec: ExecutionContext, timeout: Timeout): Future[Option[Source[Chunk, ActorRef]]] = {
-    findOne(query).flatMap {
+    findOne(query).map {
       case Some(file) =>
         val id = file.get[BsonValueObjectId]("_id").get
-        get(id).map(Some.apply)
+        Some(get(id))
 
-      case None => Future.successful(None)
+      case None => None
     }
   }
 

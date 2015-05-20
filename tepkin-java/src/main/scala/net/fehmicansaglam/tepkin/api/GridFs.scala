@@ -39,10 +39,9 @@ class GridFs(proxy: tepkin.GridFs) {
    * @param id _id of the file
    */
   def get(id: BsonValueObjectId,
-          ec: ExecutionContext,
-          timeout: FiniteDuration): CompletableFuture[Source[Chunk, ActorRef]] = toCompletableFuture {
-    proxy.get(id)(ec, timeout).map(Source.adapt)(ec)
-  }(ec)
+          timeout: FiniteDuration): Source[Chunk, ActorRef] = Source.adapt {
+    proxy.get(id)(timeout)
+  }
 
   def getOne(query: BsonDocument,
              ec: ExecutionContext,

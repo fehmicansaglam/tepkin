@@ -77,16 +77,18 @@ class MongoDatabase(pool: ActorRef, databaseName: String) {
 
   def listCollections(filter: Option[BsonDocument] = None, batchMultiplier: Int = 1000)
                      (implicit ec: ExecutionContext, timeout: Timeout): Future[Source[List[BsonDocument], ActorRef]] = {
-    (pool ? WhatsYourVersion).mapTo[Int].flatMap { maxWireVersion =>
+    (pool ? WhatsYourVersion).mapTo[Int].map { maxWireVersion =>
       if (maxWireVersion == MongoWireVersion.v30) {
-        (pool ? ListCollections(databaseName, filter)).mapTo[Reply].map { reply =>
+        val message = ListCollections(databaseName, filter)
+        val extractor = { reply: Reply =>
           val cursor = reply.documents(0).getAs[BsonDocument]("cursor").get
           val cursorID = cursor.getAs[Long]("id").get
           val ns = cursor.getAs[String]("ns").get
           val initial = cursor.getAsList[BsonDocument]("firstBatch").get
-
-          Source.actorPublisher(MongoCursor.props(pool, ns, cursorID, initial, batchMultiplier))
+          (ns, cursorID, initial)
         }
+
+        Source.actorPublisher(MongoCursor.props(pool, message, extractor, batchMultiplier, timeout))
       } else {
         apply("system.namespaces").find(BsonDocument.empty)
       }
