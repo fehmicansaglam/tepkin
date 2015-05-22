@@ -72,8 +72,7 @@ object Reply {
         val documents = ArrayBuffer[BsonDocument]()
 
         while (buffer.hasRemaining) {
-          val reader = BsonDocumentReader(buffer)
-          reader.read.map(document => documents += document)
+          documents ++= BsonDocumentReader.read(buffer)
         }
 
         Some(Reply(responseTo, responseFlags, cursorID, startingFrom, numberReturned, documents.toList))

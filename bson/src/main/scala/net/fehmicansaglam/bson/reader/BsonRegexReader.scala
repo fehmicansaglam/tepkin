@@ -5,12 +5,12 @@ import java.nio.ByteBuffer
 import net.fehmicansaglam.bson.Implicits.BsonValueRegex
 import net.fehmicansaglam.bson.element.BsonRegex
 
-case class BsonRegexReader(buffer: ByteBuffer) extends Reader[BsonRegex] {
+object BsonRegexReader extends Reader[BsonRegex] {
 
-  def read: Option[BsonRegex] = {
-    val name = readCString()
-    val pattern = readCString()
-    val options = readCString()
+  def read(buffer: ByteBuffer): Option[BsonRegex] = {
+    val name = readCString(buffer)
+    val pattern = readCString(buffer)
+    val options = readCString(buffer)
     Some(BsonRegex(name, BsonValueRegex(pattern, options)))
   }
 }

@@ -4,10 +4,10 @@ import java.nio.ByteBuffer
 
 import net.fehmicansaglam.bson.element.BsonLong
 
-case class BsonLongReader(buffer: ByteBuffer) extends Reader[BsonLong] {
+object BsonLongReader extends Reader[BsonLong] {
 
-  def read: Option[BsonLong] = {
-    val name = readCString()
+  def read(buffer: ByteBuffer): Option[BsonLong] = {
+    val name = readCString(buffer)
     val value = buffer.getLong()
     Some(BsonLong(name, value))
   }

@@ -6,19 +6,23 @@ import scala.collection.mutable.ArrayBuffer
 
 trait Reader[T] {
 
-  def buffer: ByteBuffer
-
-  def readCString(): String = readCString(new ArrayBuffer[Byte](16))
+  /**
+   * @param buffer must have LITTLE_ENDIAN order
+   */
+  def readCString(buffer: ByteBuffer): String = readCString(buffer, new ArrayBuffer[Byte](16))
 
   @scala.annotation.tailrec
-  private def readCString(array: ArrayBuffer[Byte]): String = {
+  private def readCString(buffer: ByteBuffer, array: ArrayBuffer[Byte]): String = {
     val byte = buffer.get()
     if (byte == 0x00)
       new String(array.toArray, "UTF-8")
-    else readCString(array += byte)
+    else readCString(buffer, array += byte)
   }
 
-  def readString(): String = {
+  /**
+   * @param buffer must have LITTLE_ENDIAN order
+   */
+  def readString(buffer: ByteBuffer): String = {
     val size = buffer.getInt()
     val array = new Array[Byte](size - 1)
     buffer.get(array)
@@ -26,11 +30,17 @@ trait Reader[T] {
     new String(array)
   }
 
-  def readBytes(num: Int): Array[Byte] = {
+  /**
+   * @param buffer must have LITTLE_ENDIAN order
+   */
+  def readBytes(buffer: ByteBuffer)(num: Int): Array[Byte] = {
     val array = new Array[Byte](num)
     buffer.get(array)
     array
   }
 
-  def read: Option[T]
+  /**
+   * @param buffer must have LITTLE_ENDIAN order
+   */
+  def read(buffer: ByteBuffer): Option[T]
 }

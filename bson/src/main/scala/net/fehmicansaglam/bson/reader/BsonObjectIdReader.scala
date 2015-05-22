@@ -4,10 +4,10 @@ import java.nio.ByteBuffer
 
 import net.fehmicansaglam.bson.element.BsonObjectId
 
-case class BsonObjectIdReader(buffer: ByteBuffer) extends Reader[BsonObjectId] {
-  override def read: Option[BsonObjectId] = {
-    val name = readCString()
-    val value = readBytes(12)
+object BsonObjectIdReader extends Reader[BsonObjectId] {
+  override def read(buffer: ByteBuffer): Option[BsonObjectId] = {
+    val name = readCString(buffer)
+    val value = readBytes(buffer)(12)
     Some(BsonObjectId(name, value))
   }
 }

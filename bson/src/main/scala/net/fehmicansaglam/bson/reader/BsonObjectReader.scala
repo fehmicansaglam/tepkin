@@ -4,10 +4,10 @@ import java.nio.ByteBuffer
 
 import net.fehmicansaglam.bson.element.BsonObject
 
-case class BsonObjectReader(buffer: ByteBuffer) extends Reader[BsonObject] {
+object BsonObjectReader extends Reader[BsonObject] {
 
-  def read: Option[BsonObject] = {
-    val name = readCString()
-    BsonDocumentReader(buffer).read.map(BsonObject(name, _))
+  def read(buffer: ByteBuffer): Option[BsonObject] = {
+    val name = readCString(buffer)
+    BsonDocumentReader.read(buffer).map(BsonObject(name, _))
   }
 }

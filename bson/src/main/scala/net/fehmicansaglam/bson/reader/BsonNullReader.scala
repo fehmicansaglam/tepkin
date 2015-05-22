@@ -4,8 +4,8 @@ import java.nio.ByteBuffer
 
 import net.fehmicansaglam.bson.element.BsonNull
 
-case class BsonNullReader(buffer: ByteBuffer) extends Reader[BsonNull] {
-  override def read: Option[BsonNull] = {
-    Some(BsonNull(readCString()))
+object BsonNullReader extends Reader[BsonNull] {
+  override def read(buffer: ByteBuffer): Option[BsonNull] = {
+    Some(BsonNull(readCString(buffer)))
   }
 }

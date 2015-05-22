@@ -1,7 +1,6 @@
 package net.fehmicansaglam.bson.reader
 
 import java.nio.ByteBuffer
-import java.nio.ByteOrder._
 
 import akka.util.ByteString
 import net.fehmicansaglam.bson.BsonDocument
@@ -10,35 +9,33 @@ import net.fehmicansaglam.bson.element.BsonElement
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.Breaks._
 
-case class BsonDocumentReader(buffer: ByteBuffer) extends Reader[BsonDocument] {
+object BsonDocumentReader extends Reader[BsonDocument] {
 
-  buffer.order(LITTLE_ENDIAN)
-
-  private val elements: ArrayBuffer[Option[BsonElement]] = new ArrayBuffer[Option[BsonElement]]
-
-  def readElement(code: Byte): Option[BsonElement] = code match {
-    case 0x01 => BsonDoubleReader(buffer).read
-    case 0x02 => BsonStringReader(buffer).read
-    case 0x03 => BsonObjectReader(buffer).read
-    case 0x04 => BsonArrayReader(buffer).read
-    case 0x05 => BsonBinaryReader(buffer).read
-    case 0x07 => BsonObjectIdReader(buffer).read
-    case 0x08 => BsonBooleanReader(buffer).read
-    case 0x09 => BsonDateTimeReader(buffer).read
-    case 0x0A => BsonNullReader(buffer).read
-    case 0x10 => BsonIntegerReader(buffer).read
-    case 0x11 => BsonTimestampReader(buffer).read
-    case 0x12 => BsonLongReader(buffer).read
+  private def readElement(buffer: ByteBuffer, code: Byte): Option[BsonElement] = code match {
+    case 0x01 => BsonDoubleReader.read(buffer)
+    case 0x02 => BsonStringReader.read(buffer)
+    case 0x03 => BsonObjectReader.read(buffer)
+    case 0x04 => BsonArrayReader.read(buffer)
+    case 0x05 => BsonBinaryReader.read(buffer)
+    case 0x07 => BsonObjectIdReader.read(buffer)
+    case 0x08 => BsonBooleanReader.read(buffer)
+    case 0x09 => BsonDateTimeReader.read(buffer)
+    case 0x0A => BsonNullReader.read(buffer)
+    case 0x0B => BsonRegexReader.read(buffer)
+    case 0x10 => BsonIntegerReader.read(buffer)
+    case 0x11 => BsonTimestampReader.read(buffer)
+    case 0x12 => BsonLongReader.read(buffer)
   }
 
-  override def read: Option[BsonDocument] = {
+  override def read(buffer: ByteBuffer): Option[BsonDocument] = {
+    val elements: ArrayBuffer[Option[BsonElement]] = new ArrayBuffer[Option[BsonElement]]
     val size = buffer.getInt()
 
     breakable {
       while (buffer.hasRemaining) {
         val code = buffer.get()
         if (code != 0x00) {
-          elements += readElement(code)
+          elements += readElement(buffer, code)
         } else {
           break
         }
@@ -47,11 +44,7 @@ case class BsonDocumentReader(buffer: ByteBuffer) extends Reader[BsonDocument] {
 
     Some(BsonDocument(elements.flatten: _*))
   }
+
+  def read(array: Array[Byte]): Option[BsonDocument] = read(ByteBuffer.wrap(array))
 }
 
-object BsonDocumentReader {
-
-  def apply(array: Array[Byte]): BsonDocumentReader = BsonDocumentReader(ByteBuffer.wrap(array))
-
-  def apply(buffer: ByteString): BsonDocumentReader = BsonDocumentReader(buffer.asByteBuffer)
-}

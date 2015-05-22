@@ -1,5 +1,7 @@
 package net.fehmicansaglam.bson
 
+import java.nio.ByteOrder
+
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.element.BsonObjectId
@@ -27,7 +29,9 @@ class BsonSpec extends WordSpec with Matchers {
       println(expected.toJson())
 
       val encoded = expected.encode
-      val actual = BsonDocumentReader(encoded).read
+      val buffer = encoded.asByteBuffer
+      buffer.order(ByteOrder.LITTLE_ENDIAN)
+      val actual = BsonDocumentReader.read(buffer)
       actual should be(Some(expected))
     }
   }

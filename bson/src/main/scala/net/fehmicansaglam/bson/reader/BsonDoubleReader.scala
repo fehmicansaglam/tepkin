@@ -4,10 +4,10 @@ import java.nio.ByteBuffer
 
 import net.fehmicansaglam.bson.element.BsonDouble
 
-case class BsonDoubleReader(buffer: ByteBuffer) extends Reader[BsonDouble] {
+object BsonDoubleReader extends Reader[BsonDouble] {
 
-  def read: Option[BsonDouble] = {
-    val name = readCString()
+  def read(buffer: ByteBuffer): Option[BsonDouble] = {
+    val name = readCString(buffer)
     val value = buffer.getDouble()
     Some(BsonDouble(name, value))
   }

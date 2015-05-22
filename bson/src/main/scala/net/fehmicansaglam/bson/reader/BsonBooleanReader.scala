@@ -4,10 +4,10 @@ import java.nio.ByteBuffer
 
 import net.fehmicansaglam.bson.element.BsonBoolean
 
-case class BsonBooleanReader(buffer: ByteBuffer) extends Reader[BsonBoolean] {
+object BsonBooleanReader extends Reader[BsonBoolean] {
 
-  def read: Option[BsonBoolean] = {
-    val name = readCString()
+  def read(buffer: ByteBuffer): Option[BsonBoolean] = {
+    val name = readCString(buffer)
     Some {
       buffer.get() match {
         case 0x00 => BsonBoolean(name, false)
