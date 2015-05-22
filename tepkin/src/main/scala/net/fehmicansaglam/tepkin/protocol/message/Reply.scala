@@ -93,7 +93,7 @@ object ResponseFlags {
   val CursorNotFound: Int = 1
 
   /**
-   * Set when query failed. Results consist of one document containing an “$err” field describing the failure.
+   * Set when query failed. Results consist of one document containing an $$err field describing the failure.
    */
   val QueryFailure: Int = 2
 

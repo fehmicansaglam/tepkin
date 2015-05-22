@@ -46,4 +46,6 @@ trait BsonElement extends Writable {
   def pretty(): String = pretty(0)
 
   def toJson(extended: Boolean): String = s""" "$name": ${value.toJson(extended)} """.trim
+
+  def toTuple: (String, BsonValue) = name -> value
 }

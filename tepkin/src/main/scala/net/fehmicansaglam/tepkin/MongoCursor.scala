@@ -11,7 +11,7 @@ import net.fehmicansaglam.tepkin.protocol.message._
 
 /**
  * Represents a cursor to read data from Mongo. This actor is an ActorPublisher so it can be passed directly to a
- * [[akka.stream.scaladsl.Source]]
+ * `akka.stream.scaladsl.Source`
  *
  * @param pool reference to a [[MongoPoolManager]] actor.
  * @param message The first message to be sent to a MongoDB instance. The cursor will be opened after this message.

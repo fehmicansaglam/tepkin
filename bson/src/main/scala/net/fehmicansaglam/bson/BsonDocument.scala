@@ -2,9 +2,17 @@ package net.fehmicansaglam.bson
 
 import akka.util.{ByteString, ByteStringBuilder}
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.element.BsonElement
+import net.fehmicansaglam.bson.element.{BsonElement, BsonObject}
 
 case class BsonDocument(elements: BsonElement*) extends BsonValue {
+
+  protected lazy val flat: Seq[(String, BsonValue)] = elements.flatMap {
+    case element@BsonObject(name, value) =>
+      value.identifier.flat.map { case (k, v) => s"$name.$k" -> v } :+ element.toTuple
+    case element => Seq(element.toTuple)
+  }
+
+  protected lazy val internal: Map[String, BsonValue] = flat.toMap
 
   override def encode: ByteString = {
     val builder = elements.foldLeft(new ByteStringBuilder) { (builder, element) =>
@@ -32,14 +40,23 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
     case None => this
   }
 
+  /**
+   * Supports nested documents with . operator i.e. `foo.bar.baz`
+   */
   def get[T <: BsonValue](key: String): Option[T] = {
-    elements.find(_.name == key).map(_.value.asInstanceOf[T])
+    internal.get(key).map(_.asInstanceOf[T])
   }
 
+  /**
+   * Supports nested documents with . operator i.e. `foo.bar.baz`
+   */
   def getAs[T](key: String): Option[T] = {
-    elements.find(_.name == key).map(_.value.asInstanceOf[Identifiable[T]].identifier)
+    internal.get(key).map(_.asInstanceOf[Identifiable[T]].identifier)
   }
 
+  /**
+   * Supports nested documents with . operator i.e. `foo.bar.baz`
+   */
   def getAsList[T](key: String): Option[List[T]] = {
     getAs[BsonDocument](key).map { document =>
       document.elements.map(_.value.asInstanceOf[Identifiable[T]].identifier).toList
