@@ -117,7 +117,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
   private def step1(connection: ActorRef, databaseName: String, credentials: Option[MongoCredentials], step0: Step0): Receive = {
     case Received(data) =>
       for {
-        reply <- Reply.decode(data.asByteBuffer)
+        reply <- Reply(data.asByteBuffer)
         result <- reply.documents.headOption
         conversationId <- result.getAs[Int]("conversationId")
         payload <- result.get[Binary]("payload")
@@ -133,7 +133,7 @@ trait ScramSha1Authentication extends Authentication with Crypto with Randomizer
   private def stepN(n: Int, connection: ActorRef, databaseName: String, conversationId: Int, step1: Step1): Receive = {
     case Received(data) =>
       for {
-        reply <- Reply.decode(data.asByteBuffer)
+        reply <- Reply(data.asByteBuffer)
         result <- reply.documents.headOption
       } result.get[BsonValueNumber]("ok") match {
         case Some(number) if number.toInt == 0 =>

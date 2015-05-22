@@ -64,7 +64,7 @@ class MongoConnection(manager: ActorRef,
         storage = data
         context become buffering(connection, expectedSize)
       } else {
-        Reply.decode(data.asByteBuffer) foreach { reply =>
+        Reply(data.asByteBuffer) foreach { reply =>
           requests.get(reply.responseTo) foreach { request =>
             log.debug("Received reply for request {}", reply.responseTo)
             request ! reply

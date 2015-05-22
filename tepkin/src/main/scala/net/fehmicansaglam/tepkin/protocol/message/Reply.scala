@@ -46,26 +46,33 @@ case class Reply(responseTo: Int,
 }
 
 object Reply {
-  def decode(buffer: ByteBuffer): Option[Reply] = {
+
+  def apply(buffer: ByteBuffer): Option[Reply] = {
     buffer.order(ByteOrder.LITTLE_ENDIAN)
     val length = buffer.getInt()
-    buffer.getInt() // requestID
-    val responseTo = buffer.getInt()
-    buffer.getInt() // opCode
-    val responseFlags = buffer.getInt()
-    val cursorID = buffer.getLong()
-    val startingFrom = buffer.getInt()
-    val numberReturned = buffer.getInt()
 
-    val documents = ArrayBuffer[BsonDocument]()
+    if (length != buffer.remaining() + 4) {
+      None
+    } else {
+      buffer.getInt() // requestID
+      val responseTo = buffer.getInt()
+      buffer.getInt() // opCode
+      val responseFlags = buffer.getInt()
+      val cursorID = buffer.getLong()
+      val startingFrom = buffer.getInt()
+      val numberReturned = buffer.getInt()
 
-    while (buffer.hasRemaining()) {
-      val reader = BsonDocumentReader(buffer)
-      reader.read.map(document => documents += document)
+      val documents = ArrayBuffer[BsonDocument]()
+
+      while (buffer.hasRemaining()) {
+        val reader = BsonDocumentReader(buffer)
+        reader.read.map(document => documents += document)
+      }
+
+      Some(Reply(responseTo, responseFlags, cursorID, startingFrom, numberReturned, documents.toList))
     }
-
-    Some(Reply(responseTo, responseFlags, cursorID, startingFrom, numberReturned, documents.toList))
   }
+
 }
 
 

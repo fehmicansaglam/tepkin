@@ -19,7 +19,7 @@ trait MongoDbCrAuthentication extends Authentication {
     // Received nonce
     case Received(data) =>
       for {
-        reply <- Reply.decode(data.asByteBuffer)
+        reply <- Reply(data.asByteBuffer)
         nonce <- reply.documents.head.getAs[String]("nonce")
         credentials <- credentials
       } {
@@ -39,7 +39,7 @@ trait MongoDbCrAuthentication extends Authentication {
     // Received authentication result
     case Received(data) =>
       for {
-        reply <- Reply.decode(data.asByteBuffer)
+        reply <- Reply(data.asByteBuffer)
         result <- reply.documents.headOption
       } {
         log.info("Authentication result: {}", result)
