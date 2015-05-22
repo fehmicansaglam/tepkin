@@ -9,6 +9,18 @@ import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.tepkin.TepkinMessage.{CursorClosed, CursorOpened, Fetch}
 import net.fehmicansaglam.tepkin.protocol.message._
 
+/**
+ * Represents a cursor to read data from Mongo. This actor is an ActorPublisher so it can be passed directly to a
+ * [[akka.stream.scaladsl.Source]]
+ *
+ * @param pool reference to a [[MongoPoolManager]] actor.
+ * @param message The first message to be sent to a MongoDB instance. The cursor will be opened after this message.
+ * @param extractor Extractor function for extracting ns, cursorID and firstBatch from the reply to the message.
+ * @param batchMultiplier totalDemand is multiplied by this factor to calculate numberToReturn to be sent in a GetMore
+ *                        message. If you are sure that your Sink is fast then try increasing this number to improve
+ *                        performance.
+ * @param timeout Timeout for receiving a reply for the first message.
+ */
 class MongoCursor(pool: ActorRef,
                   message: Message,
                   extractor: Reply => (String, Long, List[BsonDocument]), // ns, cursorID, firstBatch
@@ -109,6 +121,17 @@ class MongoCursor(pool: ActorRef,
 }
 
 object MongoCursor {
+
+  /**
+   *
+   * @param pool reference to a MongoPool actor.
+   * @param message The first message to be sent to a MongoDB instance. The cursor will be opened after this message.
+   * @param extractor Extractor function for extracting ns, cursorID and firstBatch from the reply to the message.
+   * @param batchMultiplier totalDemand is multiplied by this factor to calculate numberToReturn to be sent in a GetMore
+   *                        message. If you are sure that your Sink is fast then try increasing this number to improve
+   *                        performance.
+   * @param timeout Timeout for receiving a reply for the first message.
+   */
   def props(pool: ActorRef,
             message: Message,
             extractor: Reply => (String, Long, List[BsonDocument]), // ns, cursorID, firstBatch

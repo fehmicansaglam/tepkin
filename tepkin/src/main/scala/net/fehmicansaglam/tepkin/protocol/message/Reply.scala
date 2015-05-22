@@ -15,7 +15,7 @@ import scala.collection.mutable.ArrayBuffer
  * {{{
  * struct {
  *     MsgHeader header;         // standard message header
- *     int32     responseFlags;  // bit vector - see details below
+ *     int32     responseFlags;  // bit vector
  *     int64     cursorID;       // cursor id if client needs to do get more's
  *     int32     startingFrom;   // where in the cursor this reply is starting
  *     int32     numberReturned; // number of documents in the reply
@@ -30,7 +30,7 @@ case class Reply(responseTo: Int,
                  numberReturned: Int,
                  documents: List[BsonDocument]) extends Message {
 
-  override def opCode: Int = 1
+  override def opCode: Int = Reply.OP_CODE
 
   override def encodeBody: ByteString = {
     val builder = ByteString.newBuilder
@@ -43,33 +43,43 @@ case class Reply(responseTo: Int,
 
     builder.result()
   }
+
+  def queryFailed: Boolean = (responseFlags & ResponseFlags.QueryFailure) != 0
+
+  def cursorNotFound: Boolean = (responseFlags & ResponseFlags.CursorNotFound) != 0
 }
 
 object Reply {
 
+  val OP_CODE = 1
+
   def apply(buffer: ByteBuffer): Option[Reply] = {
     buffer.order(ByteOrder.LITTLE_ENDIAN)
-    val length = buffer.getInt()
+    val length = buffer.getInt
 
     if (length != buffer.remaining() + 4) {
       None
     } else {
-      buffer.getInt() // requestID
-      val responseTo = buffer.getInt()
-      buffer.getInt() // opCode
-      val responseFlags = buffer.getInt()
-      val cursorID = buffer.getLong()
-      val startingFrom = buffer.getInt()
-      val numberReturned = buffer.getInt()
+      buffer.getInt // requestID, unused for Reply
+      val responseTo = buffer.getInt
+      val opCode = buffer.getInt
+      if (opCode == OP_CODE) {
+        val responseFlags = buffer.getInt
+        val cursorID = buffer.getLong
+        val startingFrom = buffer.getInt
+        val numberReturned = buffer.getInt
 
-      val documents = ArrayBuffer[BsonDocument]()
+        val documents = ArrayBuffer[BsonDocument]()
 
-      while (buffer.hasRemaining()) {
-        val reader = BsonDocumentReader(buffer)
-        reader.read.map(document => documents += document)
+        while (buffer.hasRemaining) {
+          val reader = BsonDocumentReader(buffer)
+          reader.read.map(document => documents += document)
+        }
+
+        Some(Reply(responseTo, responseFlags, cursorID, startingFrom, numberReturned, documents.toList))
+      } else {
+        None
       }
-
-      Some(Reply(responseTo, responseFlags, cursorID, startingFrom, numberReturned, documents.toList))
     }
   }
 
