@@ -24,18 +24,17 @@ import scala.collection.mutable.ArrayBuffer
  * }}}
  */
 case class Reply(responseTo: Int,
+                 responseFlags: Int,
                  cursorID: Long,
                  startingFrom: Int,
                  numberReturned: Int,
                  documents: List[BsonDocument]) extends Message {
 
-  val flags = 0
-
   override def opCode: Int = 1
 
   override def encodeBody: ByteString = {
     val builder = ByteString.newBuilder
-      .putInt(flags)
+      .putInt(responseFlags)
       .putLong(cursorID)
       .putInt(startingFrom)
       .putInt(numberReturned)
@@ -53,7 +52,7 @@ object Reply {
     buffer.getInt() // requestID
     val responseTo = buffer.getInt()
     buffer.getInt() // opCode
-    val flags = buffer.getInt()
+    val responseFlags = buffer.getInt()
     val cursorID = buffer.getLong()
     val startingFrom = buffer.getInt()
     val numberReturned = buffer.getInt()
@@ -65,6 +64,26 @@ object Reply {
       reader.read.map(document => documents += document)
     }
 
-    Some(Reply(responseTo, cursorID, startingFrom, numberReturned, documents.toList))
+    Some(Reply(responseTo, responseFlags, cursorID, startingFrom, numberReturned, documents.toList))
   }
+}
+
+
+object ResponseFlags {
+
+  /**
+   * Set when getMore is called but the cursor id is not valid at the server. Returned with zero results.
+   */
+  val CursorNotFound: Int = 1
+
+  /**
+   * Set when query failed. Results consist of one document containing an “$err” field describing the failure.
+   */
+  val QueryFailure: Int = 2
+
+  /**
+   * Set when the server supports the AwaitData Query option. If it doesn’t, a client should sleep a little
+   * between getMore’s of a Tailable cursor. Mongod version 1.6 supports AwaitData and thus always sets AwaitCapable.
+   */
+  val AwaitCapable: Int = 8
 }
