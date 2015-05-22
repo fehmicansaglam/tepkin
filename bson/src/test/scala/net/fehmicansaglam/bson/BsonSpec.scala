@@ -41,7 +41,7 @@ class BsonSpec extends WordSpec with Matchers {
       document.getAs[Int]("age").value shouldBe 18
       document.getAs[Double]("details.salary").value shouldBe 455.5
       document.getAs[String]("details.personal.foo").value shouldBe "bar"
-      document.getAsList[List[_]]("details.inventory").value shouldBe List("a", 3.5, 1L, true)
+      document.getAsList[Any]("details.inventory").value shouldBe List("a", 3.5, 1L, true)
 
       val details = document.getAs[BsonDocument]("details").get
       details.getAs[Double]("salary").value shouldBe 455.5
