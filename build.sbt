@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   organization := "net.fehmicansaglam",
-  version := "0.5-SNAPSHOT",
+  version := "0.5",
   scalaVersion := "2.11.6",
   scalacOptions := Seq(
     "-deprecation",

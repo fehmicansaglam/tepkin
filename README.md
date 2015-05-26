@@ -27,13 +27,13 @@ Please read our Scala Guide first: https://github.com/fehmicansaglam/tepkin/wiki
 
 ### Setting up dependencies
 
-Latest stable Tepkin release is **0.4** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin).
+Latest stable Tepkin release is **0.5** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin).
 
 Scala developers, add the following dependency:
 
 ```scala
 libraryDependencies ++= Seq(
-  "net.fehmicansaglam" %% "tepkin" % "0.4"
+  "net.fehmicansaglam" %% "tepkin" % "0.5"
 )
 ```
 
@@ -43,18 +43,18 @@ Java developers, `net.fehmicansaglam.tepkin.api` package is intended to be used 
 <dependency>
   <groupId>net.fehmicansaglam</groupId>
   <artifactId>tepkin-java_2.11</artifactId>
-  <version>0.4</version>
+  <version>0.5</version>
 </dependency>
 ```
 
-Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.5-SNAPSHOT**.
+Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.6-SNAPSHOT**.
 
 Scala developers, add the following repository and dependency:
 ```scala
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "net.fehmicansaglam" %% "tepkin" % "0.5-SNAPSHOT"
+  "net.fehmicansaglam" %% "tepkin" % "0.6-SNAPSHOT"
 )
 ```
 
@@ -69,7 +69,7 @@ Java developers add the following repository and dependency to your pom.xml:
 <dependency>
 	<groupId>net.fehmicansaglam</groupId>
 	<artifactId>tepkin-java_2.11</artifactId>
-	<version>0.5-SNAPSHOT</version>
+	<version>0.6-SNAPSHOT</version>
 </dependency>
 ```
 
