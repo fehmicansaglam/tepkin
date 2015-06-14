@@ -3,12 +3,11 @@ package net.fehmicansaglam.bson
 import java.nio.ByteOrder
 
 import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.bson.element.BsonObjectId
 import net.fehmicansaglam.bson.reader.BsonDocumentReader
 import org.joda.time.DateTime
-import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.OptionValues._
+import org.scalatest.{Matchers, WordSpec}
 
 class BsonSpec extends WordSpec with Matchers {
 

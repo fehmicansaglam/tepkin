@@ -15,6 +15,7 @@ object BsonDsl {
       case value: DateTime => BsonDateTime(name, value)
       case value: Int => BsonInteger(name, value)
       case value: Long => BsonLong(name, value)
+      case value: List[_] => BsonArray(name, $array(value))
       // For expressions like "$match" := ("status" := "A")
       case value: BsonElement => BsonObject(name, value.toDoc)
       case value: BsonValueDouble => BsonDouble(name, value)
@@ -38,10 +39,12 @@ object BsonDsl {
 
   def $document(elements: BsonElement*): BsonDocument = BsonDocument(elements: _*)
 
-  def $array(values: BsonValue*): BsonValueArray = BsonValueArray(BsonDocument(
+  def $array(values: Any*): BsonValueArray = BsonValueArray(BsonDocument(
     values.zipWithIndex.map {
       case (value, index) => s"$index" := value
     }: _*))
+
+  def $array(values: List[_]): BsonValueArray = $array(values: _*)
 
   def $or(documents: BsonDocument*): BsonElement = "$or" := $array(documents: _*)
 
