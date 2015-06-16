@@ -1,13 +1,13 @@
 # Tepkin
 
-Reactive MongoDB Driver for Scala and Java built on top of Akka IO and Akka Streams.
+Reactive MongoDB Driver for Scala built on top of Akka IO and Akka Streams.
 
 [![Build Status](https://travis-ci.org/fehmicansaglam/tepkin.svg?branch=master)](https://travis-ci.org/fehmicansaglam/tepkin)
 [![Codacy Badge](https://www.codacy.com/project/badge/d5039668605d44fea3adf2302e7e6c31)](https://www.codacy.com/public/fehmicansaglam/tepkin)
 [![Progress](http://progressed.io/bar/0?title=0.6)]()
 [![Licence](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-Only MongoDB 2.6+, Scala 2.11+ and Java 8+ is supported.
+Only MongoDB 2.6+, Scala 2.11+ is supported. **Java support has been dropped. See details here: https://github.com/fehmicansaglam/tepkin/issues/22**
 
 Don't hesitate to ask questions in the [Tepkin Google Group](https://groups.google.com/forum/#!forum/tepkin) or join chat on Gitter:
 
@@ -27,9 +27,7 @@ Please read our Scala Guide first: https://github.com/fehmicansaglam/tepkin/wiki
 
 ### Setting up dependencies
 
-Latest stable Tepkin release is **0.5** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin).
-
-Scala developers, add the following dependency:
+Latest stable Tepkin release is **0.5** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin). Just add the following dependency:
 
 ```scala
 libraryDependencies ++= Seq(
@@ -37,40 +35,13 @@ libraryDependencies ++= Seq(
 )
 ```
 
-Java developers, `net.fehmicansaglam.tepkin.api` package is intended to be used from Java. To use the package, add the following dependency to your pom.xml:
-
-```xml
-<dependency>
-  <groupId>net.fehmicansaglam</groupId>
-  <artifactId>tepkin-java_2.11</artifactId>
-  <version>0.5</version>
-</dependency>
-```
-
-Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.6-SNAPSHOT**.
-
-Scala developers, add the following repository and dependency:
+Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.6-SNAPSHOT**. Add the following repository and dependency:
 ```scala
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
   "net.fehmicansaglam" %% "tepkin" % "0.6-SNAPSHOT"
 )
-```
-
-Java developers add the following repository and dependency to your pom.xml:
-
-```xml
-<repository>
-  <id>Sonatype Snapshots</id>
-  <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-</repository>
-
-<dependency>
-	<groupId>net.fehmicansaglam</groupId>
-	<artifactId>tepkin-java_2.11</artifactId>
-	<version>0.6-SNAPSHOT</version>
-</dependency>
 ```
 
 ## Scala API
@@ -266,24 +237,6 @@ import net.fehmicansaglam.bson.Implicits._
 import net.fehmicansaglam.tepkin.protocol.command.Index
 
 collection.createIndexes(Index(name = "name_surname", key = ("name" := 1) ~ ("surname" := 1)))
-```
-
-## Java API
-
-```java
-import net.fehmicansaglam.tepkin.api.*;
-
-MongoClient mongoClient = MongoClient.create("mongodb://localhost");
-MongoCollection collection = mongoClient.db("tepkin").collection("test");
-
-BsonDocument document = BsonDocumentBuilder.create().addString("name", "fehmi").build();
-
-FiniteDuration timeout = Duration.create(5, TimeUnit.SECONDS);
-
-CompletableFuture<Optional<BsonDocument>> cf = collection
-  .insert(document, mongoClient.ec(), timeout)
-  .thenCompose(insert -> collection.findOne(mongoClient.ec(), timeout));
-Optional<BsonDocument> actual = cf.get(5, TimeUnit.SECONDS);
 ```
 
 ## Donations

@@ -25,7 +25,7 @@ lazy val commonSettings = Seq(
 shellPrompt in ThisBuild := Common.prompt
 
 lazy val root = project.in(file("."))
-  .aggregate(bson, tepkin, tepkinJava, pide, examples)
+  .aggregate(bson, tepkin, pide, examples)
   .settings(commonSettings: _*)
   .settings(publishArtifact := false)
 
@@ -35,10 +35,6 @@ lazy val bson = project.in(file("bson"))
 lazy val tepkin = project.in(file("tepkin"))
   .settings(commonSettings: _*)
   .dependsOn(bson)
-
-lazy val tepkinJava = project.in(file("tepkin-java"))
-  .settings(commonSettings: _*)
-  .dependsOn(tepkin)
 
 lazy val pide = project.in(file("pide"))
   .settings(commonSettings: _*)
