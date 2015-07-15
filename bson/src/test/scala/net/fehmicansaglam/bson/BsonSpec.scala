@@ -48,5 +48,25 @@ class BsonSpec extends WordSpec with Matchers {
       val personal = document.getAs[BsonDocument]("details.personal").get
       personal.getAs[String]("foo").value shouldBe "bar"
     }
+
+    "handle (deeply) nested collections" in {
+      val map = Map(
+        "level0" -> 1,
+        "level1" -> Map(
+          "level2" -> "2"
+        )
+      )
+      val doc = BsonDocument.from(map.toIterable)
+      doc.toJson() shouldBe """{ "level0": 1, "level1": { "level2": "2" } }"""
+
+      val map2 = Map(
+        "level1" -> List(Map(
+          "level2" -> "2"
+        )),
+        "listoflists" -> List(List(1, 2), List(3, 4))
+      )
+      val doc2 = BsonDocument.from(map2.toIterable)
+      doc2.toJson() shouldBe """{ "level1": [ { "level2": "2" } ], "listoflists": [ [ 1, 2 ], [ 3, 4 ] ] }"""
+    }
   }
 }

@@ -16,6 +16,7 @@ object BsonDsl {
       case value: Int => BsonInteger(name, value)
       case value: Long => BsonLong(name, value)
       case value: List[_] => BsonArray(name, $array(value))
+      case value: Map[_, _] => BsonObject(name, BsonDocument.from(value.map { case (k, v) => (k.toString, v) }))
       // For expressions like "$match" := ("status" := "A")
       case value: BsonElement => BsonObject(name, value.toDoc)
       case value: BsonValueDouble => BsonDouble(name, value)
