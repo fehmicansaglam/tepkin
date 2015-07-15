@@ -12,4 +12,8 @@ case class BsonNull(name: String) extends BsonElement {
 
     override def toString: String = "null"
   }
+
+  override def equals(other: Any): Boolean = {
+    other.isInstanceOf[BsonNull] && other.asInstanceOf[BsonNull].name == this.name
+  }
 }

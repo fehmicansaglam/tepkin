@@ -9,6 +9,7 @@ object BsonDsl {
   implicit class BsonField(name: String) {
 
     def := : PartialFunction[Any, BsonElement] = {
+      case null => BsonNull(name)
       case value: Double => BsonDouble(name, value)
       case value: String => BsonString(name, value)
       case value: Boolean => BsonBoolean(name, value)
@@ -56,4 +57,6 @@ object BsonDsl {
   def $query(document: BsonDocument): BsonElement = "$query" := document
 
   def $orderBy(document: BsonDocument): BsonElement = "$orderBy" := document
+
+  def $null(name: String): BsonNull = BsonNull(name)
 }

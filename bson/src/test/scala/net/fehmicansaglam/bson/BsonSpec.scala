@@ -50,23 +50,37 @@ class BsonSpec extends WordSpec with Matchers {
     }
 
     "handle (deeply) nested collections" in {
-      val map = Map(
-        "level0" -> 1,
-        "level1" -> Map(
-          "level2" -> "2"
+      val expected = $document(
+        "name" := "jack",
+        "age" := 18,
+        "months" := $array(1, 2, 3),
+        "details" := $document(
+          "salary" := 455.5,
+          "inventory" := $array("a", 3.5, 1L, true, $document("nested" := "document")),
+          "birthday" := new DateTime(1987, 3, 5, 0, 0),
+          "personal" := $document(
+            "foo" := "bar",
+            $null("null_value")
+          )
         )
       )
-      val doc = BsonDocument.from(map.toIterable)
-      doc.toJson() shouldBe """{ "level0": 1, "level1": { "level2": "2" } }"""
 
-      val map2 = Map(
-        "level1" -> List(Map(
-          "level2" -> "2"
-        )),
-        "listoflists" -> List(List(1, 2), List(3, 4))
-      )
-      val doc2 = BsonDocument.from(map2.toIterable)
-      doc2.toJson() shouldBe """{ "level1": [ { "level2": "2" } ], "listoflists": [ [ 1, 2 ], [ 3, 4 ] ] }"""
+      val actual = BsonDocument.from(Map(
+        "name" -> "jack",
+        "age" -> 18,
+        "months" -> List(1, 2, 3),
+        "details" -> Map(
+          "salary" -> 455.5,
+          "inventory" -> List("a", 3.5, 1L, true, Map("nested" -> "document")),
+          "birthday" -> new DateTime(1987, 3, 5, 0, 0),
+          "personal" -> Map(
+            "foo" -> "bar",
+            "null_value" -> null
+          )
+        )
+      ))
+
+      actual shouldBe expected
     }
   }
 }
