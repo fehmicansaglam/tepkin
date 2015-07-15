@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   organization := "net.fehmicansaglam",
   version := "0.6-SNAPSHOT",
-  scalaVersion := "2.11.6",
+  scalaVersion := "2.11.7",
   scalacOptions := Seq(
     "-deprecation",
     "-encoding", "UTF-8", // yes, this is 2 args

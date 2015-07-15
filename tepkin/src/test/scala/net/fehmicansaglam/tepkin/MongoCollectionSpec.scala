@@ -1,6 +1,6 @@
 package net.fehmicansaglam.tepkin
 
-import akka.stream.ActorFlowMaterializer
+import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
@@ -61,7 +61,7 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 10 documents" in {
-    implicit val mat = ActorFlowMaterializer()
+    implicit val mat = ActorMaterializer()
 
     val documents = (1 to 10).map(i => $document("name" := s"fehmi$i"))
 
@@ -78,7 +78,7 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 1000 documents" in {
-    implicit val mat = ActorFlowMaterializer()
+    implicit val mat = ActorMaterializer()
 
     val documents = (1 to 1000).map(i => $document("name" := s"fehmi$i"))
 
@@ -95,7 +95,7 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 100000 documents" in {
-    implicit val mat = ActorFlowMaterializer()
+    implicit val mat = ActorMaterializer()
 
     val documents: Source[List[BsonDocument], Unit] = Source {
       Iterable.tabulate(100) { _ =>
@@ -165,7 +165,7 @@ class MongoCollectionSpec
   }
 
   it should "group by and calculate a sum" in {
-    implicit val mat = ActorFlowMaterializer()
+    implicit val mat = ActorMaterializer()
 
     val documents: Seq[BsonDocument] = Seq(
       ("_id" := 1) ~ ("cust_id" := "abc1") ~ ("status" := "A") ~ ("amount" := 50),

@@ -1,6 +1,6 @@
 package net.fehmicansaglam.tepkin.examples
 
-import akka.stream.ActorFlowMaterializer
+import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
 import net.fehmicansaglam.bson.BsonDsl._
 import net.fehmicansaglam.bson.{BsonDocument, Bulk}
@@ -23,7 +23,7 @@ object SinkExample extends App {
   // Obtain reference to the collection "collection2" using database
   val collection2 = db("collection2")
 
-  implicit val mat = ActorFlowMaterializer()
+  implicit val mat = ActorMaterializer()
 
   // Batch document source
   def documents(n: Int): Source[List[BsonDocument], Unit] = Source {
