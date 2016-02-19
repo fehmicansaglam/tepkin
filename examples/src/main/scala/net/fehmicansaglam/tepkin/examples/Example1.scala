@@ -1,6 +1,6 @@
 package net.fehmicansaglam.tepkin.examples
 
-import akka.stream.ActorFlowMaterializer
+import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
@@ -31,7 +31,7 @@ object Example1 extends App {
   val collection2 = db("collection2")
 
   implicit val timeout: Timeout = 30.seconds
-  implicit val mat = ActorFlowMaterializer()
+  implicit val mat = ActorMaterializer()
 
   // Batch document source
   def documents(n: Int): Source[List[BsonDocument], Unit] = Source {

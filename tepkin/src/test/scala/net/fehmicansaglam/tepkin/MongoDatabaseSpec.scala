@@ -1,6 +1,6 @@
 package net.fehmicansaglam.tepkin
 
-import akka.stream.ActorFlowMaterializer
+import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import org.scalatest._
@@ -21,15 +21,14 @@ class MongoDatabaseSpec
   val client = MongoClient("mongodb://localhost")
   val db = client("tepkin")
 
-  import client.ec
-  import client.context
+  import client.{context, ec}
 
   implicit val timeout: Timeout = 30.seconds
 
   override protected def afterAll() = client.shutdown()
 
   "A MongoDatabase" should "list collections" in {
-    implicit val mat = ActorFlowMaterializer()
+    implicit val mat = ActorMaterializer()
 
     val result = for {
       source <- db.listCollections()

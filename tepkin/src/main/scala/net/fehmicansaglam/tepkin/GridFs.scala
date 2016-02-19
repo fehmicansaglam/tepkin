@@ -4,7 +4,7 @@ import java.io._
 import java.security.MessageDigest
 
 import akka.actor.ActorRef
-import akka.stream.FlowMaterializer
+import akka.stream.Materializer
 import akka.stream.io.SynchronousFileSource
 import akka.stream.scaladsl.Source
 import akka.util.{ByteString, Timeout}
@@ -33,7 +33,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
   /**
    * Puts the given file into GridFS.
    */
-  def put(file: File)(implicit mat: FlowMaterializer, ec: ExecutionContext, timeout: Timeout): Future[BsonDocument] = {
+  def put(file: File)(implicit mat: Materializer, ec: ExecutionContext, timeout: Timeout): Future[BsonDocument] = {
     val fileId = BsonObjectId.generate
     val zero = (0, MessageDigest.getInstance("MD5"))
 

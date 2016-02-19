@@ -83,6 +83,8 @@ object BsonDocument {
 
   def from(elements: TraversableOnce[(String, Any)]): BsonDocument = from(elements.toSeq: _*)
 
+  def from(map: Map[String, _]): BsonDocument = from(map.toSeq: _*)
+
   val empty: BsonDocument = BsonDocument()
 }
 

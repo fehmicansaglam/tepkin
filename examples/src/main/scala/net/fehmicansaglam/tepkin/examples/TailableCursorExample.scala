@@ -1,6 +1,6 @@
 package net.fehmicansaglam.tepkin.examples
 
-import akka.stream.ActorFlowMaterializer
+import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.tepkin.MongoClient
@@ -14,7 +14,7 @@ object TailableCursorExample extends App {
   import client.{context, ec}
 
   implicit val timeout: Timeout = 5.seconds
-  implicit val mat = ActorFlowMaterializer()
+  implicit val mat = ActorMaterializer()
 
   val db = client("tepkin")
   val messages = db("messages")
