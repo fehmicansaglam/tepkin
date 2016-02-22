@@ -1,5 +1,5 @@
 lazy val commonSettings = Seq(
-  organization := "net.fehmicansaglam",
+  organization := "com.github.jeroenr",
   version := "0.6-SNAPSHOT",
   scalaVersion := "2.11.7",
   scalacOptions := Seq(
@@ -56,7 +56,7 @@ lazy val publishSettings = Seq(
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   pomExtra := (
-    <url>http://github.com/fehmicansaglam/tepkin</url>
+    <url>http://github.com/jeroenr/tepkin</url>
       <licenses>
         <license>
           <name>Apache 2</name>
@@ -65,10 +65,15 @@ lazy val publishSettings = Seq(
         </license>
       </licenses>
       <scm>
-        <url>git@github.com:fehmicansaglam/tepkin.git</url>
-        <connection>scm:git@github.com:fehmicansaglam/tepkin.git</connection>
+        <url>git@github.com:jeroenr/tepkin.git</url>
+        <connection>scm:git@github.com:jeroenr/tepkin.git</connection>
       </scm>
       <developers>
+        <developer>
+          <id>jeroenr</id>
+          <name>Jeroen Rosenberg</name>
+          <url>http://github.com/jeroenr</url>
+        </developer>
         <developer>
           <id>fehmicansaglam</id>
           <name>Fehmi Can Saglam</name>

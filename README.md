@@ -31,7 +31,7 @@ Latest stable Tepkin release is **0.5** and is available on [Maven Central](http
 
 ```scala
 libraryDependencies ++= Seq(
-  "net.fehmicansaglam" %% "tepkin" % "0.5"
+  "com.github.jeroenr" %% "tepkin" % "0.5"
 )
 ```
 
@@ -40,7 +40,7 @@ Or if you want to be on the bleeding edge using snapshots, latest snapshot relea
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "net.fehmicansaglam" %% "tepkin" % "0.6-SNAPSHOT"
+  "com.github.jeroenr" %% "tepkin" % "0.6-SNAPSHOT"
 )
 ```
 
@@ -51,9 +51,9 @@ libraryDependencies ++= Seq(
 To construct a Bson document, you can either create BsonElements and join them with `~` or create a document directly.
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
-import net.fehmicansaglam.bson.element.BsonObjectId
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.bson.element.BsonObjectId
 import org.joda.time.DateTime
 
 // Construct a BsonDocument from BsonElements
@@ -81,10 +81,10 @@ val document = $document(
 There is an implicit conversion from any `BsonElement` to `BsonDocument` for convenience.
 
 ```scala
-import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.bson.element.BsonElement
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDocument
+import com.github.jeroenr.bson.element.BsonElement
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 val element: BsonElement = "name" := "fehmi"
 val document: BsonDocument = "name" := "fehmi"
@@ -95,7 +95,7 @@ val document: BsonDocument = "name" := "fehmi"
 To make a connection to MongoDB, use the `MongoClient` interface.
 
 ```scala
-import net.fehmicansaglam.tepkin.MongoClient
+import com.github.jeroenr.tepkin.MongoClient
 
 // Connect to a MongoDB node.
 val client = MongoClient("mongodb://localhost")
@@ -130,9 +130,9 @@ implicit val timeout: Timeout = 5.seconds
 ### Find documents
 
 ```scala
-import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDocument
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 val query: BsonDocument = "name" := "fehmi"
 
@@ -146,8 +146,8 @@ All find methods in Tepkin return an `akka.stream.scaladsl.Source[List[BsonDocum
 #### Insert a single document
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 val document = ("name" := "fehmi") ~ ("surname" := "saglam")
 collection.insert(document)
@@ -155,8 +155,8 @@ collection.insert(document)
 #### Insert a collection of documents
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 val documents = (1 to 100).map(i => $document("name" := s"fehmi$i"))
 collection.insert(documents)
@@ -166,9 +166,9 @@ collection.insert(documents)
 ```scala
 import akka.stream.ActorFlowMaterializer
 import akka.stream.scaladsl.Source
-import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDocument
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 import scala.collection.immutable.Iterable
 
@@ -187,8 +187,8 @@ collection.insertFromSource(documents).runForeach(_ => ())
 #### Update
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 import scala.concurrent.Future
 
@@ -208,8 +208,8 @@ val result: Future[UpdateResult] = for {
 Update and return the old document.
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 collection.findAndUpdate(
   query = Some("name" := "fehmi"),
@@ -220,8 +220,8 @@ collection.findAndUpdate(
 Update and return the updated document.
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 collection.findAndUpdate(
   query = Some("name" := "fehmi"),
@@ -232,9 +232,9 @@ collection.findAndUpdate(
 
 #### Create index
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
-import net.fehmicansaglam.tepkin.protocol.command.Index
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.tepkin.protocol.command.Index
 
 collection.createIndexes(Index(name = "name_surname", key = ("name" := 1) ~ ("surname" := 1)))
 ```
