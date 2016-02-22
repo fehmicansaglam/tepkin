@@ -108,7 +108,8 @@ class MongoPool(remote: InetSocketAddress,
   }
 
   override def postStop(): Unit = {
-    context.system.shutdown()
+    context.system.terminate()
+    ()
   }
 }
 

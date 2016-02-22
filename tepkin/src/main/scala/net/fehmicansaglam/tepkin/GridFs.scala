@@ -5,8 +5,7 @@ import java.security.MessageDigest
 
 import akka.actor.ActorRef
 import akka.stream.Materializer
-import akka.stream.io.SynchronousFileSource
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.{ByteString, Timeout}
 import net.fehmicansaglam.bson.BsonDocument
 import net.fehmicansaglam.bson.BsonDsl._
@@ -37,7 +36,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
     val fileId = BsonObjectId.generate
     val zero = (0, MessageDigest.getInstance("MD5"))
 
-    SynchronousFileSource(file, chunkSize).runFold(zero) { case ((n, md), data) =>
+    FileIO.fromFile(file, chunkSize).runFold(zero) { case ((n, md), data) =>
       md.update(data.asByteBuffer)
       val chunk = Chunk(fileId = fileId, n = n, data = BsonValueBinary(data, Generic))
       chunks.insert(chunk.toDoc)

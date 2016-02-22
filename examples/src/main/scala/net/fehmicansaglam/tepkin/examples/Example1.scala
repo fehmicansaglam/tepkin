@@ -34,7 +34,7 @@ object Example1 extends App {
   implicit val mat = ActorMaterializer()
 
   // Batch document source
-  def documents(n: Int): Source[List[BsonDocument], Unit] = Source {
+  def documents(n: Int): Source[List[BsonDocument], akka.NotUsed] = Source {
     Iterable.tabulate(n) { _ =>
       (1 to 1000).map(i => $document("name" := s"fehmi$i")).toList
     }
