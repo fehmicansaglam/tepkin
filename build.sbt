@@ -2,7 +2,6 @@ import ReleaseTransformations._
 
 lazy val commonSettings = Seq(
   organization := "com.github.jeroenr",
-  version := "0.6-SNAPSHOT",
   scalaVersion := "2.11.7",
   scalacOptions := Seq(
     "-deprecation",
