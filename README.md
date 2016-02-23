@@ -168,7 +168,7 @@ import scala.collection.immutable.Iterable
 
 implicit val mat = ActorFlowMaterializer()(client.context)
 
-val documents: Source[List[BsonDocument], Unit] = Source {
+val documents: Source[List[BsonDocument], akka.NotUsed] = Source {
   Iterable.tabulate(100) { _ =>
     (1 to 1000).map(i => $document("name" := s"fehmi$i")).toList
   }
