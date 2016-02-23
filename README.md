@@ -1,5 +1,7 @@
 # Tepkin
 
+[![Join the chat at https://gitter.im/jeroenr/tepkin](https://badges.gitter.im/jeroenr/tepkin.svg)](https://gitter.im/jeroenr/tepkin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Reactive MongoDB Driver for Scala built on top of Akka IO and Akka Streams.
 
 [![Build Status](https://travis-ci.org/fehmicansaglam/tepkin.svg?branch=master)](https://travis-ci.org/fehmicansaglam/tepkin)
