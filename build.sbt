@@ -1,3 +1,5 @@
+import ReleaseTransformations._
+
 lazy val commonSettings = Seq(
   organization := "com.github.jeroenr",
   version := "0.6-SNAPSHOT",
@@ -48,6 +50,8 @@ lazy val examples = project.in(file("examples"))
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishArtifact in Test := false,
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+  pomIncludeRepository := { _ => false },
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
@@ -80,5 +84,21 @@ lazy val publishSettings = Seq(
           <url>http://github.com/fehmicansaglam</url>
         </developer>
       </developers>
+    ),
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      ReleaseStep(action = Command.process("publishSigned", _)),
+      setNextVersion,
+      commitNextVersion,
+      ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
+      pushChanges
     )
 )
+
+
