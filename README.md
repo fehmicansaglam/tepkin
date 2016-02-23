@@ -7,6 +7,9 @@ Reactive MongoDB Driver for Scala built on top of Akka IO and Akka Streams.
 [![Progress](http://progressed.io/bar/0?title=0.6)]()
 [![Licence](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
+## Important Notice
+**This project has moved to https://github.com/jeroenr/tepkin**
+
 Only MongoDB 2.6+, Scala 2.11+ is supported. **Java support has been dropped. See details here: https://github.com/fehmicansaglam/tepkin/issues/22**
 
 Don't hesitate to ask questions in the [Tepkin Google Group](https://groups.google.com/forum/#!forum/tepkin) or join chat on Gitter:
