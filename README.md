@@ -17,8 +17,6 @@ Tepkin is a young but very active project and absolutely needs your help. Good w
 * Improving the performance
 * Adding to the documentation
 
-Please read our Scala Guide first: https://github.com/fehmicansaglam/tepkin/wiki/Scala-Guide
-
 ## Quick Start
 
 ### Setting up dependencies
