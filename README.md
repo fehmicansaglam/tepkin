@@ -1,4 +1,4 @@
-# Important Notice
+# Deprecation Notice
 **This project has moved to https://github.com/jeroenr/tepkin**
 
 # Tepkin
