@@ -8,6 +8,7 @@ import com.github.jeroenr.bson.Implicits._
 import com.github.jeroenr.bson.{BsonDocument, BsonDsl, Implicits}
 import com.github.jeroenr.tepkin.protocol.command.Index
 import com.github.jeroenr.tepkin.protocol.exception.WriteException
+import com.github.simplyscala.{MongodProps, MongoEmbedDatabase}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 
@@ -15,6 +16,7 @@ import scala.collection.immutable.Iterable
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+@DoNotDiscover
 class MongoCollectionSpec
   extends FlatSpec
   with Matchers
@@ -25,25 +27,35 @@ class MongoCollectionSpec
 
   override implicit val patienceConfig = PatienceConfig(timeout = 30.seconds, interval = 1.seconds)
 
-  val client = MongoClient("mongodb://localhost")
-  val db = client("tepkin")
-  val collection = db("mongo_collection_spec")
+  var client: MongoClient = _
+  var db: MongoDatabase = _
+  var collection: MongoCollection = _
 
-  import client.{context, ec}
+  override protected def beforeAll() = {
+    client = MongoClient("mongodb://localhost:12345")
+    db = client("tepkin")
+    collection = db("mongo_collection_spec")
+  }
 
   implicit val timeout: Timeout = 30.seconds
 
   before {
+    implicit val context = client.context
+    implicit val ec = client.ec
     Await.ready(collection.drop(), 5.seconds)
   }
 
   after {
+    implicit val context = client.context
+    implicit val ec = client.ec
     Await.ready(collection.drop(), 5.seconds)
   }
 
   override protected def afterAll() = client.shutdown()
 
   "A MongoCollection" should "findAndUpdate" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")
 
     val result = for {
@@ -61,6 +73,8 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 10 documents" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
     implicit val mat = ActorMaterializer()
 
     val documents = (1 to 10).map(i => $document("name" := s"fehmi$i"))
@@ -78,6 +92,8 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 1000 documents" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
     implicit val mat = ActorMaterializer()
 
     val documents = (1 to 1000).map(i => $document("name" := s"fehmi$i"))
@@ -95,6 +111,8 @@ class MongoCollectionSpec
   }
 
   it should "insert and find 100000 documents" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
     implicit val mat = ActorMaterializer()
 
     val documents: Source[List[BsonDocument], akka.NotUsed] = Source {
@@ -116,6 +134,8 @@ class MongoCollectionSpec
   }
 
   it should "update" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
     val document = ("name" := "fehmi") ~ ("surname" := "saglam")
 
     val result = for {
@@ -137,6 +157,8 @@ class MongoCollectionSpec
   }
 
   it should "create indexes" ignore {
+    implicit val context = client.context
+    implicit val ec = client.ec
     val result = for {
       create <- collection.createIndexes(Index(name = "name_surname", key = ("name" := 1) ~ ("surname" := 1)))
       list <- collection.getIndexes()
@@ -148,6 +170,8 @@ class MongoCollectionSpec
   }
 
   it should "find distinct values" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
     val documents: Seq[BsonDocument] = Seq("name" := "aa", "name" := "bb", "name" := "cc", "name" := "aa")
 
     val result = for {
@@ -165,6 +189,8 @@ class MongoCollectionSpec
   }
 
   it should "group by and calculate a sum" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
     implicit val mat = ActorMaterializer()
 
     val documents: Seq[BsonDocument] = Seq(
@@ -197,6 +223,8 @@ class MongoCollectionSpec
   }
 
   it should "throw WriteException" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
     val thrown = the[WriteException] thrownBy {
       Await.result(collection.update("name" := "fehmi", "$unknown" := "whatever"), 5.seconds)
     }

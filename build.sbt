@@ -23,6 +23,8 @@ lazy val commonSettings = Seq(
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
 ) ++ publishSettings
 
+parallelExecution in Test := false
+
 shellPrompt in ThisBuild := Common.prompt
 
 lazy val root = project.in(file("."))
