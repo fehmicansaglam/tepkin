@@ -28,10 +28,9 @@ class BsonDslSpec extends WordSpec with Matchers {
 
     "handle None" in {
       val doc = BsonDocument("maybe" := None, "present" := Some(1))
-      doc.get("maybe") shouldBe Some(BsonNullValue)
-      doc.getOpt("maybe") shouldBe None
-      doc.getAs[Int]("maybe") shouldBe Some(null)
-      doc.getAsOpt[Int]("maybe") shouldBe None
+      doc.get("maybe") shouldBe None
+      doc.getAs[Int]("maybe") shouldBe None
+      doc.getAs[Int]("present") shouldBe Some(1)
     }
   }
 }

@@ -6,7 +6,9 @@ import com.github.jeroenr.bson.element.{BsonNullValue, BsonNull, BsonElement, Bs
 
 import language.postfixOps
 
-case class BsonDocument(elements: BsonElement*) extends BsonValue {
+case class BsonDocument(elems: BsonElement*) extends BsonValue {
+
+  val elements = elems.filterNot(_.value == BsonNullValue)
 
   protected lazy val flat: Seq[(String, BsonValue)] = elements.flatMap {
     case element@BsonObject(name, value) =>
@@ -48,12 +50,6 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
   def get[T <: BsonValue](key: String): Option[T] = {
     internal.get(key).map(_.asInstanceOf[T])
   }
-  /**
-   * Supports nested documents with . operator i.e. `foo.bar.baz`
-   */
-  def getOpt[T <: BsonValue](key: String): Option[T] = {
-    internal.get(key).filterNot(BsonNullValue ==).map(_.asInstanceOf[T])
-  }
 
   /**
    * Supports nested documents with . operator i.e. `foo.bar.baz`
@@ -61,12 +57,6 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
   def getAs[T](key: String): Option[T] = {
     internal.get(key).map(_.asInstanceOf[Identifiable[T]].identifier)
   }
-
-  /**
-   * Supports nested documents with . operator i.e. `foo.bar.baz`
-   */
-  def getAsOpt[T](key: String): Option[T] =
-    internal.get(key).filterNot(BsonNullValue ==).map(_.asInstanceOf[Identifiable[T]].identifier)
 
   /**
    * Supports nested documents with . operator i.e. `foo.bar.baz`
