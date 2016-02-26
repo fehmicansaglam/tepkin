@@ -1,8 +1,7 @@
 package com.github.jeroenr.tepkin.protocol.command
 
 import com.github.jeroenr.bson.BsonDsl._
-import com.github.jeroenr.bson.{BsonDocument, BsonDsl}
-import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.bson.{BsonDocument}
 
 /**
  * The update command modifies documents in a collection. A single update command can contain multiple update

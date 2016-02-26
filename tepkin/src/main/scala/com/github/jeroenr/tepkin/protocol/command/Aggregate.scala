@@ -1,8 +1,7 @@
 package com.github.jeroenr.tepkin.protocol.command
 
 import com.github.jeroenr.bson.BsonDsl._
-import com.github.jeroenr.bson.{BsonDocument, BsonDsl}
-import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.bson.BsonDocument
 
 /**
  * Performs aggregation operation using the aggregation pipeline. The pipeline allows users to process data from a

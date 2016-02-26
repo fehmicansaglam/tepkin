@@ -232,4 +232,26 @@ class MongoCollectionSpec
     thrown.writeErrors should have size 1
     thrown.writeErrors.head.errmsg shouldBe "Unknown modifier: $unknown"
   }
+
+  it should "handle null value indexing" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
+    implicit val mat = ActorMaterializer()
+
+    val document = ("maybe" := None) ~ ("present" := Some(1)) ~ ("null" := null)
+
+    val result = for {
+      insert <- collection.insert(Seq(document))
+      list <- collection.find(BsonDocument.empty).runFold(List.empty[BsonDocument])(_ ++ _)
+    } yield list
+
+    whenReady(result) { docs =>
+      docs.head.get("maybe") shouldBe None
+      docs.head.getAs[Int]("maybe") shouldBe None
+      docs.head.get("null") shouldBe None
+      docs.head.get("doesnotexist") shouldBe None
+      docs.head.getAs[Int]("present") shouldBe Some(1)
+    }
+
+  }
 }
