@@ -16,8 +16,9 @@ object BsonDsl {
       case value: DateTime => BsonDateTime(name, value)
       case value: Int => BsonInteger(name, value)
       case value: Long => BsonLong(name, value)
-      case value: List[_] => BsonArray(name, $array(value))
+      case value: Option[_] => value.map(name := _).getOrElse($null(name))
       case value: Map[_, _] => BsonObject(name, BsonDocument.from(value.map { case (k, v) => (k.toString, v) }))
+      case value: Traversable[_] => BsonArray(name, $array(value.toSeq:_*))
       // For expressions like "$match" := ("status" := "A")
       case value: BsonElement => BsonObject(name, value.toDoc)
       case value: BsonValueDouble => BsonDouble(name, value)
@@ -33,8 +34,6 @@ object BsonDsl {
       case value: BsonValueLong => BsonLong(name, value)
     }
 
-    def :=[A](value: Option[A])(implicit ev: A => BsonValue): Option[BsonElement] = value map (name := _)
-
   }
 
   implicit def elementToDocument(element: BsonElement): BsonDocument = BsonDocument(element)
@@ -46,7 +45,7 @@ object BsonDsl {
       case (value, index) => s"$index" := value
     }: _*))
 
-  def $array(values: List[_]): BsonValueArray = $array(values: _*)
+  def $array(values: Traversable[_]): BsonValueArray = $array(values.toSeq: _*)
 
   def $or(documents: BsonDocument*): BsonElement = "$or" := $array(documents: _*)
 

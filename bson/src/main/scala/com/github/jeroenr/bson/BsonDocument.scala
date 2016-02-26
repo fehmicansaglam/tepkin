@@ -2,7 +2,9 @@ package com.github.jeroenr.bson
 
 import akka.util.{ByteString, ByteStringBuilder}
 import com.github.jeroenr.bson.BsonDsl._
-import com.github.jeroenr.bson.element.{BsonElement, BsonObject}
+import com.github.jeroenr.bson.element.{BsonNullValue, BsonNull, BsonElement, BsonObject}
+
+import language.postfixOps
 
 case class BsonDocument(elements: BsonElement*) extends BsonValue {
 
@@ -46,6 +48,12 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
   def get[T <: BsonValue](key: String): Option[T] = {
     internal.get(key).map(_.asInstanceOf[T])
   }
+  /**
+   * Supports nested documents with . operator i.e. `foo.bar.baz`
+   */
+  def getOpt[T <: BsonValue](key: String): Option[T] = {
+    internal.get(key).filterNot(BsonNullValue ==).map(_.asInstanceOf[T])
+  }
 
   /**
    * Supports nested documents with . operator i.e. `foo.bar.baz`
@@ -53,6 +61,12 @@ case class BsonDocument(elements: BsonElement*) extends BsonValue {
   def getAs[T](key: String): Option[T] = {
     internal.get(key).map(_.asInstanceOf[Identifiable[T]].identifier)
   }
+
+  /**
+   * Supports nested documents with . operator i.e. `foo.bar.baz`
+   */
+  def getAsOpt[T](key: String): Option[T] =
+    internal.get(key).filterNot(BsonNullValue ==).map(_.asInstanceOf[Identifiable[T]].identifier)
 
   /**
    * Supports nested documents with . operator i.e. `foo.bar.baz`
