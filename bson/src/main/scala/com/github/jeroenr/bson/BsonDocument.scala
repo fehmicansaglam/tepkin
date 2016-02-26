@@ -6,7 +6,7 @@ import com.github.jeroenr.bson.element.{BsonNullValue, BsonNull, BsonElement, Bs
 
 import language.postfixOps
 
-case class BsonDocument(elems: BsonElement*) extends BsonValue {
+case class BsonDocument(private val elems: BsonElement*) extends BsonValue {
 
   val elements = elems.filterNot(_.value == BsonNullValue)
 

@@ -1,7 +1,7 @@
 package com.github.jeroenr.bson
 
 import BsonDsl._
-import com.github.jeroenr.bson.element.{BsonNullValue, BsonObject}
+import com.github.jeroenr.bson.Implicits.{BsonValueArray, BsonValueString}
 import org.scalatest.{Matchers, WordSpec}
 
 class BsonDslSpec extends WordSpec with Matchers {
@@ -19,6 +19,13 @@ class BsonDslSpec extends WordSpec with Matchers {
     "handle collections" in {
       val doc = BsonDocument("items" := (1 to 10))
       doc.getAsList[Int]("items") shouldBe Some(1 to 10)
+    }
+
+    "handle deep collections" in {
+      val doc = BsonDocument("items" := Seq("a", Seq("b")))
+      val elements = doc.getAs[BsonDocument]("items").get.elements
+      elements.head.value shouldBe new BsonValueString("a")
+      elements.last.value shouldBe $array("b")
     }
 
     "handle Some" in {
