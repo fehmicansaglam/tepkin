@@ -232,4 +232,48 @@ class MongoCollectionSpec
     thrown.writeErrors should have size 1
     thrown.writeErrors.head.errmsg shouldBe "Unknown modifier: $unknown"
   }
+
+  it should "handle null value indexing" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
+    implicit val mat = ActorMaterializer()
+
+    val document = ("maybe" := None) ~ ("present" := Some(1)) ~ ("null" := null)
+
+    val result = for {
+      insert <- collection.insert(Seq(document))
+      list <- collection.find(BsonDocument.empty).runFold(List.empty[BsonDocument])(_ ++ _)
+    } yield list
+
+    whenReady(result) { docs =>
+      docs.head.get("maybe") shouldBe None
+      docs.head.getAs[Int]("maybe") shouldBe None
+      docs.head.get("null") shouldBe None
+      docs.head.get("doesnotexist") shouldBe None
+      docs.head.getAs[Int]("present") shouldBe Some(1)
+    }
+
+  }
+
+  it should "handle collection indexing" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
+    implicit val mat = ActorMaterializer()
+
+    val document = ("range" := (1 to 10)) ~ ("seq" := Seq(1)) ~ ("list" := List("a",List("b")))
+
+    val result = for {
+      insert <- collection.insert(Seq(document))
+      list <- collection.find(BsonDocument.empty).runFold(List.empty[BsonDocument])(_ ++ _)
+    } yield list
+
+    whenReady(result) { docs =>
+      docs.head.getAsList("range") shouldBe Some(1 to 10)
+      docs.head.getAsList("seq") shouldBe Some(List(1))
+      val elements = docs.head.getAs[BsonDocument]("list").get.elements
+      elements.head.value shouldBe new BsonValueString("a")
+      elements.last.value shouldBe $array("b")
+    }
+
+  }
 }

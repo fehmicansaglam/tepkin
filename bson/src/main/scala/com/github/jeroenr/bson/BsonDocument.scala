@@ -2,9 +2,13 @@ package com.github.jeroenr.bson
 
 import akka.util.{ByteString, ByteStringBuilder}
 import com.github.jeroenr.bson.BsonDsl._
-import com.github.jeroenr.bson.element.{BsonElement, BsonObject}
+import com.github.jeroenr.bson.element.{BsonNullValue, BsonNull, BsonElement, BsonObject}
 
-case class BsonDocument(elements: BsonElement*) extends BsonValue {
+import language.postfixOps
+
+case class BsonDocument(private val elems: BsonElement*) extends BsonValue {
+
+  val elements = elems.filterNot(_.value == BsonNullValue)
 
   protected lazy val flat: Seq[(String, BsonValue)] = elements.flatMap {
     case element@BsonObject(name, value) =>

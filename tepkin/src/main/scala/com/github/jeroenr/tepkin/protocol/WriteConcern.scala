@@ -1,8 +1,7 @@
 package com.github.jeroenr.tepkin.protocol
 
 import com.github.jeroenr.bson.BsonDsl._
-import com.github.jeroenr.bson.{BsonDocument, BsonDsl}
-import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.bson.BsonDocument
 
 case class WriteConcern(w: Either[String, Int] = Right(1),
                         j: Boolean = false,

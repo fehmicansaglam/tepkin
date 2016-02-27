@@ -1,8 +1,7 @@
 package com.github.jeroenr.tepkin.protocol.command
 
 import com.github.jeroenr.bson.BsonDsl._
-import com.github.jeroenr.bson.{BsonDocument, BsonDsl}
-import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.bson.{BsonDocument}
 
 /**
  * @param key Specifies the index’s fields. For each field, specify a key-value pair in which the key is the name

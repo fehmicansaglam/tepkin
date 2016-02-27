@@ -1,8 +1,7 @@
 package com.github.jeroenr.tepkin.protocol.command
 
 import com.github.jeroenr.bson.BsonDsl._
-import com.github.jeroenr.bson.{BsonDocument, BsonDsl, BsonValue}
-import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.bson.{BsonDocument, BsonValue}
 
 case class GetLastError(databaseName: String,
                         j: Option[Boolean] = None,
