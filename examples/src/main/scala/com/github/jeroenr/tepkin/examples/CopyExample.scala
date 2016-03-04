@@ -7,6 +7,7 @@ import com.github.jeroenr.tepkin.MongoClient
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
+import language.postfixOps
 
 object CopyExample extends App {
   // Connect to Mongo client
