@@ -1,6 +1,7 @@
 package com.github.jeroenr.tepkin.examples
 
 import akka.stream.ActorMaterializer
+import akka.util.Timeout
 import com.github.jeroenr.bson.BsonDocument
 import com.github.jeroenr.tepkin.MongoClient
 
@@ -11,7 +12,8 @@ object CopyExample extends App {
   // Connect to Mongo client
   val client = MongoClient("mongodb://localhost")
 
-  import client.context
+  // Use client's execution context for async operations
+  import client.{context, ec}
 
   // Obtain reference to database "tepkin" using client
   val db = client("tepkin")
@@ -24,7 +26,7 @@ object CopyExample extends App {
 
   implicit val mat = ActorMaterializer()
 
-  implicit val timeout: akka.util.Timeout = 60 seconds
+  implicit val timeout: Timeout = 30.seconds
 
   val src = source.find(BsonDocument.empty)
     .mapConcat(identity)
