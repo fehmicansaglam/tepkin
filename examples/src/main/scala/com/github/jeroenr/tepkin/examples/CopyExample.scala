@@ -24,6 +24,8 @@ object CopyExample extends App {
 
   implicit val mat = ActorMaterializer()
 
+  implicit val timeout: akka.util.Timeout = 60 seconds
+
   val src = source.find(BsonDocument.empty)
     .mapConcat(identity)
     .groupedWithin(1000, 10 millis) // Mongo batch insert has a maximum of 1000 items
