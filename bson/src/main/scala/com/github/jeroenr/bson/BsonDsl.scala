@@ -55,7 +55,7 @@ object BsonDsl {
 
   def $query(document: BsonDocument): BsonElement = "$query" := document
 
-  def $orderBy(document: BsonDocument): BsonElement = "$orderBy" := document
+  def $orderBy(document: BsonDocument): BsonElement = "$orderby" := document
 
   def $null(name: String): BsonNull = BsonNull(name)
 }
