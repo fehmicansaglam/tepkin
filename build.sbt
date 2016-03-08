@@ -1,6 +1,7 @@
+import ReleaseTransformations._
+
 lazy val commonSettings = Seq(
-  organization := "net.fehmicansaglam",
-  version := "0.6-SNAPSHOT",
+  organization := "com.github.jeroenr",
   scalaVersion := "2.11.7",
   scalacOptions := Seq(
     "-deprecation",
@@ -48,6 +49,8 @@ lazy val examples = project.in(file("examples"))
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishArtifact in Test := false,
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
+  pomIncludeRepository := { _ => false },
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
@@ -56,7 +59,7 @@ lazy val publishSettings = Seq(
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   pomExtra := (
-    <url>http://github.com/fehmicansaglam/tepkin</url>
+    <url>http://github.com/jeroenr/tepkin</url>
       <licenses>
         <license>
           <name>Apache 2</name>
@@ -65,15 +68,36 @@ lazy val publishSettings = Seq(
         </license>
       </licenses>
       <scm>
-        <url>git@github.com:fehmicansaglam/tepkin.git</url>
-        <connection>scm:git@github.com:fehmicansaglam/tepkin.git</connection>
+        <url>git@github.com:jeroenr/tepkin.git</url>
+        <connection>scm:git@github.com:jeroenr/tepkin.git</connection>
       </scm>
       <developers>
+        <developer>
+          <id>jeroenr</id>
+          <name>Jeroen Rosenberg</name>
+          <url>http://github.com/jeroenr</url>
+        </developer>
         <developer>
           <id>fehmicansaglam</id>
           <name>Fehmi Can Saglam</name>
           <url>http://github.com/fehmicansaglam</url>
         </developer>
       </developers>
+    ),
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      ReleaseStep(action = Command.process("publishSigned", _)),
+      setNextVersion,
+      commitNextVersion,
+      ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
+      pushChanges
     )
 )
+
+
