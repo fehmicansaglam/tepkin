@@ -21,15 +21,15 @@ Tepkin is a young but very active project and absolutely needs your help. Good w
 
 ### Setting up dependencies
 
-Latest stable Tepkin release is **0.6** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin). Just add the following dependency:
+Latest stable Tepkin release is **0.7** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin). Just add the following dependency:
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.github.jeroenr" %% "tepkin" % "0.6"
+  "com.github.jeroenr" %% "tepkin" % "0.7"
 )
 ```
 
-Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.7-SNAPSHOT**. Add the following repository and dependency:
+Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.8-SNAPSHOT**. Add the following repository and dependency:
 ```scala
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
