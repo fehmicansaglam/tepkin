@@ -60,12 +60,14 @@ trait Dao[ID, E <: Entity[ID]] {
     }
   }
 
-  def update(entity: E, writeConcern: Option[WriteConcern] = None)
+  def update(entity: E, writeConcern: Option[WriteConcern] = None, upsert: Option[Boolean] = None, multi: Option[Boolean] = None)
             (implicit pide: Pide[ID, E], ec: ExecutionContext, timeout: Timeout): Future[UpdateResult] = {
     collection.update(
       query = "_id" := pide.id(entity.id),
       update = pide.write(entity),
-      writeConcern = writeConcern)
+      writeConcern = writeConcern,
+      upsert = upsert,
+      multi = multi)
   }
 
 }
