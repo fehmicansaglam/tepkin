@@ -34,7 +34,7 @@ Or if you want to be on the bleeding edge using snapshots, latest snapshot relea
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "com.github.jeroenr" %% "tepkin" % "0.7-SNAPSHOT"
+  "com.github.jeroenr" %% "tepkin" % "0.8-SNAPSHOT"
 )
 ```
 
