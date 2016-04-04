@@ -3,7 +3,23 @@ package com.github.jeroenr.tepkin.protocol.result
 import com.github.jeroenr.bson.BsonDocument
 import com.github.jeroenr.tepkin.protocol.exception.{WriteConcernException, WriteException}
 
-case class WriteError(code: Int, errmsg: String)
+trait CodeAndErrorMsg {
+  val code: Int
+  val errmsg: String
+}
+
+case class Error(code: Int, errmsg: String) extends CodeAndErrorMsg
+
+object Error {
+  def apply(document: BsonDocument): Option[Error] = {
+    for {
+      code <- document.getAs[Int]("code")
+      errMsg <- document.getAs[String]("errmsg")
+    } yield Error(code, errMsg)
+  }
+}
+
+case class WriteError(code: Int, errmsg: String) extends CodeAndErrorMsg
 
 object WriteError {
   def apply(document: BsonDocument): WriteError = {
@@ -13,7 +29,7 @@ object WriteError {
   }
 }
 
-case class WriteConcernError(code: Int, errInfo: BsonDocument, errmsg: String)
+case class WriteConcernError(code: Int, errInfo: BsonDocument, errmsg: String) extends CodeAndErrorMsg
 
 object WriteConcernError {
   def apply(document: BsonDocument): WriteConcernError = {

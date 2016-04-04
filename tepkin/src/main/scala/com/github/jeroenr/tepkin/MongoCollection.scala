@@ -242,6 +242,7 @@ class MongoCollection(databaseName: String,
       InsertResult(
         document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
         document.getAs[Int]("n").getOrElse(0),
+        error = Error(document),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       ).convertErrorToException()
