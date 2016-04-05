@@ -100,6 +100,7 @@ class MongoCollection(databaseName: String,
       DeleteResult(
         document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
         document.getAs[Int]("n").getOrElse(0),
+        operationError = OperationError(document),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       ).convertErrorToException()
@@ -242,7 +243,7 @@ class MongoCollection(databaseName: String,
       InsertResult(
         document.get[BsonValueNumber]("ok").map(_.toInt).getOrElse(0) == 1,
         document.getAs[Int]("n").getOrElse(0),
-        error = Error(document),
+        operationError = OperationError(document),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       ).convertErrorToException()
@@ -320,6 +321,7 @@ class MongoCollection(databaseName: String,
         n = document.get[BsonValueNumber]("n").map(_.toInt).getOrElse(0),
         nModified = document.get[BsonValueNumber]("nModified").map(_.toInt).getOrElse(0),
         upserted = document.getAsList[BsonDocument]("upserted"),
+        operationError = OperationError(document),
         writeErrors = document.getAsList[BsonDocument]("writeErrors").map(_.map(WriteError(_))),
         writeConcernError = document.getAs[BsonDocument]("writeConcernError").map(WriteConcernError(_))
       ).convertErrorToException()

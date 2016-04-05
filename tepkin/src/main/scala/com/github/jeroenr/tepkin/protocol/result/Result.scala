@@ -11,13 +11,13 @@ case class CountResult(missing: Option[Boolean] = None, n: Int, ok: Boolean) ext
 
 case class DeleteResult(ok: Boolean,
                         n: Int,
-                        error: Option[Error] = None,
+                        operationError: Option[OperationError] = None,
                         writeErrors: Option[List[WriteError]] = None,
                         writeConcernError: Option[WriteConcernError] = None) extends WriteResult
 
 case class InsertResult(ok: Boolean,
                         n: Int,
-                        error: Option[Error] = None,
+                        operationError: Option[OperationError] = None,
                         writeErrors: Option[List[WriteError]] = None,
                         writeConcernError: Option[WriteConcernError] = None) extends WriteResult
 
@@ -25,7 +25,7 @@ case class UpdateResult(ok: Boolean,
                         n: Int,
                         nModified: Int,
                         upserted: Option[List[BsonDocument]],
-                        error: Option[Error] = None,
+                        operationError: Option[OperationError] = None,
                         writeErrors: Option[List[WriteError]] = None,
                         writeConcernError: Option[WriteConcernError] = None) extends WriteResult
 
