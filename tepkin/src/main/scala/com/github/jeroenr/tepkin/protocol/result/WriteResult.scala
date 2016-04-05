@@ -1,9 +1,25 @@
 package com.github.jeroenr.tepkin.protocol.result
 
 import com.github.jeroenr.bson.BsonDocument
-import com.github.jeroenr.tepkin.protocol.exception.{WriteConcernException, WriteException}
+import com.github.jeroenr.tepkin.protocol.exception.{OperationException, WriteConcernException, WriteException}
 
-case class WriteError(code: Int, errmsg: String)
+trait CodeAndErrorMsg {
+  val code: Int
+  val errmsg: String
+}
+
+case class OperationError(code: Int, errmsg: String) extends CodeAndErrorMsg
+
+object OperationError {
+  def apply(document: BsonDocument): Option[OperationError] = {
+    for {
+      code <- document.getAs[Int]("code")
+      errMsg <- document.getAs[String]("errmsg")
+    } yield OperationError(code, errMsg)
+  }
+}
+
+case class WriteError(code: Int, errmsg: String) extends CodeAndErrorMsg
 
 object WriteError {
   def apply(document: BsonDocument): WriteError = {
@@ -13,7 +29,7 @@ object WriteError {
   }
 }
 
-case class WriteConcernError(code: Int, errInfo: BsonDocument, errmsg: String)
+case class WriteConcernError(code: Int, errInfo: BsonDocument, errmsg: String) extends CodeAndErrorMsg
 
 object WriteConcernError {
   def apply(document: BsonDocument): WriteConcernError = {
@@ -29,9 +45,13 @@ trait WriteResult extends Result {
 
   def n: Int
 
+  def operationError: Option[OperationError]
+
   def writeErrors: Option[List[WriteError]]
 
   def writeConcernError: Option[WriteConcernError]
+
+  def hasOperationError: Boolean = operationError.isDefined
 
   def hasWriteError: Boolean = writeErrors.exists(_.nonEmpty)
 
@@ -41,12 +61,10 @@ trait WriteResult extends Result {
    * Used to explicitly throw an exception when the result is not OK.
    */
   def convertErrorToException(): this.type = {
-    if (!ok && !hasWriteError && !hasWriteConcernError) {
-      throw new IllegalStateException("Result is not OK but there are no errors.")
-    }
-
+    if(hasOperationError) throw OperationException(operationError.get)
     if (hasWriteError) throw WriteException(writeErrors.get)
     if (hasWriteConcernError) throw WriteConcernException(writeConcernError.get)
+    if (!ok) throw new IllegalStateException("Result is not OK but there are no errors.")
 
     this
   }

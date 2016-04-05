@@ -7,7 +7,7 @@ import com.github.jeroenr.bson.BsonDsl._
 import com.github.jeroenr.bson.Implicits._
 import com.github.jeroenr.bson.{BsonDocument, BsonDsl, Implicits}
 import com.github.jeroenr.tepkin.protocol.command.Index
-import com.github.jeroenr.tepkin.protocol.exception.WriteException
+import com.github.jeroenr.tepkin.protocol.exception.{OperationException, WriteException}
 import com.github.simplyscala.{MongodProps, MongoEmbedDatabase}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
@@ -107,6 +107,23 @@ class MongoCollectionSpec
 
     whenReady(result) { count =>
       count shouldBe 1000
+    }
+  }
+
+  it should "fail with operation exception when inserting more than 1000 elements in one batch" in {
+    implicit val context = client.context
+    implicit val ec = client.ec
+    implicit val mat = ActorMaterializer()
+
+    val documents = (1 to 1500).map(i => $document("name" := s"jeroen$i"))
+
+    val insertResult = collection.insert(documents)
+
+
+    whenReady(insertResult.failed) { e =>
+      e shouldBe a [OperationException]
+      e.asInstanceOf[OperationException].error.code shouldBe 16
+      e.asInstanceOf[OperationException].error.errmsg shouldBe "exceeded maximum write batch size of 1000"
     }
   }
 
