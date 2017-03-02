@@ -5,16 +5,12 @@
 
 Reactive MongoDB Driver for Scala built on top of Akka IO and Akka Streams.
 
-[![Build Status](https://travis-ci.org/fehmicansaglam/tepkin.svg?branch=master)](https://travis-ci.org/fehmicansaglam/tepkin)
-[![Codacy Badge](https://www.codacy.com/project/badge/d5039668605d44fea3adf2302e7e6c31)](https://www.codacy.com/public/fehmicansaglam/tepkin)
-[![Progress](http://progressed.io/bar/0?title=0.6)]()
-[![Licence](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Join the chat at https://gitter.im/jeroenr/tepkin](https://badges.gitter.im/jeroenr/tepkin.svg)](https://gitter.im/jeroenr/tepkin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/jeroenr/tepkin.svg?branch=master)](https://travis-ci.org/jeroenr/tepkin)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jeroenr/tepkin_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jeroenr/tepkin_2.11)
+[![License](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-Only MongoDB 2.6+, Scala 2.11+ is supported. **Java support has been dropped. See details here: https://github.com/fehmicansaglam/tepkin/issues/22**
-
-Don't hesitate to ask questions in the [Tepkin Google Group](https://groups.google.com/forum/#!forum/tepkin) or join chat on Gitter:
-
-[![Join the chat at https://gitter.im/fehmicansaglam/tepkin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fehmicansaglam/tepkin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Only MongoDB 2.6+, Scala 2.11+ is supported.
 
 ## Contributions
 Tepkin is a young but very active project and absolutely needs your help. Good ways to contribute include:
@@ -24,26 +20,24 @@ Tepkin is a young but very active project and absolutely needs your help. Good w
 * Improving the performance
 * Adding to the documentation
 
-Please read our Scala Guide first: https://github.com/fehmicansaglam/tepkin/wiki/Scala-Guide
-
 ## Quick Start
 
 ### Setting up dependencies
 
-Latest stable Tepkin release is **0.5** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin). Just add the following dependency:
+Latest stable Tepkin release is **0.7** and is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ctepkin). Just add the following dependency:
 
 ```scala
 libraryDependencies ++= Seq(
-  "net.fehmicansaglam" %% "tepkin" % "0.5"
+  "com.github.jeroenr" %% "tepkin" % "0.7"
 )
 ```
 
-Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.6-SNAPSHOT**. Add the following repository and dependency:
+Or if you want to be on the bleeding edge using snapshots, latest snapshot release is **0.8-SNAPSHOT**. Add the following repository and dependency:
 ```scala
 resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 libraryDependencies ++= Seq(
-  "net.fehmicansaglam" %% "tepkin" % "0.6-SNAPSHOT"
+  "com.github.jeroenr" %% "tepkin" % "0.8-SNAPSHOT"
 )
 ```
 
@@ -54,9 +48,9 @@ libraryDependencies ++= Seq(
 To construct a Bson document, you can either create BsonElements and join them with `~` or create a document directly.
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
-import net.fehmicansaglam.bson.element.BsonObjectId
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.bson.element.BsonObjectId
 import org.joda.time.DateTime
 
 // Construct a BsonDocument from BsonElements
@@ -84,10 +78,10 @@ val document = $document(
 There is an implicit conversion from any `BsonElement` to `BsonDocument` for convenience.
 
 ```scala
-import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.bson.element.BsonElement
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDocument
+import com.github.jeroenr.bson.element.BsonElement
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 val element: BsonElement = "name" := "fehmi"
 val document: BsonDocument = "name" := "fehmi"
@@ -98,7 +92,7 @@ val document: BsonDocument = "name" := "fehmi"
 To make a connection to MongoDB, use the `MongoClient` interface.
 
 ```scala
-import net.fehmicansaglam.tepkin.MongoClient
+import com.github.jeroenr.tepkin.MongoClient
 
 // Connect to a MongoDB node.
 val client = MongoClient("mongodb://localhost")
@@ -133,9 +127,9 @@ implicit val timeout: Timeout = 5.seconds
 ### Find documents
 
 ```scala
-import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDocument
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 val query: BsonDocument = "name" := "fehmi"
 
@@ -149,8 +143,8 @@ All find methods in Tepkin return an `akka.stream.scaladsl.Source[List[BsonDocum
 #### Insert a single document
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 val document = ("name" := "fehmi") ~ ("surname" := "saglam")
 collection.insert(document)
@@ -158,8 +152,8 @@ collection.insert(document)
 #### Insert a collection of documents
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 val documents = (1 to 100).map(i => $document("name" := s"fehmi$i"))
 collection.insert(documents)
@@ -169,15 +163,15 @@ collection.insert(documents)
 ```scala
 import akka.stream.ActorFlowMaterializer
 import akka.stream.scaladsl.Source
-import net.fehmicansaglam.bson.BsonDocument
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDocument
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 import scala.collection.immutable.Iterable
 
 implicit val mat = ActorFlowMaterializer()(client.context)
 
-val documents: Source[List[BsonDocument], Unit] = Source {
+val documents: Source[List[BsonDocument], akka.NotUsed] = Source {
   Iterable.tabulate(100) { _ =>
     (1 to 1000).map(i => $document("name" := s"fehmi$i")).toList
   }
@@ -190,8 +184,8 @@ collection.insertFromSource(documents).runForeach(_ => ())
 #### Update
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 import scala.concurrent.Future
 
@@ -211,8 +205,8 @@ val result: Future[UpdateResult] = for {
 Update and return the old document.
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 collection.findAndUpdate(
   query = Some("name" := "fehmi"),
@@ -223,8 +217,8 @@ collection.findAndUpdate(
 Update and return the updated document.
 
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
 
 collection.findAndUpdate(
   query = Some("name" := "fehmi"),
@@ -235,17 +229,9 @@ collection.findAndUpdate(
 
 #### Create index
 ```scala
-import net.fehmicansaglam.bson.BsonDsl._
-import net.fehmicansaglam.bson.Implicits._
-import net.fehmicansaglam.tepkin.protocol.command.Index
+import com.github.jeroenr.bson.BsonDsl._
+import com.github.jeroenr.bson.Implicits._
+import com.github.jeroenr.tepkin.protocol.command.Index
 
 collection.createIndexes(Index(name = "name_surname", key = ("name" := 1) ~ ("surname" := 1)))
 ```
-
-## Donations
-
-Tepkin is a free software project and will always be. I work hard to make it stable and to add new features. I am always available if you encounter a problem and file an issue on Github. If you like Tepkin and find it helpful, you might give me a gift from some of the books (Kindle) I have in my wish list:
-
-[My Wish List on Amazon](http://amzn.com/w/1P7899I22B046). Thanks!
-
-One last thing, I am available for hire. If you think you know a job that is suitable for me, especially in Europe, please contact me at fehmican dot saglam at gmail dot com.
