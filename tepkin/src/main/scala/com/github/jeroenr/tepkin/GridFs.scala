@@ -36,7 +36,7 @@ class GridFs(db: MongoDatabase, prefix: String = "fs") {
     val fileId = BsonObjectId.generate
     val zero = (0, MessageDigest.getInstance("MD5"))
 
-    FileIO.fromFile(file, chunkSize).runFold(zero) { case ((n, md), data) =>
+    FileIO.fromPath(file.toPath, chunkSize).runFold(zero) { case ((n, md), data) =>
       md.update(data.asByteBuffer)
       val chunk = Chunk(fileId = fileId, n = n, data = BsonValueBinary(data, Generic))
       chunks.insert(chunk.toDoc)
